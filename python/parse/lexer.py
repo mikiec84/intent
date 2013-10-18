@@ -124,6 +124,20 @@ def _operator_equals_or_mark(txt, i, end):
             return i + 2, operator_token + ord('=')
     return i + 1, operator_token
 
+def _angle_operator(txt, i, end):
+    operator_char = txt[i]
+    ttype = ord(operator_char)
+    if i < end - 1:
+        c = txt[i + 1]
+        if c == '=':
+            i += 1
+            ttype = t_LESS_THAN_EQUAL
+        elif c == '<':
+            i += 1
+            ttype = t_DOUBLE_LESS_THAN
+    i += 1
+    return i, ttype
+
 class LexToken:
     '''
     Interface required by ply.yacc -- holds info about a single token.
@@ -239,28 +253,8 @@ class Lexer:
         elif c == '"':
             self.i = _quoted(txt, self.i, end)
             ttype = t_QUOTE
-        elif c == '<':
-            if i < end - 1:
-                c = txt[i+1]
-                if c == '=':
-                    self.i += 1
-                    ttype = t_LESS_THAN_EQUAL
-                elif c == '<':
-                    self.i += 1
-                    ttype = t_DOUBLE_LESS_THAN
-            else:
-                ttype = t_LESS_THAN
-        elif c == '>':
-            if i < end - 1:
-                c = txt[i+1]
-                if c == '=':
-                    self.i += 1
-                    ttype = t_GREATER_THAN_EQUAL
-                elif c == '<':
-                    self.i += 1
-                    ttype = t_DOUBLE_GREATER_THAN
-            else:
-                ttype = t_GREATER_THAN
+        elif c in '<>':
+            self.i, ttype = _angle_operator(txt, i, end)
         elif c.isdigit():
             self.i = _digits(txt, i + 1, end)
             ttype = t_NUMBER
@@ -270,9 +264,8 @@ class Lexer:
         return LexToken(ttype, txt[i:self.i], self.line_number, self.i)
 
 if __name__ == '__main__':
-    print tokens
     while True:
-        print('Enter some code.')
+        print('\nEnter some code.')
         code = raw_input()
         if not code:
             break
