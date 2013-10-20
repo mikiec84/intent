@@ -1,10 +1,3 @@
-'''
-This module is designed to more or less match the lexer interface expected by ply.
-However, its implementation is totally different because I didn't want to have it
-be regex-centric. I think this version is much closer to what I would be able to
-implement in C++, and it's probably also considerably faster.
-'''
-
 import re
 
 # Terminal tokens, identified by int. In general, I'm using the
@@ -13,45 +6,47 @@ import re
 # by adding or multiplying need to stay that way, since we are
 # using some tricks to simplify code based on that logic.
 
-t_LINEBREAK = 13
-t_SPACE = 32
-t_WORD = ord('a')
-t_COLON = ord(':')
-t_NUMBER = ord('0')
-t_INDENT = ord('\t')
-t_COMMENT = ord('#')
-t_OPEN_PAREN = ord('(')
-t_CLOSE_PAREN = ord(')')
-t_MARK = 1
-t_PLUS = ord('+')
-t_PLUS_EQUALS = ord('+') + ord('=')
-t_MINUS = ord('-')
-t_MINUS_EQUALS = ord('-') + ord('=')
-t_STAR = ord('*')
-t_STAR_EQUALS = ord('*') + ord('=')
-t_SLASH = ord('/')
-t_SLASH_EQUALS = ord('/') + ord('=')
-t_EQUALS = ord('=')
-t_TILDE = ord('~')
-t_DOT = ord('.')
-t_COMMA = ord(',')
-t_QUOTE = ord('"')
-t_MODULO = ord('%')
-t_MODULO_EQUALS = ord('%') + ord('=')
-t_BIT_AND = ord('&')
-t_BIT_OR = ord('|')
-t_BIT_XOR = ord('^')
-t_LESS_THAN = ord('<')
-t_LESS_THAN_EQUAL = ord('<') + ord('=')
-t_DOUBLE_LESS_THAN = ord('<') * 2
-t_GREATER_THAN = ord('>')
-t_GREATER_THAN_EQUAL = ord('>') + ord('=')
-t_DOUBLE_GREATER_THAN = ord('>') * 2
-t_END_OF_STREAM = -1
-t_INVALID = -2
+EQUALS = ord('=')
+LINEBREAK = 13
+SPACE = 32
+WORD = ord('a')
+COLON = ord(':')
+NUMBER = ord('0')
+INDENT = ord('\t')
+COMMENT = ord('#')
+LPAREN = ord('(')
+RPAREN = ord(')')
+MARK = 1
+PLUS = ord('+')
+PLUS_EQUALS = PLUS + EQUALS
+MINUS = ord('-')
+MINUS_EQUALS = MINUS + EQUALS
+TIMES = ord('*')
+TIMES_EQUALS = TIMES + EQUALS
+DIVIDE = ord('/')
+DIVIDE_EQUALS = DIVIDE + EQUALS
+TILDE = ord('~')
+DOT = ord('.')
+COMMA = ord(',')
+QUOTE = ord('"')
+MODULO = ord('%')
+MODULO_EQUALS = MODULO + EQUALS
+BIT_AND = ord('&')
+BIT_AND_EQUALS = BIT_AND + EQUALS
+BIT_OR = ord('|')
+BIT_OR_EQUALS = BIT_OR + EQUALS
+BIT_XOR = ord('^')
+BIT_XOR_EQUALS = BIT_XOR + EQUALS
+LESS_THAN = ord('<')
+LESS_THAN_EQUAL = ord('<') + EQUALS
+DOUBLE_LESS_THAN = ord('<') * 2
+GREATER_THAN = ord('>')
+GREATER_THAN_EQUAL = ord('>') + EQUALS
+DOUBLE_GREATER_THAN = ord('>') * 2
+END_OF_STREAM = -1
+INVALID = -2
 
-# List of terminal tokens is required by ply.yacc...
-tokens = [name for name in locals().keys() if re.match('^t_[A-Z_]+$', name)]
+BINARY_OPERATORS = [PLUS, PLUS_EQUALS, MINUS, MINUS_EQUALS, TIMES, TIMES_EQUALS, DIVIDE, DIVIDE_EQUALS, MODULO, MODULO_EQUALS, BIT_AND, BIT_AND_EQUALS, BIT_OR, BIT_OR_EQUALS, BIT_XOR, BIT_XOR_EQUALS]
 
 def _spaces(txt, i, end):
     '''
@@ -119,9 +114,9 @@ def _operator_equals_or_mark(txt, i, end):
     if i < end - 1:
         c = txt[i + 1]
         if c.isalpha() and operator_char in '+-':
-            return _word(txt, i + 2, end), t_MARK
+            return _word(txt, i + 2, end), MARK
         elif c == '=':
-            return i + 2, operator_token + ord('=')
+            return i + 2, operator_token + EQUALS
     return i + 1, operator_token
 
 def _angle_operator(txt, i, end):
@@ -131,14 +126,14 @@ def _angle_operator(txt, i, end):
         c = txt[i + 1]
         if c == '=':
             i += 1
-            ttype = t_LESS_THAN_EQUAL
+            ttype = LESS_THAN_EQUAL
         elif c == '<':
             i += 1
-            ttype = t_DOUBLE_LESS_THAN
+            ttype = DOUBLE_LESS_THAN
     i += 1
     return i, ttype
 
-class LexToken:
+class LexToken(object):
     '''
     Interface required by ply.yacc -- holds info about a single token.
     '''
@@ -157,12 +152,11 @@ class LexToken:
 
 class Lexer:
     '''
-    Matches Lexer interface expected by ply.yacc -- is iterable and also
-    has a .token() method.
+    Generates next token.
     '''
     def __init__(self):
         self.indenter = None
-        self.indent_level = 0
+        self.indenlevel = 0
         self._line_start = 0
         self.line_number = 0
         self.txt = None
@@ -201,7 +195,7 @@ class Lexer:
 
         # Detect end of stream. Return explicit marker and reset state.
         if self.i >= self.end:
-            eos = LexToken(t_END_OF_STREAM, None, self.line_number, self.end)
+            eos = LexToken(END_OF_STREAM, None, self.line_number, self.end)
             self.__init__()
             return eos
 
@@ -210,7 +204,7 @@ class Lexer:
         i = self.i
         end = self.end
 
-        ttype = t_INVALID
+        ttype = INVALID
         c = txt[i]
 
         # Ignore \r entirely. This isn't exactly correct for text files created
@@ -225,9 +219,11 @@ class Lexer:
         if c == '\n':
             self._line_start = self.i
             self.line_number += 1
-            ttype = t_LINEBREAK
+            ttype = LINEBREAK
         elif c == ' ':
+            # Read to end of spaces.
             self.i = _spaces(txt, i + 1, end)
+            # Are these leading spaces at front of line?
             if self._line_start == i:
                 # First time we see an indented line, figure out what
                 # indent convention is used in this code. Thereafter,
@@ -235,33 +231,34 @@ class Lexer:
                 # as indents.
                 if self.indenter is None:
                     self.indenter = txt[i:self.i]
-                    ttype = t_INDENT
+                    ttype = INDENT
                 elif (self.i - i) % len(self.indenter) == 0:
-                    ttype = t_INDENT
+                    ttype = INDENT
                 else:
                     self.i = _end_of_line(txt, i + 1, end)
-                    ttype = t_INVALID
+                    ttype = INVALID
             else:
-                ttype = t_SPACE
+                return self.token()
         elif c == '#':
             self.i = _end_of_line(txt, i + 1, end)
-            ttype = t_COMMENT
+            ttype = COMMENT
         elif c in '+-*/%&|^~':
             self.i, ttype = _operator_equals_or_mark(txt, i, end)
         elif c in ',=():.':
             ttype = ord(c)
         elif c == '"':
             self.i = _quoted(txt, self.i, end)
-            ttype = t_QUOTE
+            ttype = QUOTE
         elif c in '<>':
             self.i, ttype = _angle_operator(txt, i, end)
         elif c.isdigit():
             self.i = _digits(txt, i + 1, end)
-            ttype = t_NUMBER
+            ttype = NUMBER
         elif c.isalpha():
             self.i = _word(txt, i + 1, end)
-            ttype = t_WORD
-        return LexToken(ttype, txt[i:self.i], self.line_number, self.i)
+            ttype = WORD
+        token = LexToken(ttype, txt[i:self.i], self.line_number, self.i)
+        return token
 
 if __name__ == '__main__':
     while True:

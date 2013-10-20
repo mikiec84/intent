@@ -8,15 +8,15 @@
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
 # met:
-# 
+#
 # * Redistributions of source code must retain the above copyright notice,
-#   this list of conditions and the following disclaimer.  
-# * Redistributions in binary form must reproduce the above copyright notice, 
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
 #   this list of conditions and the following disclaimer in the documentation
-#   and/or other materials provided with the distribution.  
+#   and/or other materials provided with the distribution.
 # * Neither the name of the David Beazley or Dabeaz LLC may be used to
 #   endorse or promote products derived from this software without
-#  specific prior written permission. 
+#  specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -72,8 +72,8 @@ class LexToken(object):
     def __repr__(self):
         return str(self)
 
-# This object is a stand-in for a logging object created by the 
-# logging module.  
+# This object is a stand-in for a logging object created by the
+# logging module.
 
 class PlyLogger(object):
     def __init__(self,f):
@@ -302,6 +302,7 @@ class Lexer:
     # you are doing
     # ------------------------------------------------------------
     def token(self):
+
         # Make local copies of frequently referenced attributes
         lexpos    = self.lexpos
         lexlen    = self.lexlen
@@ -309,6 +310,22 @@ class Lexer:
         lexdata   = self.lexdata
 
         while lexpos < lexlen:
+
+            # Emit indent and unindent pseudo-tokens if appropriate.
+            if self.indent_delta:
+                tok = LexToken()
+                tok.lineno = self.lineno
+                tok.lexer = self
+                tok.lexpos = self.lexpos
+                if self.indent_delta > 0:
+                    tok.type = tok.value = 'INDENT'
+                    self.indent_delta = 0
+                else:
+                    tok.type = tok.value = 'DEDENT'
+                    self.indents = self.indents[0:-1]
+                    self.indent_delta += 1
+                return tok
+
             # This code provides some short-circuit code for whitespace, tabs, and other ignored characters
             if lexdata[lexpos] in lexignore:
                 lexpos += 1
@@ -395,6 +412,18 @@ class Lexer:
         self.lexpos = lexpos + 1
         if self.lexdata is None:
              raise RuntimeError("No input string given with input()")
+
+        # Close out any remaining indents.
+        if self.indents:
+            tok = LexToken()
+            tok.lineno = self.lineno
+            tok.lexer = self
+            tok.lexpos = self.lexpos
+            tok.type = tok.value = 'DEDENT'
+            self.indents = self.indents[0:-1]
+            self.indent_delta += 1
+            return tok
+
         return None
 
     # Iterator interface
@@ -431,7 +460,7 @@ def get_caller_module_dict(levels):
         e,b,t = sys.exc_info()
         f = t.tb_frame
         while levels > 0:
-            f = f.f_back                   
+            f = f.f_back
             levels -= 1
         ldict = f.f_globals.copy()
         if f.f_globals != f.f_locals:
@@ -500,7 +529,7 @@ def _form_master_re(relist,reflags,ldict,toknames):
                     lexindexfunc[i] = (None,None)
                 else:
                     lexindexfunc[i] = (None, toknames[f])
-        
+
         return [(lexre,lexindexfunc)],[regex],[lexindexnames]
     except Exception:
         m = int(len(relist)/2)
@@ -562,7 +591,7 @@ class LexerReflect(object):
         self.get_literals()
         self.get_states()
         self.get_rules()
-        
+
     # Validate all of the information
     def validate_all(self):
         self.validate_tokens()
@@ -582,7 +611,7 @@ class LexerReflect(object):
             self.log.error("tokens must be a list or tuple")
             self.error = 1
             return
-        
+
         if not tokens:
             self.log.error("tokens is empty")
             self.error = 1
@@ -684,7 +713,7 @@ class LexerReflect(object):
                     self.log.error("%s:%d: Rule '%s' must be defined as a string",file,line,t.__name__)
                     self.error = 1
                 else:
-                    for s in states: 
+                    for s in states:
                         self.funcsym[s].append((f,t))
             elif isinstance(t, StringTypes):
                 if tokname == 'ignore':
@@ -697,7 +726,7 @@ class LexerReflect(object):
                     self.log.error("Rule '%s' must be defined as a function", f)
                     self.error = 1
                 else:
-                    for s in states: 
+                    for s in states:
                         self.strsym[s].append((f,t))
             else:
                 self.log.error("%s not defined as a function or string", f)
@@ -719,12 +748,12 @@ class LexerReflect(object):
                 # Python 3.0
                 s.sort(key=lambda x: len(x[1]),reverse=True)
 
-    # Validate all of the t_rules collected 
+    # Validate all of the t_rules collected
     def validate_rules(self):
         for state in self.stateinfo:
             # Validate all rules defined by functions
 
-            
+
 
             for fname, f in self.funcsym[state]:
                 line = func_code(f).co_firstlineno
@@ -823,7 +852,7 @@ class LexerReflect(object):
     #
     # This checks to see if there are duplicated t_rulename() functions or strings
     # in the parser input file.  This is done using a simple regular expression
-    # match on each line in the given file.  
+    # match on each line in the given file.
     # -----------------------------------------------------------------------------
 
     def validate_file(self,filename):
@@ -856,7 +885,7 @@ class LexerReflect(object):
                     self.log.error("%s:%d: Rule %s redefined. Previously defined on line %d",filename,linen,name,prev)
                     self.error = 1
             linen += 1
-            
+
 # -----------------------------------------------------------------------------
 # lex(module)
 #

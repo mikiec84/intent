@@ -1,0 +1,38 @@
+block:
+    statement* EOF
+
+statement:
+    definition | instruction | flow_control
+
+definition:
+    label COLON block_def | assign_def
+
+block_def:
+    type? mark* LINE_BREAK indented_block end_label?
+
+assign_def:
+    assign_without_equals | assign_equals
+
+assign_without_equals:
+    type mark* | mark+
+
+assign_equals:
+    type? mark* EQUALS expression
+
+expression:
+    grouped_expr | binary_expr
+
+grouped_expr:
+    LPAREN expression RPAREN
+
+binary_expr:
+    expression binary_operator expression
+
+binary_operator:
+    PLUS | MINUS | TIMES | DIVIDE | MODULO
+
+noun:
+    NAME | NUMBER
+
+instruction:
+    subject DOT verb LPAREN args RPAREN

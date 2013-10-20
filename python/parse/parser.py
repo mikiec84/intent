@@ -1,71 +1,108 @@
-from ply import yacc
+from lexer import *
+from ast_nodes import *
 
-# reserved words
-reserved = 'if|then|else|while|for|class|func|try|catch|return|use|as'
-x = {}
-for word in reserved.split('|'):
-  x[word] = word.upper()
-reserved = x
-del(x)
+class TokenStream:
+    def __init__(self, txt):
+        self.stack = []
+        self.lexer = Lexer()
+        self.lexer.input(txt)
+        self.idx = -1
 
-# List of token names.
-tokens = 'ID|ASSIGN|DOT|NUMBER|COLON|PLUS|MINUS|TIMES|DIVIDE|CPP_COMMENT|LPAREN|RPAREN|LANGL|RANGL|LBRACK|RBRACK|STRING'.split(
-  '|') + list(reserved.values())
+    def push(self, n=1):
+        self.idx += n
+        # If we've already buffered the next token, just return it.
+        if self.idx < len(self.stack):
+            token = self.stack[self.idx]
+            return token
+        # Otherwise, see if the lexer can give us the next token.
+        while self.lexer:
+            token = self.lexer.token()
+            if token.type == END_OF_STREAM:
+                self.lexer = None
+                # If we get here, it always means we've exhausted
+                # the token stream before we got the token the caller
+                # asked for. Always return None.
+                return
+            self.stack.append(token)
+            if len(self.stack) > self.idx:
+                return token
 
-# Regular expression rules for simple tokens. These are in precedence order.
-t_FUNC = r'func'
-t_CLASS = r'class'
-t_IF = r'if'
-t_FOR = r'for'
-t_USE = r'use'
-t_AS = r'as'
-t_ASSIGN = r'='
-t_DOT = '\.'
-t_PLUS    = r'\+'
-t_MINUS   = r'-'
-t_TIMES   = r'\*'
-t_CPP_COMMENT = r'//.*?(?=\n)'
-t_DIVIDE  = r'/'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
-t_LANGL  = r'<'
-t_RANGL  = r'>'
-t_LBRACK  = r'\['
-t_RBRACK  = r'\]'
-t_COLON = r':'
-t_STRING = r'".*?"'
+    def pop(self, n=1):
+        self.idx -= n
 
-def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
-    if t.value[0].islower():
-      t.type = reserved.get(t.value,'ID')    # Check for reserved words
-    return t
+    def consume(self, token_count):
+        self.tokens = self.tokens[token_count:]
 
-def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
+class PushedToken:
+    def __init__(self, stream, delta=1):
+        self.stream = stream
+        self.delta = delta
+    def __enter__(self):
+        return self.stream.push(self.delta)
+    def __exit__(self, type, value, traceback):
+        if self.delta:
+            self.stream.pop(self.delta)
+'''
+Here's the rule I want:
 
-# Define a rule so we can track line numbers
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+expr:
+    expr SPACE PLUS SPACE expr | NUMBER | WORD | grouped_expr
 
-# A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t'
+...but that rule causes infinite recursion in an LL parser. So we rewrite like this:
 
-# Error handling rule
-def t_error(t):
-    print "Illegal character '%s'" % t.value[0]
-    t.lexer.skip(1)
+expr:
+    NUMBER expr_rest | WORD exprrest | grouped_expr expr_rest
 
-# Build the lexer
-lexer = lex.lex()
+exprest:
+    EOS | SPACE PLUS SPACE expr
+
+'''
+
+NULL = "NULL"
+
+def expr(tokens):
+    with PushedToken(tokens) as t1:
+        if t1.type in [NUMBER, WORD]:
+            rest = expr_rest(tokens)
+            if rest:
+                if rest == NULL:
+                    return t1
+                else:
+                    return BinaryExpr(t1, rest[0], rest[1])
+    grp = grouped_expr(tokens)
+    if grp:
+        rest = expr_rest(tokens)
+        if rest:
+            if rest == NULL:
+                return grp
+            else:
+                return grp, rest[0], rest[1]
+
+def grouped_expr(tokens):
+    with PushedToken(tokens) as t1:
+        if t1.type == LPAREN:
+            e = expr(tokens)
+            if e:
+                with PushedToken(tokens, 1 + token_count(e)) as t2:
+                    if t2.type == RPAREN:
+                        return t1, e, t2
+
+def expr_rest(tokens):
+    with PushedToken(tokens) as t1:
+        if t1 is None or t1.type == RPAREN:
+            return NULL
+        elif t1.type in BINARY_OPERATORS:
+            e = expr(tokens)
+            if e:
+                return t1, e
 
 if __name__ == '__main__':
-    import sys
-    with open(sys.argv[1], 'r') as f:
-        txt = f.read()
-    lexer.input(txt)
-    for token in lexer:
-        print token
+    while True:
+        try:
+            print('\nCode:')
+            code = raw_input()
+            stream = TokenStream(code)
+            ex = expr(stream)
+            print str(ex)
+        except EOFError:
+            break

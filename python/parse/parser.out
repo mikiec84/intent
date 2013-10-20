@@ -1,0 +1,548 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    LESS_THAN
+    BIT_XOR
+    DOT
+    MINUS_EQUALS
+    LINEBREAK
+    GREATER_THAN_EQUAL
+    WORD
+    QUOTE
+    COLON
+    TILDE
+    MODULO_EQUALS
+    COMMENT
+    SPACE
+    BIT_AND
+    EQUALS
+    INVALID
+    END_OF_STREAM
+    LPAREN
+    DOUBLE_LESS_THAN
+    GREATER_THAN
+    SLASH_EQUALS
+    STAR_EQUALS
+    PLUS_EQUALS
+    INDENT
+    DOUBLE_GREATER_THAN
+    BIT_OR
+    MARK
+    RPAREN
+    LESS_THAN_EQUAL
+    COMMA
+
+Grammar
+
+Rule 0     S' -> expression
+Rule 1     expression -> expression PLUS term
+Rule 2     expression -> expression MINUS term
+Rule 3     expression -> expression STAR term
+Rule 4     expression -> expression SLASH term
+Rule 5     expression -> expression MODULO term
+Rule 6     expression -> term
+Rule 7     term -> term PLUS factor
+Rule 8     term -> term MINUS factor
+Rule 9     term -> term STAR factor
+Rule 10    term -> term SLASH factor
+Rule 11    term -> term MODULO factor
+Rule 12    term -> factor
+Rule 13    factor -> NUMBER
+
+Terminals, with rules where they appear
+
+BIT_AND              : 
+BIT_OR               : 
+BIT_XOR              : 
+COLON                : 
+COMMA                : 
+COMMENT              : 
+DOT                  : 
+DOUBLE_GREATER_THAN  : 
+DOUBLE_LESS_THAN     : 
+END_OF_STREAM        : 
+EQUALS               : 
+GREATER_THAN         : 
+GREATER_THAN_EQUAL   : 
+INDENT               : 
+INVALID              : 
+LESS_THAN            : 
+LESS_THAN_EQUAL      : 
+LINEBREAK            : 
+LPAREN               : 
+MARK                 : 
+MINUS                : 2 8
+MINUS_EQUALS         : 
+MODULO               : 5 11
+MODULO_EQUALS        : 
+NUMBER               : 13
+PLUS                 : 1 7
+PLUS_EQUALS          : 
+QUOTE                : 
+RPAREN               : 
+SLASH                : 4 10
+SLASH_EQUALS         : 
+SPACE                : 
+STAR                 : 3 9
+STAR_EQUALS          : 
+TILDE                : 
+WORD                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+expression           : 1 2 3 4 5 0
+factor               : 7 8 9 10 11 12
+term                 : 1 2 3 4 5 6 7 8 9 10 11
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . expression
+    (1) expression -> . expression PLUS term
+    (2) expression -> . expression MINUS term
+    (3) expression -> . expression STAR term
+    (4) expression -> . expression SLASH term
+    (5) expression -> . expression MODULO term
+    (6) expression -> . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 1
+    expression                     shift and go to state 4
+    factor                         shift and go to state 3
+
+state 1
+
+    (6) expression -> term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 6 (expression -> term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 6 (expression -> term .) ]
+  ! MINUS           [ reduce using rule 6 (expression -> term .) ]
+  ! STAR            [ reduce using rule 6 (expression -> term .) ]
+  ! SLASH           [ reduce using rule 6 (expression -> term .) ]
+  ! MODULO          [ reduce using rule 6 (expression -> term .) ]
+
+
+state 2
+
+    (13) factor -> NUMBER .
+
+    PLUS            reduce using rule 13 (factor -> NUMBER .)
+    MINUS           reduce using rule 13 (factor -> NUMBER .)
+    STAR            reduce using rule 13 (factor -> NUMBER .)
+    SLASH           reduce using rule 13 (factor -> NUMBER .)
+    MODULO          reduce using rule 13 (factor -> NUMBER .)
+    $end            reduce using rule 13 (factor -> NUMBER .)
+
+
+state 3
+
+    (12) term -> factor .
+
+    PLUS            reduce using rule 12 (term -> factor .)
+    MINUS           reduce using rule 12 (term -> factor .)
+    STAR            reduce using rule 12 (term -> factor .)
+    SLASH           reduce using rule 12 (term -> factor .)
+    MODULO          reduce using rule 12 (term -> factor .)
+    $end            reduce using rule 12 (term -> factor .)
+
+
+state 4
+
+    (0) S' -> expression .
+    (1) expression -> expression . PLUS term
+    (2) expression -> expression . MINUS term
+    (3) expression -> expression . STAR term
+    (4) expression -> expression . SLASH term
+    (5) expression -> expression . MODULO term
+
+    PLUS            shift and go to state 11
+    MINUS           shift and go to state 14
+    STAR            shift and go to state 10
+    SLASH           shift and go to state 12
+    MODULO          shift and go to state 13
+
+
+state 5
+
+    (9) term -> term STAR . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    factor                         shift and go to state 15
+
+state 6
+
+    (7) term -> term PLUS . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    factor                         shift and go to state 16
+
+state 7
+
+    (10) term -> term SLASH . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    factor                         shift and go to state 17
+
+state 8
+
+    (11) term -> term MODULO . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    factor                         shift and go to state 18
+
+state 9
+
+    (8) term -> term MINUS . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    factor                         shift and go to state 19
+
+state 10
+
+    (3) expression -> expression STAR . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 20
+    factor                         shift and go to state 3
+
+state 11
+
+    (1) expression -> expression PLUS . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 21
+    factor                         shift and go to state 3
+
+state 12
+
+    (4) expression -> expression SLASH . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 22
+    factor                         shift and go to state 3
+
+state 13
+
+    (5) expression -> expression MODULO . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 23
+    factor                         shift and go to state 3
+
+state 14
+
+    (2) expression -> expression MINUS . term
+    (7) term -> . term PLUS factor
+    (8) term -> . term MINUS factor
+    (9) term -> . term STAR factor
+    (10) term -> . term SLASH factor
+    (11) term -> . term MODULO factor
+    (12) term -> . factor
+    (13) factor -> . NUMBER
+
+    NUMBER          shift and go to state 2
+
+    term                           shift and go to state 24
+    factor                         shift and go to state 3
+
+state 15
+
+    (9) term -> term STAR factor .
+
+    PLUS            reduce using rule 9 (term -> term STAR factor .)
+    MINUS           reduce using rule 9 (term -> term STAR factor .)
+    STAR            reduce using rule 9 (term -> term STAR factor .)
+    SLASH           reduce using rule 9 (term -> term STAR factor .)
+    MODULO          reduce using rule 9 (term -> term STAR factor .)
+    $end            reduce using rule 9 (term -> term STAR factor .)
+
+
+state 16
+
+    (7) term -> term PLUS factor .
+
+    PLUS            reduce using rule 7 (term -> term PLUS factor .)
+    MINUS           reduce using rule 7 (term -> term PLUS factor .)
+    STAR            reduce using rule 7 (term -> term PLUS factor .)
+    SLASH           reduce using rule 7 (term -> term PLUS factor .)
+    MODULO          reduce using rule 7 (term -> term PLUS factor .)
+    $end            reduce using rule 7 (term -> term PLUS factor .)
+
+
+state 17
+
+    (10) term -> term SLASH factor .
+
+    PLUS            reduce using rule 10 (term -> term SLASH factor .)
+    MINUS           reduce using rule 10 (term -> term SLASH factor .)
+    STAR            reduce using rule 10 (term -> term SLASH factor .)
+    SLASH           reduce using rule 10 (term -> term SLASH factor .)
+    MODULO          reduce using rule 10 (term -> term SLASH factor .)
+    $end            reduce using rule 10 (term -> term SLASH factor .)
+
+
+state 18
+
+    (11) term -> term MODULO factor .
+
+    PLUS            reduce using rule 11 (term -> term MODULO factor .)
+    MINUS           reduce using rule 11 (term -> term MODULO factor .)
+    STAR            reduce using rule 11 (term -> term MODULO factor .)
+    SLASH           reduce using rule 11 (term -> term MODULO factor .)
+    MODULO          reduce using rule 11 (term -> term MODULO factor .)
+    $end            reduce using rule 11 (term -> term MODULO factor .)
+
+
+state 19
+
+    (8) term -> term MINUS factor .
+
+    PLUS            reduce using rule 8 (term -> term MINUS factor .)
+    MINUS           reduce using rule 8 (term -> term MINUS factor .)
+    STAR            reduce using rule 8 (term -> term MINUS factor .)
+    SLASH           reduce using rule 8 (term -> term MINUS factor .)
+    MODULO          reduce using rule 8 (term -> term MINUS factor .)
+    $end            reduce using rule 8 (term -> term MINUS factor .)
+
+
+state 20
+
+    (3) expression -> expression STAR term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 3 (expression -> expression STAR term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 3 (expression -> expression STAR term .) ]
+  ! MINUS           [ reduce using rule 3 (expression -> expression STAR term .) ]
+  ! STAR            [ reduce using rule 3 (expression -> expression STAR term .) ]
+  ! SLASH           [ reduce using rule 3 (expression -> expression STAR term .) ]
+  ! MODULO          [ reduce using rule 3 (expression -> expression STAR term .) ]
+
+
+state 21
+
+    (1) expression -> expression PLUS term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 1 (expression -> expression PLUS term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 1 (expression -> expression PLUS term .) ]
+  ! MINUS           [ reduce using rule 1 (expression -> expression PLUS term .) ]
+  ! STAR            [ reduce using rule 1 (expression -> expression PLUS term .) ]
+  ! SLASH           [ reduce using rule 1 (expression -> expression PLUS term .) ]
+  ! MODULO          [ reduce using rule 1 (expression -> expression PLUS term .) ]
+
+
+state 22
+
+    (4) expression -> expression SLASH term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 4 (expression -> expression SLASH term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 4 (expression -> expression SLASH term .) ]
+  ! MINUS           [ reduce using rule 4 (expression -> expression SLASH term .) ]
+  ! STAR            [ reduce using rule 4 (expression -> expression SLASH term .) ]
+  ! SLASH           [ reduce using rule 4 (expression -> expression SLASH term .) ]
+  ! MODULO          [ reduce using rule 4 (expression -> expression SLASH term .) ]
+
+
+state 23
+
+    (5) expression -> expression MODULO term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 5 (expression -> expression MODULO term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 5 (expression -> expression MODULO term .) ]
+  ! MINUS           [ reduce using rule 5 (expression -> expression MODULO term .) ]
+  ! STAR            [ reduce using rule 5 (expression -> expression MODULO term .) ]
+  ! SLASH           [ reduce using rule 5 (expression -> expression MODULO term .) ]
+  ! MODULO          [ reduce using rule 5 (expression -> expression MODULO term .) ]
+
+
+state 24
+
+    (2) expression -> expression MINUS term .
+    (7) term -> term . PLUS factor
+    (8) term -> term . MINUS factor
+    (9) term -> term . STAR factor
+    (10) term -> term . SLASH factor
+    (11) term -> term . MODULO factor
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for STAR resolved as shift
+  ! shift/reduce conflict for SLASH resolved as shift
+  ! shift/reduce conflict for MODULO resolved as shift
+    $end            reduce using rule 2 (expression -> expression MINUS term .)
+    PLUS            shift and go to state 6
+    MINUS           shift and go to state 9
+    STAR            shift and go to state 5
+    SLASH           shift and go to state 7
+    MODULO          shift and go to state 8
+
+  ! PLUS            [ reduce using rule 2 (expression -> expression MINUS term .) ]
+  ! MINUS           [ reduce using rule 2 (expression -> expression MINUS term .) ]
+  ! STAR            [ reduce using rule 2 (expression -> expression MINUS term .) ]
+  ! SLASH           [ reduce using rule 2 (expression -> expression MINUS term .) ]
+  ! MODULO          [ reduce using rule 2 (expression -> expression MINUS term .) ]
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for PLUS in state 1 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 1 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 1 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 1 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 1 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 20 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 20 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 20 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 20 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 20 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 21 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 21 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 21 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 21 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 21 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 22 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 22 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 22 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 22 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 22 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 23 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 23 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 23 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 23 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 23 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 24 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 24 resolved as shift
+WARNING: shift/reduce conflict for STAR in state 24 resolved as shift
+WARNING: shift/reduce conflict for SLASH in state 24 resolved as shift
+WARNING: shift/reduce conflict for MODULO in state 24 resolved as shift
