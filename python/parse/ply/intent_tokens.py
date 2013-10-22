@@ -1,20 +1,53 @@
 import lex
 
 # Regular expression rules for simple tokens
-t_PLUS    = r'\+'
-t_MINUS   = r'-'
-t_TIMES   = r'\*'
-t_DIVIDE  = r'/'
-t_LPAREN  = r'\('
-t_RPAREN  = r'\)'
-t_INDENT  = r'\x01'
-t_DEDENT  = r'\x02'
+t_PLUS = r'\+'
+t_PLUS_EQUALS = r'\+='
+t_MINUS = r'-'
+t_MINUS_EQUALS = r'-='
+t_TIMES = r'\*'
+t_TIMES_EQUALS = r'\*='
+t_DIVIDE = r'/'
+t_DIVIDE_EQUALS = r'/='
+t_MODULO = r'%'
+t_MODULO_EQUALS = r'%='
+t_TILDE = r'~'
+t_DOT = r'.'
+t_COMMA = r','
+t_QUOTE = r'"'
+t_BIT_AND = r'&'
+t_BIT_AND_EQUALS = '&='
+t_BIT_OR = r'\|'
+t_BIT_OR_EQUALS = r'\|='
+t_BIT_XOR = r'\^'
+t_BIT_XOR_EQUALS = r'\^='
+t_LESS_THAN = r'<'
+t_LESS_THAN_EQUAL = r'<='
+t_DOUBLE_LESS_THAN = r'<<'
+t_GREATER_THAN = r'>>'
+t_GREATER_THAN_EQUAL = r'>='
+t_DOUBLE_GREATER_THAN = r'>>'
+t_EQUALS = r'='
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+t_INDENT = r'\x01'
+t_DEDENT = r'\x02'
+t_NAME = r'[a-z]+'
 
-# A regular expression rule with some action code
+def t_FLOAT(t):
+    r'\d+(\.\d*)?([eE]-?\d+)?'
+    return t
+
 def t_NUMBER(t):
-    r'(0([0-7_]+|[bB][01_]+|[xX][0-9A-Fa-f_]+)?|[1-9][0-9_]+)'
+    r'(0([0-7_]+|[bB][01_]+|[xX][0-9A-Fa-f_]+)?|[1-9][0-9_]*)'
     # We support octal, binary, hex, and decimal literals.
     return t
+
+import re
+pat = re.compile('t_[A-Z_]+')
+tokens = [name[2:] for name in locals().keys() if pat.match(name)]
+del pat
+del re
 
 def _scan_indents(lexer):
     '''
@@ -159,12 +192,6 @@ t_ignore  = ' \t\x01\x02'
 def t_error(t):
     print "Illegal character '%s'" % t.value[0]
     t.lexer.skip(1)
-
-import re
-pat = re.compile('^t_[A-Z_]+$')
-# List of token names.   This is always required
-tokens = [name[2:] for name in locals().keys() if pat.match(name)]
-del re
 
 lexer = lex.lex()
 lexer.indents = []
