@@ -12,8 +12,8 @@ t_DEDENT  = r'\x02'
 
 # A regular expression rule with some action code
 def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
+    r'(0([0-7_]+|[bB][01_]+|[xX][0-9A-Fa-f_]+)?|[1-9][0-9_]+)'
+    # We support octal, binary, hex, and decimal literals.
     return t
 
 def _scan_indents(lexer):
