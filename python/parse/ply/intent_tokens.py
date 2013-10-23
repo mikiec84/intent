@@ -35,7 +35,7 @@ t_DEDENT = r'\x02'
 t_NAME = r'[a-z]+'
 
 def t_FLOAT(t):
-    r'\d+(\.\d*)?([eE]-?\d+)?'
+    r'\d+((\.\d*)([eE]-?\d+)?|(\.\d*)?([eE]-?\d+))'
     return t
 
 def t_NUMBER(t):
