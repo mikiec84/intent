@@ -79,6 +79,13 @@ match := /[a-z]+ \d/ ~== my_phrase
 if name in friends:
     say("hello")
 
+# There is no need to worry about a safe version of "in"; membership in
+... null is always false.
+friends := list of +name
+# No error here...
+if her name in friends:
+    say("hello")
+
 # The dynamic cast operator is "->". It is analogous to the "as" operator
 ... in some other languages. It returns null if the cast fails.
 func := scope->func
