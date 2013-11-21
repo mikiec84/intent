@@ -1,0 +1,7 @@
+The most important standards to use in this codebase are:
+
+1. Use expressive, transparent names for files, functions, classes, and parameters.
+Check: Would any coder working in this codebase immediately get the right expectations from the name?  
+
+Say what you mean, mean what you say. This implies that we are willing to rename as we maintain code and semantics evolve.
+For names visible to end users, ponder UX/doc implications before a choice becomes permanent.

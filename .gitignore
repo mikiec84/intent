@@ -35,3 +35,39 @@ nosetests.xml
 .project
 .pydevproject
 .DS_Store
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Eclipse artifacts
+.project
+.cproject
+
+# SCons output
+.sconf_temp
+.sconsign.dblite
+config.log
+build
+
+# Mac desktop
+.DS_Store
+
+# Shell files
+.directory
+
+# Intellij/IDEA/PyCharm artifacts
+.idea/
+*.iml
+*.iws
+

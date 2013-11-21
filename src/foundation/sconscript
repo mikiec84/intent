@@ -1,0 +1,6 @@
+Import('env')
+
+foundation = env.Library(target='intent-foundation', source=Glob('*.cpp'))
+
+Return('foundation')
+

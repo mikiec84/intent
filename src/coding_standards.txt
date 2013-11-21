@@ -1,0 +1,91 @@
+The most important standards to use in this codebase are:
+
+1. Use expressive, transparent names for files, functions, classes, and parameters.
+Check: Would any coder working in this codebase immediately get the right expectations from the name?  
+
+Say what you mean, mean what you say. This implies that we are willing to rename as we maintain code and semantics evolve.
+For names visible to end users, ponder UX/doc implications before a choice becomes permanent.
+Only use abbreviations that any coder would understand. good : “DNS”, “IP”, “buf”, “RM”; bad : disrsl, RPtr, JPCount, MUGetIndexCI, MUHTIterInit, SJP
+For variables, the only 1-letter names that are ok are i and j , for loop index. bad : J, R, msocket_t *S = (msocket_t *)Parm1
+
+Because of the way intent handles spaces and underscores, it is vital that all identifiers be lower case, separated by
+underscores. No mixed case.
+
+2. Document preconditions, postconditions, errors, fixmes, questions, and vital knowledge.
+Check: Is it easy to predict the behavior of a function, and the responsibilities of its callers, based only on its prototype and comments before the function body? Can a reviewer understand what the maintainer learned when working on the function, just by scanning comments? (See this example .)
+
+What must be true about object state or app environment for call to succeed?
+What is acceptable range for each parameter? Can it be null? What is the max length of a string? Can it be multi-line? (Consider imposing these constraints if missing.)
+What has to be locked when a function is called? What must the caller free or unlock?
+Use const & instead of * to have compiler enforce non-null IN params.
+What will the function do if a precondition is unsatisfied?
+What will it do if it can’t accomplish its task for other reasons?
+If something doesn't make sense, leave a comment with your question so a later maintainer can answer/improve.
+If you see a vulnerability in the code, include a "TODO" note.
+The bar for this item is low for well named one-line getters/setters, but for any function longer or more subtle than what can be absorbed at a quick glance, take this seriously!
+
+3. Write developer tests.
+Check: did my checkin include unit tests, unless a) smoke tests demonstrably exercise the functionality; OR b) those tests are impractical for fundamental reasons?
+
+"It is inconvenient" is not a fundamental reason.
+"It will take a long time" is not a fundamental reason.
+"The code is too tightly coupled" is not a fundamental reason.
+"Simulating random bursts of 10 Gbit network load over a two-hour period is totally impractical" might be a fundamental reason.
+
+4. Assume errors and corner cases.
+Check: Is it impossible to leave this function in a way that will crash the program? And if the function fails, will it communicate clearly what went wrong? Do corner cases fail gracefully?
+
+Always check return codes unless they’re only for specialized corner cases (like printf).
+GIGO is rarely appropriate (when it is, it’s usually on very low-level, high-speed funcs).
+Called functions should enforce every precondition they claim.
+Prevent incorrect usage (e.g., calling a function when it’s already been called by someone else and is halfway done executing).
+Test on unreliable networks.
+Use circuit breakers to prevent domino/escalating failures.
+Invest in clear, user-friendly, helpful error messages.
+
+5. Keep size manageable.
+Check: Can any coder discover key info without fancy tools, and without constantly scrolling through massive lists of lines, functions, members, and so forth?
+
+Functions longer than 1-2 hundred lines are too long for non-experts to quickly digest during maintenance.
+Files longer than about 1-2 thousand lines hide too much substructure from casual browsers.
+Directories with more than a few dozen files probably need subdirs.
+Classes with more than 1-2 dozen members probably need to delegate.
+
+
+In addition, there are some stylistic rules that we'd like to encourage, in
+order of descending priority.
+
+a. Encapsulate.
+
+   This makes a huge difference to the learnability and long-term maintenance
+   cost of the code. You do it by using interfaces, NEVER having public or
+   protected members, using abstract factories, etc.
+
+b. Prefer C++ 11 headers and mechanisms.
+
+   This means you should use std::thread instead of pthreads, std::mutex instead
+   of pthread_mutex_t, std::atomic, std::chrono, std::regex, etc. The main
+   benefit of this is that this keeps us insulated from *nix-specific C-isms. A
+   secondary benefit is that it raises the general level of sophistication of
+   our team with respect to C++. (There are a few exceptions; std streams and
+   locales have never been widely accepted, so a good old FILE * is fine...)
+   
+c. Don't relax warnings, and don't check in code that compiles with warnings.
+   
+d. Use std::unique_ptr and scope_guard to implement RAII. 
+
+e. Use #includes that are relative to the ./src folder. This makes it very
+   clear where a particular file comes from, and how internal packages depend
+   on one another.
+   
+f. Prefer static linking.
+   
+g. Avoid pre/suffixes that just clutter the code without a meaningful increase
+   in the semantic payload of a name. (The *_t suffix is an exception; we use
+   it for classes and enums that just hold data, so that we can have variables
+   that use the same name without the suffix.) 
+   
+h. Maintain conventions on capitalization, indenting, and naming that are
+   already active in the codebase. These conventions reflect the way the STL
+   is named, formatted, and written.
+   

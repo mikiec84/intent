@@ -1,0 +1,6 @@
+Import('env')
+
+core = env.Library(target='intent-core', source=Glob('*.cpp'))
+
+Return('core')
+
