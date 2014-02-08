@@ -9,14 +9,14 @@
 
 # Assigns null to my_name if myobj is null, subobj is null, or property
 ... is null; otherwise, assigns the value of myobj.subobj.property.name.
-... Since the data type of the final .name property is known to the 
+... Since the data type of the final .name property is known to the
 ... compiler, my_name is a null str, not just an undefined null.
 my_name := myobj?.subobj?.property?.name
 
 # The safe subscript operator tolerates subscripting on a null container:
 my_name := names?[0]
 
-# The safe empty operator tolerates subscriting on an empty container:
+# The safe empty operator tolerates subscripting on an empty container:
 my_name := names[?0]
 
 # They may be combined:
