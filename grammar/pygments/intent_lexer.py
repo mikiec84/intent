@@ -1,9 +1,79 @@
 import re
+from pygments.lexer import Lexer
 from pygments.token import Token, Comment, Name, String, Number, Punctuation, Error, Keyword, Text
 
-class IntentLexer:
+# Although Intent has a context-free grammar, it is much easier to lex with lookaheads
+# and state. Pygment's lexers are certainly capable of being stateful, but the input
+# to pygments might be a small gist rather than a whole compilation unit, which means
+# we might be starting in a state that's difficult to derive without a full-blown
+# state machine. Therefore, we're not attempting the same perfection in lexing, here,
+# that we'd need if we were feeding a parser. Also, we are not deriving from RegexLexer
+# because it's easier and faster to test certain constructions without regex.
+class IntentLexer(Lexer):
+    """
+    For `Intent <http://intentlang.org>`_ source code.
+    """
+    name = 'Intent'
+    aliases = ['intent']
+    filenames = ['*.i', '*.I']
+    mimetypes = ['text/x-intent']
+    # Higher than swig, lower than C/C++
+    priority = 0.09
 
-    reserved_words = ['if', 'for', 'with', 'while', 'try', 'end', 'handle', 'use', 'when', 'yield', 'return']
+    # Swig also uses the *.i extension. Therefore we need to do some scanning to
+    # decide whether a *.i file is likely to be intent code or a swig module. This
+    # scanning is helpful anyway, in case other languages get added that also
+    # use *.i.
+
+    # These regexes are very typical of swig interfaces.
+    swig_module_pat = re.compile(r'^\s*%module', re.MULTILINE)
+    swig_other_directive_pat = re.compile(r'^\s*%[a-z]+', re.MULTILINE)
+    swig_curlies_pat = re.compile(r'%\{.*?%\}', re.DOTALL)
+
+    # These regexes are very typical of intent code.
+    define_pat = re.compile(r'^\s*[a-zA-Z _]+\s*:', re.MULTILINE)
+    soft_line_break_pat = re.compile(r'^\s*\.\.\.', re.MULTILINE)
+    marks_in_assignment_pat = re.compile(':\s+[-+][a-z]+')
+
+    def analyse_text(txt):
+        try:
+            # Because it's possible for swig templates to contain intent code, we need to
+            # eliminate the possibility of swig first. The following swig markers should
+            # virtually never occur in intent code.
+            if (IntentLexer.swig_module_pat.search(txt) or
+                IntentLexer.swig_other_directive_pat.search(txt)):
+                return 0.0
+            line_count = 1.0 + txt.count('\n')
+            # A smoking gun for intent code is its unique line wrap strategy. If there
+            # are any soft line breaks, it's a good indicator. However, these may not
+            # show up very often...
+            weight = 7
+            count = len(IntentLexer.soft_line_break_pat.findall(txt))
+            probability = min(1.0, weight * (count / line_count))
+            if probability < 1.0:
+                # The define pattern that intent uses to declare variables, functions, and
+                # classes is very common; most code samples show it on at least 10% of all
+                # lines. If we see it on 10% of the lines, we want to be 50% sure we're
+                # looking at intent code.
+                weight = 5
+                count = len(IntentLexer.define_pat.findall(txt))
+                ratio = count / line_count
+                # If we see a really low ratio of this, and our sample size is at all
+                # significant, be less confident.
+                if line_count > 2 and ratio < 0.33:
+                    probability /= 2
+                else:
+                    probability = min(1.0, probability + (weight * (count / line_count)))
+                if probability < 1.0:
+                    # Marks on definitions in lect code are also fairly distinctive. We'd expect
+                    # these on 5-20% of all lines.
+                    weight = 4
+                    count = len(IntentLexer.marks_in_assignment_pat.findall(txt))
+                    probability = min(1.0, probability + (weight * (count / line_count)))
+            return probability
+        except:
+            import traceback
+            traceback.print_exc()
 
     def get_tokens_unprocessed(self, txt):
         '''
@@ -19,8 +89,8 @@ class IntentLexer:
             if c in ' \t\r\n':
                 end = IntentLexer._end_of_whitespace(txt, begin + 1, end_of_string)
                 ttype = Text
-                start_statement = True
-            elif c == '#' or c == '|':
+                start_statement = txt.find('\n', begin, end) > -1 or txt.find('\r', begin, end) > -1
+            elif c in '#|':
                 end = IntentLexer._end_of_statement(txt, begin + 1, end_of_string)
                 ttype = Comment
             elif c == '`':
@@ -35,7 +105,7 @@ class IntentLexer:
                 end = begin + 1
                 if begin + 1 < end_of_string:
                     nxt = txt[begin + 1]
-                    if nxt.isalpha():
+                    if nxt.isalpha() or nxt in '+-':
                         end = IntentLexer._end_of_phrase(txt, begin + 2, end_of_string)
                         ttype = Name.Decorator
                     elif nxt in "\"'":
@@ -55,7 +125,7 @@ class IntentLexer:
                         if begin + 2 < end and txt[begin + 2].isdigit():
                             end, ttype = IntentLexer._handle_number(txt, begin, end_of_string)
                 start_statement = False
-            elif c in '*/%&^\\[],=():.<>':
+            elif c in '*/%&^\\[],=():.<>{}?':
                 ttype = Punctuation
                 end = begin + 1
                 start_statement = False
@@ -67,26 +137,21 @@ class IntentLexer:
                 start_statement = False
             elif c.isalpha():
                 if c.isupper():
+                    start_statement = False
                     ttype = Name.Function
                     end = IntentLexer._end_of_phrase(txt, begin + 1, end_of_string)
                     phrase = txt[begin:end]
                     if phrase.isupper():
                         ttype = Name.Constant
+                elif start_statement:
+                    for tuple in IntentLexer.handle_first_word(txt, begin, end_of_string):
+                        yield tuple
+                        begin += len(tuple[2])
+                    start_statement = False
+                    continue
                 else:
-                    yield_name = True
-                    if start_statement:
-                        j = begin + 1
-                        while j < end_of_string and txt[j].isalpha() and txt[j].islower():
-                            j += 1
-                        word = txt[begin:j]
-                        if word in IntentLexer.reserved_words:
-                            ttype = Keyword.Reserved
-                            end = j
-                            yield_name = False
-                    if yield_name:
-                        ttype = Name.Variable
-                        end = IntentLexer._end_of_phrase(txt, begin + 1, end_of_string)
-                start_statement = False
+                    end = IntentLexer._end_of_phrase(txt, begin + 1, end_of_string)
+                    ttype = Name.Variable
             else:
                 ttype = Error
                 end = IntentLexer._end_of_line(txt, begin + 1, end_of_string)
@@ -95,6 +160,36 @@ class IntentLexer:
                 break
             yield (begin, ttype, txt[begin:end])
             begin = end
+
+    block_start_pat = re.compile(r'(if|for|with|while|try|catch|handle|when|else|lock|use)(\s+[^:]+):')
+    end_pat = re.compile('end(\\s+[^\r\n]+)$', re.MULTILINE)
+
+    @staticmethod
+    def handle_first_word(txt, i, end_of_string):
+        end = i
+        end_of_statement = IntentLexer._end_of_statement(txt, i, end_of_string)
+        # Is the first word in this statement one of the reserved statement starters?
+        m = IntentLexer.block_start_pat.match(txt, i, end_of_statement)
+        if m:
+            yield (i, Keyword.Reserved, txt[i:m.end(1)])
+            # Is this block "explained" with an inline comment?
+            j = txt.find('(', m.end(1), end_of_statement)
+            if j > -1:
+                k = txt.find(')', j + 1, end_of_statement)
+                if k == -1:
+                    yield(m.end(1), Error, txt[m.end(1):end_of_statement])
+                else:
+                    yield(m.end(1), Comment, txt[m.end(1):j])
+        else:
+            m = IntentLexer.end_pat.match(txt, i, end_of_statement)
+            if m:
+                yield(i, Keyword.Reserved, txt[i:i+3])
+                if m.group(1):
+                    yield(m.start(1), Comment, txt[m.start(1):m.end(1)])
+                    end = m.end(1)
+            else:
+                end = IntentLexer._end_of_phrase(txt, i + 1, end_of_string)
+                yield(i, Name.Variable, txt[i:end])
 
     @staticmethod
     def _handle_number(txt, i, end, ttype=Number):
@@ -221,7 +316,7 @@ class IntentLexer:
             eol = IntentLexer._end_of_line(txt, nxt, end)
             if eol == end:
                 break
-            nxt = IntentLexer._end_of_spaces_and_tabs(txt, eol, end)
+            nxt = IntentLexer._end_of_spaces_and_tabs(txt, eol + 1, end)
             if nxt == end or not IntentLexer._at_soft_break(txt, nxt, end):
                 return eol
         return end
@@ -299,12 +394,11 @@ class IntentLexer:
             i += 1
         return end
 
-
 if __name__ == '__main__':
     while True:
         #print('\nEnter some code.')
         #code = raw_input()
-        with open('/Users/dhardman/code/intent/snippets/helper engine.i', 'r') as f:
+        with open('/tmp/x.i', 'r') as f:
             code = f.read()
         if not code:
             break
