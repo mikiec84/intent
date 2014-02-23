@@ -16,38 +16,38 @@ helper engine: engine
     Update last heartbeat:
         takes:
             - host: +name
-        code:
+        does:
             lock heartbeats:
                 heartbeats[host] = date.now()
 
     Get active batch:
         returns:
             ab : batch = dynamic batch
-        code:
+        does:
             if we have more stuff to do (file batches):
                 ab = file batches[0]
 
     Start publishing messages:
-        code:
+        does:
             publish queue.Connect(publish port, PUBLISH_MODE)
 
     Start listening:
-        code:
+        does:
             listen queue.Connect(listen port, LISTEN_MODE, "domain.*", Receive message)
 
     Receive message:
         takes:
             - msg: mq.message
-        code:
+        does:
             Update last heartbeat(msg.from)
 
             # If all the functions below had the same signature, and if all of
             ... them had a reliable mapping between constant and function name,
             ... then we could do the following instead of using "handle":
             ...
-            ... function namer: lambda code: `name of(code)`.lower().replace('_', '')
+            ... function namer: lambda does: `name of(code)`.lower().replace('_', '')
             ... Dispatch(namer, arg1, arg2)
-            handle msg.code:
+            handle msg.does:
                 when it == ADD_BATCH:
                     Add batch(msg.batch file path)
                 when it == PAUSE_BATCH:
@@ -65,7 +65,7 @@ helper engine: engine
         takes:
             - requester host name: +name
             - proposed item count: int
-        code:
+        does:
             assignment := make assignment(requester host name, proposed item count)
             response := make message({
                 topic := "domain.nitro.assignment"
@@ -88,7 +88,7 @@ helper engine: engine
             *assign.params
         returns:
             - new: assignment
-        code:
+        does:
             commands := list of str
             batch := active batch
             lock batch:
@@ -106,14 +106,14 @@ helper engine: engine
             - batch file path: str
         returns:
             - batch
-        code:
+        does:
             batch := make batch(batch file path)
             if batch:
                 lock file batches:
                     file batches.Append(batch)
 
     Enroll helpers:
-        code:
+        does:
             # It's only legal to call this function if we haven't already
             ... enrolled a bunch of helpers.
             precondition: len(heartbeats) == 0
@@ -134,7 +134,7 @@ helper engine: engine
                         queue :=
 
     Flush:
-        code:
+        does:
             lock file batches:
                 for batch in file batches:
                     Abandon assignments for batch(batch)
@@ -143,7 +143,7 @@ helper engine: engine
         takes:
             - batches: list of batch
             - helpers: list of str
-        code:
+        does:
             Start publishing messages()
             Start listening()
             Enroll helpers()
