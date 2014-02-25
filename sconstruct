@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, re
 import buildutil
 
 # Set the include path for all projects within this directory tree to always be
@@ -7,12 +7,12 @@ import buildutil
 # unambiguous instead of mysterious. Also, force all builds to be done with
 # C++ 11 syntax and libraries.
 env = Environment(CPPPATH=[
-		'#/src', 
-		'#/src/external/jsoncpp/include', 
-		'#/src/external/zmq/include', 
-		'/usr/local/include'], 
-	CXXFLAGS='-std=c++0x', 
-	CPPDEFINES=['__STDC_LIMIT_MACROS'])
+            '#/src',
+            '#/src/external/jsoncpp/include',
+            '#/src/external/zmq/include',
+            '/usr/local/include'],
+        CXXFLAGS='-std=c++11 -stdlib=libc++',
+        CPPDEFINES=['__STDC_LIMIT_MACROS'])
 
 AddOption('--verbose', dest='verbose', action='store_true', help='Display more details during build.')
 AddOption('--release', dest='release', action='store_true', help='Do a release build instead of debug.')
@@ -20,36 +20,22 @@ AddOption('--release', dest='release', action='store_true', help='Do a release b
 # Unless the user requests verbose mode, simplify the strings that get displayed
 # as each file is handled.
 if not GetOption('verbose'):
-    env['CXXCOMSTR'] = "Compiling $SOURCE ..."
-    env['LINKCOMSTR'] = "Linking $TARGET ..."
+	env['CXXCOMSTR'] = "Compiling $SOURCE ..."
+	env['LINKCOMSTR'] = "  Linking $TARGET ..."
+	env['ARCOMSTR'] = "Archiving $TARGET ..."
+	env['RANLIBCOMSTR'] = " Indexing $TARGET ..."
 
 env['CCFLAGS'] = buildutil.ccflags(GetOption('release'))
-
-# Do some very simple sanity checking on tools. Prove that we have a compiler
-# that's able to deal with C++ 11 constructs (typically, g++ 4.6 or later).
-config = Configure(env)
-if not config.CheckCXX():
-	print('C++ compiler unavailable.')
-	Exit(1)
-
-required_headers = ['unordered_map', 'cstdint']
-missing = []
-for rh in required_headers:
-	if not config.CheckHeader(rh, language='C++'):
-		missing.append(rh)
-if missing:
-	print('The following headers are unavailable, but required to compile: %s' % 
-		', '.join(['<%s>' % h for h in missing]))
-	Exit(1)
-
-# Make sure all other scripts can use the Environments we've built.
 Export('env')
 
+config = Configure(env)
+buildutil.check_config(config)
+
 for et in buildutil.external_projects:
-	globals()[et] = SConscript('src/external/%s/sconscript' % et, 
+	globals()[et] = SConscript('src/external/%s/sconscript' % et,
 		variant_dir='build/%s' % et, duplicate=0)
 	Export(et)
-	
+
 for c in buildutil.components:
 	globals()[c] = SConscript('src/%s/sconscript' % c, variant_dir='build/%s' % c, duplicate=0)
 	Export(c)
@@ -68,9 +54,6 @@ test_env['CCFLAGS'] = test_env['CCFLAGS'].replace(
 
 # Make sure gtest is in the include path for the test env.
 cpppath = test_env['CPPPATH']
-# If cpppath is a single string instead of a list...
-if hasattr(cpppath, 'lower'):
-	cpppath = [cpppath]
 cpppath.append('#/src/external/gmock/gtest/include')
 cpppath.append('#/src/external/gmock/include')
 cpppath.append('#/src/external/gmock')
@@ -86,7 +69,7 @@ Export('gmock')
 
 # Build tests.
 for t in buildutil.tests:
-	test_name = '%s_testrunner' % t
-	testrunner = SConscript('src/%s/test/sconscript' % t, variant_dir='build/%s/test' %t, duplicate=0)
+	test_name = '%s_testrunner'
+	testrunner = SConscript('test/%s/sconscript' % t, variant_dir='build/test/%s' %t, duplicate=0)
 	globals()[test_name] = testrunner
 	Default(testrunner)
