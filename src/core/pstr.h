@@ -3,6 +3,9 @@
 
 #include <cstdlib>
 
+/**
+ * A length-prefixed string.
+ */
 class pstr {
 public:
     pstr(char const * cstr);
