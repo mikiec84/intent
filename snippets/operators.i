@@ -101,3 +101,27 @@ my_link := @traffic light.enter maintenance mode.takes
 my_params := *(traffic light.enter maintenance mode.takes)
 
 
+==
+!=
+>=
+<=
+!
+&&
+||
+&
+|
+^
+^^
+&=
+|=
+^=
+
+=> (the "IN" operator)
+{|} the UNION operator
+{/} the INTERSECTION operator
+ the DISUNION
+<>
+><
+::
+@ the link operator
+* the

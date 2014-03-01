@@ -1,26 +1,111 @@
-block:
+# Idea: non-linear code -- solve problems exactly like the one in this BNF. A graph of
+# related snippets, rendered in IDE as a bunch of collected rectangles joined by lines,
+# instead of as a sequence that you continually have to srcoll up and down in.
+
+block_content:
     statement* EOF
 
 statement:
     definition | instruction | flow_control
 
+name:
+    noun | verb
+
+noun:
+    namespace? simple_noun
+
+simple_noun:
+    word (SPACE word)* subscript?
+
+# A way to specify which element in a container we want. Includes everything
+# after "x" in all of the following examples:
+#
+#    x[0]         << LBRACKET
+#    x?[0]        << SAFE_SUBSCRIPT
+#    x[?0]        << SAFE_EMPTY
+#    x?[?0]       << SAFE_SUBSCRIPT_SAFE_EMPTY
+#
+subscript:
+    subscripter expr LBRACKET
+
+subscripter:
+    LBRACKET | SAFE_SUBSCRIPT | SAFE_EMPTY | SAFE_SUBSCRIPT_SAFE_EMPTY
+
+namespace:
+    (simple_noun navigator)+
+
+navigator:
+    DOT | SAFE_NAVIGATOR | SPREAD
+
+# A definition is the backbone of intent syntax; it labels/names a construct
+# and specifies its semantics; it may also establish the construct's content
+# or value. Examples:
+#
+#    size: +range[..7] = 5      << assign_def
+#
+#    if (x > 3):                << block_def
+#        << content of block >>
+#
 definition:
-    label COLON block_def | assign_def
+    block_def | assign_def
 
 block_def:
+    name COLON block_content
+
+block_content:
     type? mark* LINE_BREAK indented_block end_label?
 
 assign_def:
-    assign_without_equals | assign_equals
+    assign_with_implicit_value | assign_equals
 
-assign_without_equals:
+# Provides semantics but allows value to be defaulted.
+assign_with_implicit_value:
     type mark* | mark+
 
+# Explicitly supplies a value in addition to optional semantics. Used only in
+# definitions, where only the = operator is valid.
 assign_equals:
     type? mark* EQUALS expression
 
+# Explicitly supplies a value--not in definitions, but in other
+# statements.
+assign_value:
+    type? mark* assigner expression
+
+assigner:
+    EQUALS | PLUS_EQUALS | MINUS_EQUALS | AND_EQUALS | OR_EQUALS | XOR_EQUALS | SAFE_GROW | SAFE_SHRINK
+
+# Evaluates to a value that can be assigned.
 expression:
-    grouped_expr | binary_expr
+    grouped_expr | binary_expr | literal | call
+
+literal:
+    number | date | /*date_interval is a string literal like "3 weeks", with special string type suffix*/ | string
+
+number:
+    (BINARY | OCTAL | HEX | DECIMAL | FLOAT | COMPLEX) num_width? units?
+
+units:
+    TILDE word
+
+num_width:
+    BACKSLASH "1" | "2" | "4" | "8" | "N"
+
+date:
+    BACKSLASH (epoch_time | iso8601) TILDE calendar? /* Or should we have the calendar be a mark? */
+
+epoch_time:
+    "1970+" DIGITS
+
+iso8601:
+    yyyy-mm-dd hh:nn:ss.12345
+
+
+verb:
+    CAPWORD (SPACE WORD)*
+
+call:
+    namespace? verb grouped_expr
 
 grouped_expr:
     LPAREN expression RPAREN
@@ -28,11 +113,14 @@ grouped_expr:
 binary_expr:
     expression binary_operator expression
 
+# Notice that = isn't in the list. We only use equals between terms in an
+# assignment, never inside an expression. It is therefore not considered
+# a binary operator, since it establishes a relationship rather than yielding
+# a value.
 binary_operator:
-    PLUS | MINUS | TIMES | DIVIDE | MODULO
-
-noun:
-    NAME | NUMBER
+    PLUS | MINUS | TIMES | DIVIDE | MODULO | BIT_AND | BIT_OR | BIT_XOR | AND |
+    OR | NOT | LSHIFT | RSHIFT | IN | SPACESHIP | ELVIS | QSPACESHIP | SPACESHIPQ |
+    TEST_EQUALS | NOT_EQUALS | GREATER | LESS | GREATER_EQUAL | LESS_EQUAL
 
 instruction:
     subject DOT verb LPAREN args RPAREN
