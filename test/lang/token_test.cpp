@@ -17,4 +17,3 @@ TEST(token_test, unique_numbers) {
     }
     #include "lang/operator_tuples.h"
 }
-

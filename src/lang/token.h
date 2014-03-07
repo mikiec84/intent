@@ -3,18 +3,11 @@
 
 #include <memory>
 
+#include "core/sslice.h"
+#include "lang/token_type.h"
+
 namespace intent {
 namespace lang {
-
-/**
- * Uniquely identify the semantics of a token.
- */
-enum token_type {
-    tt_unknown = 0,
-    #define TUPLE(name, number, example, precedence, associativity, comment) \
-        tt_operator##name = number,
-    #include "lang/operator_tuples.h"
-};
 
 /**
  * Hold information about a single token parsed out from intent code.
@@ -22,11 +15,11 @@ enum token_type {
 struct token {
     token();
     token(token_type type, char const * begin, char const * end);
+    token(token_type type, sslice const & slice);
     bool operator ==(token const & rhs) const;
 
     token_type type;
-    char const * begin;
-    char const * end;    
+    sslice substr;
 };
 
 } // end namespace lang

@@ -1,7 +1,7 @@
 #ifndef _8cb04c776a874c52b121ffba3ba0348c
 #define _8cb04c776a874c52b121ffba3ba0348c
 
-#include <string.h>
+#include <cstring>
 
 inline char const * ltrim(char const * begin, char const * end, char const * chars) {
     if (begin == nullptr) return nullptr;

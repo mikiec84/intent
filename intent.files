@@ -12,8 +12,8 @@ src/core/pstr.h
 src/core/strutil-inline.h
 src/core/strutil.cpp
 src/core/strutil.h
-src/core/token-inline.h
-src/core/token.h
+src/core/sslice-inline.h
+src/core/sslice.h
 src/core/zmq_helpers.cpp
 src/core/zmq_helpers.h
 src/foundation/test/cmdline_test.cpp
@@ -59,7 +59,7 @@ src/foundation/xlog.h
 src/intent/main.cpp
 test/core/pstr_test.cpp
 test/core/strutil_test.cpp
-test/core/token_test.cpp
+test/core/sslice_test.cpp
 snippets/shadowed.i
 snippets/master engine.i
 snippets/engine.i
@@ -91,3 +91,13 @@ sconstruct
 test/lang/lexer_test.cpp
 src/lang/token-inline.h
 src/lang/lexer-inline.h
+src/core/countof.h
+src/lang/token_type.h
+grammar/ply/parsetab.py
+grammar/ply/parser.py
+grammar/ply/parser.out
+grammar/ply/parse_test.py
+grammar/ply/ast_nodes.py
+grammar/ply/lexer.py
+grammar/ply/intent.bnf
+src/lang/token_type-inline.h

@@ -15,8 +15,9 @@ class token;
  */
 class lexer {
 public:
-    lexer(char const * txt);
-    lexer(char const * txt, char const * txt_end);
+    lexer(char const * begin);
+    lexer(char const * begin, char const * end);
+    lexer(sslice const & txt);
 
     class iterator;
 
@@ -24,15 +25,14 @@ public:
     iterator end() const;
 
 private:
-    char const * txt;
-    char const * txt_end;
+    sslice txt;
+    char const * line_begin;
+    char const * p;
     size_t line_number;
     token t;
+    sslice indenter;
 
     bool advance();
-
-    bool read_number();
-    bool read_quoted_string();
 };
 
 } // end namespace lang

@@ -8,15 +8,19 @@
 namespace intent {
 namespace lang {
 
-inline token::token() : type(tt_unknown), begin(nullptr), end(nullptr) {
+inline token::token() : type(tt_invalid), substr() {
 }
 
 inline token::token(token_type type, char const * begin, char const * end) :
-    type(type), begin(begin), end(end) {
+    type(type), substr(begin, end) {
+}
+
+inline token::token(token_type type, sslice const & substr) :
+    type(type), substr(substr) {
 }
 
 inline bool token::operator ==(token const & rhs) const {
-    return type == rhs.type && begin == rhs.begin && end == rhs.end;
+    return type == rhs.type && substr == rhs.substr;
 }
 
 } // end namespace lang

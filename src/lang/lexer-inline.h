@@ -24,7 +24,7 @@ private:
 };
 
 inline lexer::iterator lexer::begin() {
-    return txt && txt_end > txt ? iterator(this) : iterator();
+    return txt ? iterator(this) : iterator();
 }
 
 inline lexer::iterator lexer::end() const {
