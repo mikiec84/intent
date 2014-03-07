@@ -1,9 +1,11 @@
 #include <unordered_map>
-#include "lang/parse_token.h"
+#include "lang/token.h"
 
 #include "gtest/gtest.h"
 
-TEST(parse_token_test, unique_numbers) {
+using namespace intent::lang;
+
+TEST(token_test, unique_numbers) {
     std::unordered_map<int, char const *> counts;
     #define TUPLE(name, number, example, precedence, associativity, comment) \
     { \

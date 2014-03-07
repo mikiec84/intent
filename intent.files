@@ -79,3 +79,15 @@ src/lang/parse_token.h
 test/lang/parse_token_test.cpp
 test/lang/sconscript
 src/lang/lexer.cpp
+src/lang/lexer.cpp
+src/lang/sconscript
+src/lang/operator_tuples.h
+src/lang/ctx.h
+src/lang/lexer.h
+src/lang/token.h
+test/lang/token_test.cpp
+test/all
+sconstruct
+test/lang/lexer_test.cpp
+src/lang/token-inline.h
+src/lang/lexer-inline.h

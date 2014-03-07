@@ -3,10 +3,41 @@
 
 #include <cstddef>
 
-#include "lang/parse_ctx.h"
-#include "lang/parse_token.h"
+#include "lang/token.h"
 
-parse_token::handle read_number(parse_ctx & ctx);
+namespace intent {
+namespace lang {
 
+class token;
+
+/**
+ * Tokenize a chunk of intent code.
+ */
+class lexer {
+public:
+    lexer(char const * txt);
+    lexer(char const * txt, char const * txt_end);
+
+    class iterator;
+
+    iterator begin();
+    iterator end() const;
+
+private:
+    char const * txt;
+    char const * txt_end;
+    size_t line_number;
+    token t;
+
+    bool advance();
+
+    bool read_number();
+    bool read_quoted_string();
+};
+
+} // end namespace lang
+} // end namespace intent
+
+#include "lang/lexer-inline.h"
 
 #endif // sentry
