@@ -1,5 +1,5 @@
 #include <unordered_map>
-#include "core/parse_token.h"
+#include "lang/parse_token.h"
 
 #include "gtest/gtest.h"
 
@@ -13,6 +13,6 @@ TEST(parse_token_test, unique_numbers) {
                 << "\"; can't also bind to \"" << #name << "\""; \
         } \
     }
-    #include "core/operator_tuples.h"
+    #include "lang/operator_tuples.h"
 }
 

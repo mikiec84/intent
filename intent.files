@@ -71,3 +71,11 @@ snippets/copyargs.i
 snippets/helper engine.i
 snippets/operators.i
 test/core/parse_token_test.cpp
+src/lang/sconscript
+src/lang/parse_ctx.h
+src/lang/operator_tuples.h
+src/lang/lexer.h
+src/lang/parse_token.h
+test/lang/parse_token_test.cpp
+test/lang/sconscript
+src/lang/lexer.cpp

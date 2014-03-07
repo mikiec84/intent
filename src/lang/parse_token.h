@@ -6,7 +6,7 @@
 enum parse_token_type {
     #define TUPLE(name, number, example, precedence, associativity, comment) \
         ptt_operator##name = number,
-    #include "core/operator_tuples.h"
+    #include "lang/operator_tuples.h"
 };
 
 /**

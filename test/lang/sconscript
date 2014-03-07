@@ -1,16 +1,14 @@
 Import('test_env')
-Import('foundation')
 Import('core')
+Import('lang')
 Import('gmock')
 Import('gtest')
-Import('jsoncpp')
-Import('zmq')
 
 # Build all .cpp files in this folder into a single binary.
 sources = Glob('*.cpp')
 sources.extend(test_env.Object('#/src/external/gmock/gtest/src/gtest_main.cc'))
 
-libs = [core, jsoncpp, zmq, gmock, gtest, 'pthread']
+libs = [lang, core, gmock, gtest, 'pthread']
 import platform
 if platform.uname()[0] != 'Darwin':
     libs.append('rt')
