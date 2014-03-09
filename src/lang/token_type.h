@@ -5,57 +5,48 @@ namespace intent {
 namespace lang {
 
 /**
+ * When two operators have the same precedence, the expression is evaluated
+ * according to its associativity. For example x = y = z = 17 is treated as
+ * x = (y = (z = 17)), leaving all three variables with the value 17, since
+ * the = operator has right-to-left associativity (and an assignment statement
+ * evaluates to the value on the right hand side). On the other hand,
+ * 72 / 2 / 3 is treated as (72 / 2) / 3 since the / operator has left-to-
+ * right associativity.
+ */
+enum operator_associativity {
+    oa_left_to_right,
+    oa_right_to_left
+};
+
+/**
  * Uniquely identify the semantics of a token.
  */
 enum token_type {
 
-    // structural
-    tt_invalid = 0,
-    tt_indent = 1,
-    tt_dedent = 2,
-    tt_line_break = 3,
-    tt_soft_break = 4,
+    #define TUPLE(number, name, example, comment) \
+        tt_##name = number,
+    #include "lang/token_type_tuples.h"
 
-    // operators
-    tt_operator_mask = 0x2000,
-    #define TUPLE(name, number, example, precedence, associativity, comment) \
-        tt_operator##name = 0x2000 | number,
+    #define TUPLE(number, precedence, associativity, name, example, comment) \
+        tt_operator_##name = 0x8000 | number,
     #include "lang/operator_tuples.h"
-
-    // literals
-    tt_literal_mask = 0x10000000,
-    // numbers
-    tt_number_literal_mask = 0x11000000,
-    tt_binary_number = 0x11000001,
-    tt_decimal_number = 0x11000002,
-    tt_hex_number = 0x11000003,
-    tt_octal_number = 0x11000004,
-    tt_float_number = 0x11000005,
-    // strings
-    tt_string_literal_mask = 0x12000000,
-    tt_quoted_string = 0x12000001,
-    tt_char_literal = 0x12000002,
-    tt_regex = 0x12000003,
-    // dates
-    tt_date_literal_mask = 0x14000000,
-    tt_iso8601_date = 0x14000001,
-    tt_epoch_date = 0x14000002,
-    tt_duration = 0x14000003,
-
-    // comments
-    tt_comment_mask = 0x20000000,
-    tt_private_comment = 0x20000001,
-    tt_doc_comment = 0x20000002,
-    tt_heredoc = 0x20000003,
-    tt_explanation = 0x20000004,
 };
 
 bool is_comment(token_type);
 bool is_literal(token_type);
-bool is_number(token_type);
-bool is_string(token_type);
-bool is_date(token_type);
+bool is_number_literal(token_type);
+bool is_string_literal(token_type);
+bool is_date_literal(token_type);
 bool is_operator(token_type);
+
+size_t get_token_type_count();
+token_type get_token_type_by_index(size_t i);
+token_type get_token_type_from_name(char const * name);
+char const * get_token_type_name(token_type);
+char const * get_token_type_example(token_type);
+char const * get_token_type_comment(token_type);
+int get_operator_precedence(token_type);
+operator_associativity get_operator_associativity(token_type);
 
 } // end namespace lang
 } // end namespace intent

@@ -82,7 +82,6 @@ src/lang/lexer.cpp
 src/lang/lexer.cpp
 src/lang/sconscript
 src/lang/operator_tuples.h
-src/lang/ctx.h
 src/lang/lexer.h
 src/lang/token.h
 test/lang/token_test.cpp
@@ -101,3 +100,6 @@ grammar/ply/ast_nodes.py
 grammar/ply/lexer.py
 grammar/ply/intent.bnf
 src/lang/token_type-inline.h
+src/lang/token_type.cpp
+src/lang/token_type_tuples.h
+src/lang/token.cpp
