@@ -13,6 +13,8 @@ TEST(lexer_test, iterator_on_empty_str) {
 }
 
 TEST(lexer_test, numbers) {
+    // TODO: rewrite so we not only verify that the resulting token is a number, but also
+    // that it has the correct value.
     char const * numbers[] = {
         "0", "-1", "+25.7", "36121", "123_456_789", "0x03", "0b0100100", "0023", "3.7e-5",
     };
@@ -27,5 +29,21 @@ TEST(lexer_test, numbers) {
             ADD_FAILURE() << "Did not consume full numeric token with \"" << numbers[i] << "\".";
         }
     }
+}
 
+TEST(lexer_test, DISABLED_malformed_numbers) {
+#if 0
+    What if a number has multiple underscores in a row, is all underscores, or has
+    underscores in a trailing position?
+
+    What if we have overflow or underflow?
+
+    What about width suffixes on numbers?
+
+    What about signed hex/binary/octal?
+
+    What about long doubles and arbitrary precision?
+
+    What about complex numbers?
+#endif
 }
