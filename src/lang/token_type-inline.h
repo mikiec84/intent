@@ -39,4 +39,4 @@ inline bool is_operator(token_type tt) {
 } // end namespace lang
 } // end namespace intent
 
-#endif
+#endif // sentry

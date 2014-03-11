@@ -12,7 +12,7 @@ TEST(lexer_test, iterator_on_empty_str) {
     EXPECT_EQ(0, std::count (lex.begin(), lex.end(), t));
 }
 
-TEST(lexer_test, DISABLED_numbers) {
+TEST(lexer_test, numbers) {
     char const * numbers[] = {
         "0", "-1", "+25.7", "36121", "123_456_789", "0x03", "0b0100100", "0023", "3.7e-5",
     };

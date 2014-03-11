@@ -1,13 +1,15 @@
+#include <cmath>
+
 #include "lang/lexer.h"
 
 namespace intent {
 namespace lang {
 
-char const * read_line(char const * p, char const * end);
-char const * read_quoted_string(char const * p, char const * end);
-char const * read_spaces(char const * p, char const * end);
-char const * read_number(char const * p, char const * end, token & t);
-char const * read_phrase(char const * p, char const * end);
+char const * scan_line(char const * p, char const * end);
+char const * scan_quoted_string(char const * p, char const * end);
+char const * scan_spaces(char const * p, char const * end);
+bool get_number_token(char const * p, char const * end, token & t);
+char const * scan_phrase(char const * p, char const * end);
 
 lexer::lexer(char const * begin) :
     txt(begin), line_begin(begin), p(nullptr), line_number(1), t(tt_invalid, begin, begin) {
@@ -44,7 +46,7 @@ bool lexer::advance() {
         t.type = tt_line_break;
         break;
     case ' ':
-        t.substr.end = read_spaces(p + 1, txt.end);
+        t.substr.end = scan_spaces(p + 1, txt.end);
         if (t.substr.begin == line_begin) {
             if (!indenter) {
                 indenter.assign(t.substr.begin, p);
@@ -55,34 +57,35 @@ bool lexer::advance() {
         }
         break;
     case '#':
-        t.substr.end = read_line(p + 1, txt.end);
+        t.substr.end = scan_line(p + 1, txt.end);
         t.type = tt_private_comment;
         break;
     case '|':
-        t.substr.end = read_line(p + 1, txt.end);
+        t.substr.end = scan_line(p + 1, txt.end);
         t.type = tt_doc_comment;
         break;
     case '"':
-        t.substr.end = read_quoted_string(p + 1, txt.end);
+        t.substr.end = scan_quoted_string(p + 1, txt.end);
         t.type = tt_quoted_string;
         break;
     case '-':
     case '+':
         if (p < txt.end - 1 && isdigit(p[1])) {
-            t.substr.end = read_number(p, txt.end, t);
+            get_number_token(p, txt.end, t);
         } else {
             t.type = tt_invalid;
             t.substr.end = p + 1;
         }
         break;
+
     default:
         {
             char c = *p;
             if (isalpha(c)) {
-                t.substr.end = read_phrase(p + 1, txt.end);
+                t.substr.end = scan_phrase(p + 1, txt.end);
                 t.type = tt_noun_phrase;
             } else if (isdigit(c)) {
-                t.substr.end = read_number(p, txt.end, t);
+                get_number_token(p, txt.end, t);
             } else {
                 t.type = tt_invalid;
                 t.substr.end = p + 1;
@@ -93,7 +96,7 @@ bool lexer::advance() {
     return true;
 }
 
-inline char const * read_line(char const * p, char const * end) {
+inline char const * scan_line(char const * p, char const * end) {
     while (p < end) {
         char c = *p;
         if (c == '\n' || c == '\r') {
@@ -104,7 +107,7 @@ inline char const * read_line(char const * p, char const * end) {
     return p;
 }
 
-inline char const * read_quoted_string(char const * p, char const * end) {
+inline char const * scan_quoted_string(char const * p, char const * end) {
     while (p < end) {
         char c = *p;
         if (c == '"') {
@@ -117,7 +120,7 @@ inline char const * read_quoted_string(char const * p, char const * end) {
     return p;
 }
 
-inline char const * read_spaces(char const * p, char const * end) {
+inline char const * scan_spaces(char const * p, char const * end) {
     while (p < end) {
         if (*p != ' ') {
             break;
@@ -127,18 +130,21 @@ inline char const * read_spaces(char const * p, char const * end) {
     return p;
 }
 
-char const * read_hex(char const * p, char const * end, token & t) {
-    t.type = tt_hex_number;
-    uint64_t & value = t.value.uint64_t_value;
+/**
+ * Read digits until end of hexadecimal number. Put numeric value into n.
+ * @return offset of first char beyond digits of the number.
+ */
+char const * scan_hex_digits(char const * p, char const * end, uint64_t & n) {
+    n = 0;
     while (p < end) {
         char c = *p;
         if (c >= '0' && c <= '9') {
-            value = (value * 16) + (c - '0');
+            n = (n * 16) + (c - '0');
         } else if (c >= 'a' && c <= 'f') {
-            value = (value * 16) + 10 + (c - 'a');
+            n = (n * 16) + 10 + (c - 'a');
         } else if (c >= 'A' && c <= 'F') {
-            value = (value * 16) + 10 + (c - 'A');
-        } else {
+            n = (n * 16) + 10 + (c - 'A');
+        } else if (c != '_') {
             break;
         }
         ++p;
@@ -146,16 +152,19 @@ char const * read_hex(char const * p, char const * end, token & t) {
     return p;
 }
 
-char const * read_binary(char const * p, char const * end, token & t) {
-    t.type = tt_binary_number;
-    uint64_t & value = t.value.uint64_t_value;
+/**
+ * Read digits until end of binary number. Put numeric value into n.
+ * @return offset of first char beyond digits of the number.
+ */
+char const * scan_binary_digits(char const * p, char const * end, uint64_t & n) {
+    n = 0;
     while (p < end) {
         char c = *p;
         if (c == '0') {
-            value <<= 1;
+            n <<= 1;
         } else if (c == '1') {
-            value = (value << 1) | 1;
-        } else {
+            n = (n << 1) | 1;
+        } else if (c != '_') {
             break;
         }
         ++p;
@@ -163,14 +172,17 @@ char const * read_binary(char const * p, char const * end, token & t) {
     return p;
 }
 
-char const * read_octal(char const * p, char const * end, token & t) {
-    t.type = tt_octal_number;
-    uint64_t & value = t.value.uint64_t_value;
+/**
+ * Read digits until end of octal number. Put numeric value into n.
+ * @return offset of first char beyond digits of the number.
+ */
+char const * scan_octal_digits(char const * p, char const * end, uint64_t & n) {
+    n = 0;
     while (p < end) {
         char c = *p;
         if (c >= '0' && c <= '7') {
-            value = (value * 8) + (c - '0');
-        } else {
+            n = (n * 8) + (c - '0');
+        } else if (c != '_') {
             break;
         }
         ++p;
@@ -178,14 +190,17 @@ char const * read_octal(char const * p, char const * end, token & t) {
     return p;
 }
 
-char const * read_base10_integer(char const * p, char const * end, token & t) {
-    t.type = tt_decimal_number;
-    uint64_t & value = t.value.uint64_t_value;
+/**
+ * Read digits before a radix, until end of decimal number. Put numeric value into n.
+ * @return offset of first char beyond digits of the number.
+ */
+char const * scan_decimal_digits_pre_radix(char const * p, char const * end, uint64_t & n) {
+    n = 0;
     while (p < end) {
         char c = *p;
         if (c >= '0' && c <= '9') {
-            value = (value * 10) + (c - '0');
-        } else {
+            n = (n * 10) + (c - '0');
+        } else if (c != '_') {
             break;
         }
         ++p;
@@ -193,47 +208,130 @@ char const * read_base10_integer(char const * p, char const * end, token & t) {
     return p;
 }
 
-char const * read_number(char const * p, char const * end, token & t) {
-    t.type = tt_number_literal_mask;
-    t.value.uint64_t_value = 0;
-
-    char c = *p;
-    //bool negative = (c == '-');
-    if (c == '+' || c == '-') {
+/**
+ * Read digits after a radix, until end of decimal number. Put numeric value into n.
+ * @return offset of first char beyond digits of the number.
+ */
+char const * scan_decimal_digits_post_radix(char const * p, char const * end, double & n) {
+    n = 0.0;
+    double divisor = 10.0;
+    while (p < end) {
+        char c = *p;
+        if (c >= '0' && c <= '9') {
+            n += ((c - '0') / divisor);
+            divisor *= 10;
+        } else if (c != '_') {
+            break;
+        }
         ++p;
     }
-    c = *p;
-    if (c == '0') {
-        if (p + 1 < end) {
-            c = p[1];
-            if (c == 'x' || c == 'X') {
-                return read_hex(p + 2, end, t);
-            } else if (c == 'b' || c == 'B') {
-                return read_binary(p + 2, end, t);
-            } else if (c >= '0' && c <= '7') {
-                return read_octal(p + 2, end, t);
-            }
-        }
-    }
-    p = read_base10_integer(p, end, t);
- #if 0
-    if (p < end) {
-        c = *p;
-        if (c == '.' || c == 'e' || c == 'E') {
-            bool found_exponent = !(c == '.');
-            t.type = tt_floating_point_number;
-            t.double_value = t.uint64_t_value;
-            if (negative) {
-                t.double_value *= -1;
-            }
-
-        } else if (*p == 'e')
-    }
-#endif
     return p;
 }
 
-char const * read_phrase(char const * p, char const * end) {
+char const * scan_decimal_number(char const * p, char const * end, bool & negative, uint64_t & n) {
+    if (p < end) {
+        char c = *p;
+        negative = (c == '-');
+        if (c == '+' || c == '-') {
+            ++p;
+        }
+        p = scan_decimal_digits_pre_radix(p, end, n);
+    }
+    return p;
+}
+
+void set_possibly_signed_value(token & t, token_type tt, bool negative, uint64_t n) {
+    if (negative) {
+        t.set_value(tt, -1 * static_cast<int64_t>(n));
+    } else {
+        t.set_value(tt, n);
+    }
+}
+
+/**
+ * Read a numeric token at the specified offset, and update t with correct
+ * information about what it contains.
+ * @return true if a valid number token existed at the offset.
+ */
+bool get_number_token(char const * p, char const * end, token & t) {
+
+    uint64_t whole_number = 0;
+
+    char c = *p;
+
+    bool negative = (c == '-');
+    if (c == '+' || c == '-') {
+        c = *++p;
+    }
+
+    bool floating_point = (c == '.');
+
+    if (!floating_point) {
+        if (c == '0') {
+            if (p + 2 < end) {
+                c = p[1];
+                token_type tt = tt_invalid;
+                if (c == 'x' || c == 'X') {
+                    t.substr.end = scan_hex_digits(p + 2, end, whole_number);
+                    tt = tt_hex_number;
+                } else if (c == 'b' || c == 'B') {
+                    t.substr.end = scan_binary_digits(p + 2, end, whole_number);
+                    tt = tt_binary_number;
+                } else if (c >= '0' && c <= '7') {
+                    t.substr.end = scan_octal_digits(p + 2, end, whole_number);
+                    tt = tt_octal_number;
+                }
+                if (tt != tt_invalid) {
+                    set_possibly_signed_value(t, tt, negative, whole_number);
+                    return true;
+                }
+            }
+        }
+        p = scan_decimal_digits_pre_radix(p, end, whole_number);
+    }
+
+    double significand, value;
+
+    if (!floating_point && p < end && *p == '.') {
+        floating_point = true;
+        p = scan_decimal_digits_post_radix(++p, end, significand);
+    }
+
+    // Now we've read everything except possibly an exponent. Make sure we've
+    // combined values to left and right of radix, if appropriate.
+    if (floating_point) {
+        significand += whole_number;
+    }
+
+    // Check for exponent.
+    if (p + 1 < end && (*p == 'e' || *p == 'E')) {
+        floating_point = true;
+
+        bool negative_exponent;
+        uint64_t exponent;
+        p = scan_decimal_number(++p, end, negative_exponent, exponent);
+        double exp = exponent;
+        if (negative_exponent) {
+            exp *= -1;
+        }
+        // TODO: what if exponent is too big? What if there's nothing after "e"?
+        value = significand * pow(10, exp);
+        if (negative) {
+            value *= -1;
+        }
+    }
+
+    t.substr.end = p;
+    if (floating_point) {
+        t.set_value(tt_floating_point_number, value);
+    } else {
+        set_possibly_signed_value(t, tt_decimal_number, negative, whole_number);
+    }
+
+    return p;
+}
+
+char const * scan_phrase(char const * p, char const * end) {
     while (p < end) {
         if (!isalpha(*p)) {
             break;

@@ -103,3 +103,4 @@ src/lang/token_type-inline.h
 src/lang/token_type.cpp
 src/lang/token_type_tuples.h
 src/lang/token.cpp
+src/lang/token-inline.h

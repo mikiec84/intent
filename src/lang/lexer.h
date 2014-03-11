@@ -12,6 +12,19 @@ class token;
 
 /**
  * Tokenize a chunk of intent code.
+ *
+ * Tokens can be accessed by iterating from begin() to end(). All iterators on
+ * a given lexer point to the lexer's current token. This means that each call
+ * to increment an iterator alters the internal state of the lexer, and the
+ * internal state of all iterators on the lexer; if you want to preserve info
+ * about a token across iteration changes, copy the value returned by
+ * dereferencing the iterator; do not save the iterator itself. This is not
+ * canonical behavior for a forward iterator, but tokenization is intended to
+ * be a single-pass, forward-only operation, with "diff" and similar semantics
+ * precluded. Plus it simplifies our implementation and makes it faster...
+ *
+ * Lexers are inherently stateful. They are not thread-safe. However, multiple
+ * threads can be tokenizing with different lexers, in parallel.
  */
 class lexer {
 public:
