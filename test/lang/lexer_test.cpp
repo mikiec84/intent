@@ -6,6 +6,23 @@
 
 using namespace intent::lang;
 
+TEST(lexer_test, DISABLED_quoted_string) {
+    char const * quoted_strs[] = {
+        "\"abc\"", "\"\"", "\"abc\n... def\"",
+    };
+    for (int i = 0; i < countof(quoted_strs); ++i) {
+        lexer lex(quoted_strs[i]);
+        auto it = lex.begin();
+        if (!is_string_literal(it->type)) {
+            ADD_FAILURE() << "Expected \"" << quoted_strs[i] << "\" to be parsed as a quoted string; got "
+                          << get_token_type_name(it->type) << " instead.";
+        }
+        if (++it != lex.end()) {
+            ADD_FAILURE() << "Did not consume full quoted string with \"" << quoted_strs[i] << "\".";
+        }
+    }
+}
+
 TEST(lexer_test, iterator_on_empty_str) {
     lexer lex("");
     token t;
