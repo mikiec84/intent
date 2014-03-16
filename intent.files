@@ -104,3 +104,12 @@ src/lang/token_type.cpp
 src/lang/token_type_tuples.h
 src/lang/token.cpp
 src/lang/token-inline.h
+tester/overall-requirements.i
+grammar/kate/intent.xml
+grammar/pygments/intent_lexer.py
+src/core/unicode.h
+src/core/unicode.cpp
+src/core/scan_numbers.h
+src/core/scan_numbers.cpp
+src/core/unicode-inline.h
+test/core/unicode_test.cpp

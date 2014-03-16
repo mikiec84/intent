@@ -10,9 +10,20 @@ env = Environment(CPPPATH=[
             '#/src',
             '#/src/external/jsoncpp/include',
             '#/src/external/zmq/include',
-            '/usr/local/include'],
+            '/usr/local/include',
+            '#/boost'],
         CXXFLAGS='-std=c++11 -stdlib=libc++',
         CPPDEFINES=['__STDC_LIMIT_MACROS'])
+
+# To link against boost libraries:
+#env['LIBPATH'] += ['#/boost/stage/lib']
+
+# To link against icu libraries:
+#ln -s /usr/local/Cellar/icu4c/<VERSION>/bin/icu-config /usr/local/bin/icu-config
+#ln -s /usr/local/Cellar/icu4c/<VERSION>/include/* /usr/local/include
+# LDFLAGS:  -L/usr/local/opt/icu4c/lib
+# CPPFLAGS: -I/usr/local/opt/icu4c/include
+
 
 AddOption('--verbose', dest='verbose', action='store_true', help='Display more details during build.')
 AddOption('--release', dest='release', action='store_true', help='Do a release build instead of debug.')

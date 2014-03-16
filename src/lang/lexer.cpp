@@ -1,6 +1,10 @@
 #include <cmath>
+#include <string>
 
+#include "core/scan_numbers.h"
 #include "lang/lexer.h"
+
+using std::string;
 
 namespace intent {
 namespace lang {
@@ -9,20 +13,24 @@ char const * scan_line(char const * p, char const * end);
 char const * scan_quoted_string(char const * p, char const * end);
 char const * scan_spaces(char const * p, char const * end);
 bool get_number_token(char const * p, char const * end, token & t);
+bool get_quoted_string_token(char const * p, char const * end, token & t);
 char const * scan_phrase(char const * p, char const * end);
 
 lexer::lexer(char const * begin) :
-    txt(begin), line_begin(begin), p(nullptr), line_number(1), t(tt_invalid, begin, begin) {
+    txt(begin), line_begin(begin), p(nullptr), line_number(1) {
+    t.substr.end = begin;
     advance();
 }
 
 lexer::lexer(char const * begin, char const * end) :
-    txt(begin, end), line_begin(begin), p(nullptr), line_number(1), t(tt_invalid, begin, begin) {
+    txt(begin, end), line_begin(begin), p(nullptr), line_number(1) {
+    t.substr.end = begin;
     advance();
 }
 
 lexer::lexer(sslice const & txt) :
-    txt(txt), line_begin(txt.begin), p(nullptr), line_number(1), t(tt_invalid, txt.begin, txt.begin) {
+    txt(txt), line_begin(txt.begin), p(nullptr), line_number(1) {
+    t.substr.end = txt.begin;
     advance();
 }
 
@@ -65,8 +73,7 @@ bool lexer::advance() {
         t.type = tt_doc_comment;
         break;
     case '"':
-        t.substr.end = scan_quoted_string(p + 1, txt.end);
-        t.type = tt_quoted_string;
+        get_quoted_string_token(p, txt.end, t);
         break;
     case '-':
     case '+':
@@ -107,17 +114,42 @@ inline char const * scan_line(char const * p, char const * end) {
     return p;
 }
 
-inline char const * scan_quoted_string(char const * p, char const * end) {
+inline char const * scan_quoted_string(char const * first_content_char, char const * end, string & value) {
+    char const * p = first_content_char;
     while (p < end) {
         char c = *p;
         if (c == '"') {
             break;
         } else if (c == '\\') {
-            ++p;
+            if (p + 1 < end) {
+                if (p[1] == 'x') {
+
+                }
+                ++p;
+            } else {
+                value += c;
+                break;
+            }
+        } else {
+            value += c;
         }
         ++p;
     }
     return p;
+}
+
+inline bool get_quoted_string_token(char const * p, char const * end, token & t) {
+    t.type = tt_quoted_string;
+    string value;
+    char const * close_quote = scan_quoted_string(p + 1, end, value);
+    t.value = value;
+    if (close_quote != end) {
+        t.substr.end = close_quote + 1;
+        return true;
+    } else {
+        t.substr.end = close_quote;
+        return false;
+    }
 }
 
 inline char const * scan_spaces(char const * p, char const * end) {
@@ -130,121 +162,12 @@ inline char const * scan_spaces(char const * p, char const * end) {
     return p;
 }
 
-/**
- * Read digits until end of hexadecimal number. Put numeric value into n.
- * @return offset of first char beyond digits of the number.
- */
-char const * scan_hex_digits(char const * p, char const * end, uint64_t & n) {
-    n = 0;
-    while (p < end) {
-        char c = *p;
-        if (c >= '0' && c <= '9') {
-            n = (n * 16) + (c - '0');
-        } else if (c >= 'a' && c <= 'f') {
-            n = (n * 16) + 10 + (c - 'a');
-        } else if (c >= 'A' && c <= 'F') {
-            n = (n * 16) + 10 + (c - 'A');
-        } else if (c != '_') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
 
-/**
- * Read digits until end of binary number. Put numeric value into n.
- * @return offset of first char beyond digits of the number.
- */
-char const * scan_binary_digits(char const * p, char const * end, uint64_t & n) {
-    n = 0;
-    while (p < end) {
-        char c = *p;
-        if (c == '0') {
-            n <<= 1;
-        } else if (c == '1') {
-            n = (n << 1) | 1;
-        } else if (c != '_') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
-
-/**
- * Read digits until end of octal number. Put numeric value into n.
- * @return offset of first char beyond digits of the number.
- */
-char const * scan_octal_digits(char const * p, char const * end, uint64_t & n) {
-    n = 0;
-    while (p < end) {
-        char c = *p;
-        if (c >= '0' && c <= '7') {
-            n = (n * 8) + (c - '0');
-        } else if (c != '_') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
-
-/**
- * Read digits before a radix, until end of decimal number. Put numeric value into n.
- * @return offset of first char beyond digits of the number.
- */
-char const * scan_decimal_digits_pre_radix(char const * p, char const * end, uint64_t & n) {
-    n = 0;
-    while (p < end) {
-        char c = *p;
-        if (c >= '0' && c <= '9') {
-            n = (n * 10) + (c - '0');
-        } else if (c != '_') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
-
-/**
- * Read digits after a radix, until end of decimal number. Put numeric value into n.
- * @return offset of first char beyond digits of the number.
- */
-char const * scan_decimal_digits_post_radix(char const * p, char const * end, double & n) {
-    n = 0.0;
-    double divisor = 10.0;
-    while (p < end) {
-        char c = *p;
-        if (c >= '0' && c <= '9') {
-            n += ((c - '0') / divisor);
-            divisor *= 10;
-        } else if (c != '_') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
-
-char const * scan_decimal_number(char const * p, char const * end, bool & negative, uint64_t & n) {
-    if (p < end) {
-        char c = *p;
-        negative = (c == '-');
-        if (c == '+' || c == '-') {
-            ++p;
-        }
-        p = scan_decimal_digits_pre_radix(p, end, n);
-    }
-    return p;
-}
-
-void set_possibly_signed_value(token & t, token_type tt, bool negative, uint64_t n) {
+void set_possibly_signed_value(token & t, bool negative, uint64_t n) {
     if (negative) {
-        t.set_value(tt, -1 * static_cast<int64_t>(n));
+        t.value = -1 * static_cast<int64_t>(n);
     } else {
-        t.set_value(tt, n);
+        t.value = n;
     }
 }
 
@@ -282,7 +205,8 @@ bool get_number_token(char const * p, char const * end, token & t) {
                     tt = tt_octal_number;
                 }
                 if (tt != tt_invalid) {
-                    set_possibly_signed_value(t, tt, negative, whole_number);
+                    t.type = tt;
+                    set_possibly_signed_value(t, negative, whole_number);
                     return true;
                 }
             }
@@ -323,9 +247,11 @@ bool get_number_token(char const * p, char const * end, token & t) {
 
     t.substr.end = p;
     if (floating_point) {
-        t.set_value(tt_floating_point_number, value);
+        t.type = tt_floating_point_number;
+        t.value = value;
     } else {
-        set_possibly_signed_value(t, tt_decimal_number, negative, whole_number);
+        t.type = tt_decimal_number;
+        set_possibly_signed_value(t, negative, whole_number);
     }
 
     return p;

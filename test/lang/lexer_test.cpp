@@ -4,21 +4,34 @@
 #include "lang/lexer.h"
 #include "gtest/gtest.h"
 
+using std::string;
+using boost::any_cast;
+
 using namespace intent::lang;
 
-TEST(lexer_test, DISABLED_quoted_string) {
-    char const * quoted_strs[] = {
-        "\"abc\"", "\"\"", "\"abc\n... def\"",
+TEST(lexer_test, quoted_string) {
+    struct test_item {
+        char const * txt;
+        char const * expected_value;
+    };
+
+    test_item const quoted_strs[] = {
+        {"\"abc\"", "abc"},
+        {"\"\"", ""},
+        {"\"abc\n... def\"", "abc def"},
     };
     for (int i = 0; i < countof(quoted_strs); ++i) {
-        lexer lex(quoted_strs[i]);
+        auto txt = quoted_strs[i].txt;
+        lexer lex(txt);
         auto it = lex.begin();
         if (!is_string_literal(it->type)) {
-            ADD_FAILURE() << "Expected \"" << quoted_strs[i] << "\" to be parsed as a quoted string; got "
+            ADD_FAILURE() << "Expected \"" << txt << "\" to be parsed as a quoted string; got "
                           << get_token_type_name(it->type) << " instead.";
         }
+        string const & v = any_cast<string const &>(it->value);
+        EXPECT_STREQ(quoted_strs[i].expected_value, v.c_str());
         if (++it != lex.end()) {
-            ADD_FAILURE() << "Did not consume full quoted string with \"" << quoted_strs[i] << "\".";
+            ADD_FAILURE() << "Did not consume full quoted string with \"" << txt << "\".";
         }
     }
 }
@@ -30,20 +43,19 @@ TEST(lexer_test, iterator_on_empty_str) {
 }
 
 TEST(lexer_test, numbers) {
-    // TODO: rewrite so we not only verify that the resulting token is a number, but also
-    // that it has the correct value.
-    char const * numbers[] = {
+    char const * number_strs[] = {
         "0", "-1", "+25.7", "36121", "123_456_789", "0x03", "0b0100100", "0023", "3.7e-5",
     };
-    for (int i = 0; i < countof(numbers); ++i) {
-        lexer lex(numbers[i]);
+
+    for (int i = 0; i < countof(number_strs); ++i) {
+        lexer lex(number_strs[i]);
         auto it = lex.begin();
         if (!is_number_literal(it->type)) {
-            ADD_FAILURE() << "Expected \"" << numbers[i] << "\" to be parsed as a numeric token; got "
+            ADD_FAILURE() << "Expected \"" << number_strs[i] << "\" to be parsed as a numeric token; got "
                           << get_token_type_name(it->type) << " instead.";
         }
         if (++it != lex.end()) {
-            ADD_FAILURE() << "Did not consume full numeric token with \"" << numbers[i] << "\".";
+            ADD_FAILURE() << "Did not consume full numeric token with \"" << number_strs[i] << "\".";
         }
     }
 }

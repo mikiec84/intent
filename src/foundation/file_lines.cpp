@@ -152,7 +152,7 @@ struct file_lines::data_t {
 		buf_filled_count = bytes_read;
 
 		// Make sure our buffer is null-terminated. At the time we call this,
-		// dest + bytes_read is guaranteed to be a valid location for us to
+		// buf + bytes_read is guaranteed to be a valid location for us to
 		// write (it's not past the end of our buffer). We may write our
 		// null there--but only if we've exhausted our file. Otherwise, we
 		// write a null on top of the final line break among the stuff we've
