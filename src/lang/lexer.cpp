@@ -2,6 +2,7 @@
 #include <string>
 
 #include "core/scan_numbers.h"
+#include "core/unicode.h"
 #include "lang/lexer.h"
 
 using std::string;
@@ -114,26 +115,33 @@ inline char const * scan_line(char const * p, char const * end) {
     return p;
 }
 
-inline char const * scan_quoted_string(char const * first_content_char, char const * end, string & value) {
+char const * scan_quoted_string(char const * first_content_char, char const * end, string & value) {
     char const * p = first_content_char;
+    value.clear();
     while (p < end) {
+        bool handled = false;
         char c = *p;
         if (c == '"') {
             break;
         } else if (c == '\\') {
-            if (p + 1 < end) {
-                if (p[1] == 'x') {
-
-                }
-                ++p;
-            } else {
-                value += c;
-                break;
+            codepoint_t cp;
+            // TODO: tweak scan_unicode_escape_sequence() so it honors end.
+            char const * seq_end = scan_unicode_escape_sequence(p + 1, cp);
+            if (cp != UNICODE_REPLACEMENT_CHAR && seq_end > p && seq_end <= end) {
+                handled = true;
+                char buf[16];
+                size_t buf_length = sizeof(buf);
+                char * tmp = buf;
+                cat_codepoint_to_utf8(tmp, buf_length, cp);
+                // TODO: prove that cat_codepoint_to_utf8 worked.
+                value += buf;
+                p = seq_end;
             }
-        } else {
-            value += c;
         }
-        ++p;
+        if (!handled) {
+            value += c;
+            ++p;
+        }
     }
     return p;
 }

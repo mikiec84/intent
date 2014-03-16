@@ -9,16 +9,20 @@ using boost::any_cast;
 
 using namespace intent::lang;
 
-TEST(lexer_test, quoted_string) {
+TEST(lexer_test, DISABLED_quoted_string) {
     struct test_item {
         char const * txt;
         char const * expected_value;
     };
 
+    #define QUOTE(str) "\"" str "\""
     test_item const quoted_strs[] = {
-        {"\"abc\"", "abc"},
-        {"\"\"", ""},
-        {"\"abc\n... def\"", "abc def"},
+        {QUOTE("\\x7F \\u5C0D "), "\x7F \xE5\xB0\x8D "},
+        {QUOTE("abc"), "abc"},
+        {QUOTE(""), ""},
+        {QUOTE("\x7F \xE5\xB0\x8D "), "\x7F \xE5\xB0\x8D "},
+        {QUOTE("\\r\\n\\t\\b\\v\\a\\f \\u "), "\r\n\t\b\v\a\f \\u "},
+        {QUOTE("abc\n... def"), "abc def"},
     };
     for (int i = 0; i < countof(quoted_strs); ++i) {
         auto txt = quoted_strs[i].txt;
