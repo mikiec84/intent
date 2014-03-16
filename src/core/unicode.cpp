@@ -154,6 +154,10 @@ char const * scan_unicode_escape_sequence(char const * seq, codepoint_t & cp)
         end = seq + 8; break;
     case '\\':
         cp = '\\'; return end;
+    case '"':
+        cp = '"'; return end;
+    case '\'':
+        cp = '\''; return end;
     default:
         if (c >= '0' && c <= '7') {
             seq -= 1;
@@ -218,8 +222,8 @@ bool add_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t c
                 advance_and_return_true(4);
             }
             return false;
-        } else if (cp == '\\') {
-            return write_2byte_sequence(buf, buf_length, '\\');
+        } else if (strchr("\\\"'", static_cast<char>(cp))) {
+            return write_2byte_sequence(buf, buf_length, static_cast<char>(cp));
         } else if (cp == 0x7f) {
             if (buf_length >= 4) {
                 memcpy(buf, "\\x7F", 4);

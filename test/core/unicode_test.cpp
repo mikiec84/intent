@@ -129,6 +129,8 @@ TEST(unicode_test, scan_unicode_escape_sequence) {
     CHECKSEQ("U0010FF859", "9", 0x0010FF85);
     CHECKSEQ("U0810FF859", "0810FF859", UNICODE_REPLACEMENT_CHAR);
     CHECKSEQ("n ", " ", '\n');
+    CHECKSEQ("\" ", " ", '"');
+    CHECKSEQ("' ", " ", '\'');
 
     #undef CHECKSEQ
 }
@@ -147,6 +149,17 @@ TEST(unicode_test, add_unicode_escape_sequence) {
         EXPECT_EQ(buf + size, p)
 
     CHECK_ADD(1, 'a');
+    CHECK_ADD(2, '"');
+    CHECK_ADD(2, '\\');
+    CHECK_ADD(2, '\n');
+    CHECK_ADD(2, '\t');
+    CHECK_ADD(2, '\n');
+    CHECK_ADD(2, '\r');
+    CHECK_ADD(2, '\r');
+    CHECK_ADD(2, '\'');
+    CHECK_ADD(2, '\a');
+    CHECK_ADD(2, '\v');
+    CHECK_ADD(4, 0x7F);
     CHECK_ADD(6, 0x00F1);
     CHECK_ADD(6, 0x5C0D);
 
@@ -177,6 +190,10 @@ TEST(unicode_test, cat_unicode_escape_sequence) {
         EXPECT_STREQ(expected, buf)
 
     CHECKSEQ("a", 'a');
+    CHECKSEQ("\\\"", '"');
+    CHECKSEQ("\\n", '\n');
+    CHECKSEQ("\\u00F1", 0x00F1);
+    CHECKSEQ("\\u00F1", 0x00F1);
     CHECKSEQ("\\u00F1", 0x00F1);
     CHECKSEQ("\\u5C0D", 0x5C0D);
     CHECKSEQ("\\u0372", 0x0372);
