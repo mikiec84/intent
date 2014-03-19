@@ -31,6 +31,10 @@ inline lexer::iterator lexer::end() const {
     return iterator();
 }
 
+inline char lexer::get_indent_char() const {
+    return indent_stack[0];
+}
+
 } // end namespace lang
 } // end namespace intent
 

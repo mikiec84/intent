@@ -2,6 +2,7 @@
 #define _5e2636d642be46bc91ebd85c04781b80
 
 #include <cstddef>
+#include <cstdint>
 
 #include "lang/token.h"
 
@@ -39,13 +40,22 @@ public:
 
 private:
     sslice txt;
+    token t;
     char const * line_begin;
     char const * p;
-    size_t line_number;
-    token t;
-    sslice indenter;
+    char const * inconsistent_indent;
+    char const * error_msg;
+    uint32_t line_number;
+    uint32_t total_indent_width;
+    int32_t indent_dedent_delta;
+    uint32_t last_stack_insert_idx;
+    uint8_t indent_stack[128];
 
     bool advance();
+    char const * scan_indents_and_lines();
+    char get_indent_char() const;
+    void push_indent(uint32_t new_indent_width);
+    uint32_t pop_indent();
 };
 
 } // end namespace lang

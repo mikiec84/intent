@@ -12,34 +12,140 @@ namespace lang {
 
 char const * scan_line(char const * p, char const * end);
 char const * scan_quoted_string(char const * p, char const * end);
-char const * scan_spaces(char const * p, char const * end);
+char const * scan_spaces_and_tabs(char const * p, char const * end);
 bool get_number_token(char const * p, char const * end, token & t);
 bool get_quoted_string_token(char const * p, char const * end, token & t);
 char const * scan_phrase(char const * p, char const * end);
 
+const uint32_t NO_INDENT_YET = UINT32_MAX;
+const uint32_t EMPTY_INDENT_STACK = 0;
+
 lexer::lexer(char const * begin) :
-    txt(begin), line_begin(begin), p(nullptr), line_number(1) {
+    txt(begin), line_begin(begin), p(nullptr), inconsistent_indent(nullptr),
+    line_number(1), total_indent_width(0), indent_dedent_delta(0),
+    last_stack_insert_idx(NO_INDENT_YET) {
+
+    memset(indent_stack, 0, sizeof(indent_stack));
     t.substr.end = begin;
     advance();
 }
 
 lexer::lexer(char const * begin, char const * end) :
-    txt(begin, end), line_begin(begin), p(nullptr), line_number(1) {
+    txt(begin, end), line_begin(begin), p(nullptr), inconsistent_indent(nullptr),
+    line_number(1), total_indent_width(0), indent_dedent_delta(0),
+    last_stack_insert_idx(NO_INDENT_YET) {
+
+    memset(indent_stack, 0, sizeof(indent_stack));
     t.substr.end = begin;
     advance();
 }
 
 lexer::lexer(sslice const & txt) :
-    txt(txt), line_begin(txt.begin), p(nullptr), line_number(1) {
+    txt(txt), line_begin(txt.begin), p(nullptr), inconsistent_indent(nullptr),
+    line_number(1), total_indent_width(0), indent_dedent_delta(0),
+    last_stack_insert_idx(NO_INDENT_YET) {
+
+    memset(indent_stack, 0, sizeof(indent_stack));
     t.substr.end = txt.begin;
     advance();
 }
 
+inline uint32_t get_indent_width(char const * p, char const * end, char indent_char, char const * & inconsistent) {
+    uint32_t value = 0;
+    inconsistent = nullptr;
+    for (; p < end; ++p) {
+        char c = *p;
+        value += (c == '\t') ? 4 : 1;
+        if (inconsistent == nullptr && c != indent_char) {
+            inconsistent = p;
+        }
+    }
+    return value;
+}
+
+void lexer::push_indent(uint32_t new_indent_width) {
+    indent_stack[++last_stack_insert_idx] = new_indent_width;
+    total_indent_width += new_indent_width;
+    indent_dedent_delta = 1;
+}
+
+// Call this each time we find a line break in the code. This lets us do housekeeping
+// to indent and dedent, to keep track of which line number we're on, and to suppress
+// whitespace tokens that are irrelevant.
+char const * lexer::scan_indents_and_lines() {
+    while (p < txt.end) {
+        ++line_number;
+        line_begin = p;
+        char const * end_of_indent = scan_spaces_and_tabs(p, txt.end);
+        if (end_of_indent == txt.end) {
+            return txt.end;
+        }
+        p = end_of_indent;
+        char c = *p;
+        if (c == '\r') {
+            if (p + 1 < txt.end && p[1] == '\n') {
+                ++p;
+            }
+            c = '\n';
+        }
+        if (c == '\n') {
+            ++p;
+        } else {
+            // Found a line that's not empty. Look at its indent.
+            uint32_t indent_width = get_indent_width(line_begin, end_of_indent,
+                                                get_indent_char(), inconsistent_indent);
+            if (indent_width > total_indent_width) {
+                if (last_stack_insert_idx == NO_INDENT_YET) {
+                    indent_stack[0] = *p;
+                    last_stack_insert_idx = EMPTY_INDENT_STACK;
+                }
+                push_indent(indent_width - total_indent_width);
+            } else {
+                indent_dedent_delta = -1 * static_cast<int>(indent_width);
+            }
+            break;
+        }
+    }
+    return p;
+}
+
+uint32_t lexer::pop_indent() {
+    unsigned width = 0;
+    if (last_stack_insert_idx > EMPTY_INDENT_STACK) {
+        width = indent_stack[last_stack_insert_idx--];
+        total_indent_width -= width;
+    }
+    return width;
+}
+
 bool lexer::advance() {
 
+    // Reset state so we report invalid, zero-width token unless/until
+    // we report otherwise.
     t.type = tt_invalid;
+    t.value = 0;
     p = t.substr.begin = t.substr.end;
 
+    // Before we scan more text, pop any errors or indents/dedents that are queued up.
+    if (indent_dedent_delta) {
+        if (indent_dedent_delta > 0) {
+            indent_dedent_delta = 0;
+            t.type = tt_indent;
+            return true;
+        } else {
+            uint32_t popped_width = pop_indent();
+            if (total_indent_width <= popped_width) {
+                indent_dedent_delta = 0;
+                if (total_indent_width < popped_width) {
+                    // TODO: issue error
+                }
+            }
+            t.type = tt_dedent;
+            return true;
+        }
+    }
+
+    // If we've exhausted text, report that we can't advance anymore.
     if (t.substr.begin >= txt.end) return false;
 
     switch (*p) {
@@ -49,22 +155,27 @@ bool lexer::advance() {
         if (p < txt.end - 1 && p[1] == '\n') ++p;
         // fall through; don't break
     case '\n':
-        ++line_number;
-        t.substr.end = p + 1;
-        line_begin = t.substr.end;
-        t.type = tt_line_break;
-        break;
+        if (++p >= txt.end) return false;
+        // Find something besides new lines to look at.
+        scan_indents_and_lines();
+        // What we need to do now is react to new knowledge we may have
+        // about indents and dedents--or to react to some character besides
+        // a line break. There are ways to do this by enclosing most of this
+        // function in a "while (true){...}" loop or using goto, but they
+        // are ugly. It's simpler to just recurse. The recursion will never
+        // compound, and it's cheap, so we'll do it that way to be clean.
+        return advance();
+    case '\t':
     case ' ':
-        t.substr.end = scan_spaces(p + 1, txt.end);
+        // Are we seeing whitespace at the beginning of a line? This should
+        // only happen on the first line in the file...
         if (t.substr.begin == line_begin) {
-            if (!indenter) {
-                indenter.assign(t.substr.begin, p);
-                t.type = tt_indent;
-            } else if (t.substr.size() % indenter.size() == 0) {
-                t.type = tt_indent;
-            }
+            scan_indents_and_lines();
+        } else {
+            // At any other place, whitespace is ignored. Skip over it.
+            p = scan_spaces_and_tabs(p + 1, txt.end);
         }
-        break;
+        return advance();
     case '#':
         t.substr.end = scan_line(p + 1, txt.end);
         t.type = tt_private_comment;
@@ -160,9 +271,10 @@ inline bool get_quoted_string_token(char const * p, char const * end, token & t)
     }
 }
 
-inline char const * scan_spaces(char const * p, char const * end) {
+inline char const * scan_spaces_and_tabs(char const * p, char const * end) {
     while (p < end) {
-        if (*p != ' ') {
+        char c = *p;
+        if (c != ' ' && c != '\t') {
             break;
         }
         ++p;
