@@ -52,7 +52,7 @@ private:
     uint8_t indent_stack[128];
 
     bool advance();
-    char const * scan_indents_and_lines();
+    char const * scan_beginning_of_line();
     char get_indent_char() const;
     void push_indent(uint32_t new_indent_width);
     uint32_t pop_indent();

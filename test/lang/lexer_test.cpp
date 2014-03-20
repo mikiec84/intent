@@ -9,6 +9,46 @@ using boost::any_cast;
 
 using namespace intent::lang;
 
+TEST(lexer_test, indent_and_dedent) {
+    lexer lex(
+                "1\n"
+                "\t11\n"
+                "\t12\n"
+                "\t\t121\n"
+                "\t\t122\n"
+                "20\n"
+                "30\n"
+                "\t31\n"
+                );
+    token_type expected[] = {
+        tt_decimal_number,
+        tt_indent,
+        tt_decimal_number,
+        tt_decimal_number,
+        tt_indent,
+        tt_decimal_number,
+        tt_decimal_number,
+        tt_dedent,
+        tt_dedent,
+        tt_decimal_number,
+        tt_decimal_number,
+        tt_indent,
+        tt_decimal_number,
+        tt_dedent
+    };
+    auto it = lex.begin();
+    for (int i = 0; i < countof(expected); ++i) {
+        if (expected[i] != it->type) {
+            FAIL() << "Token[" << i << "] was " << get_token_type_name(it->type)
+                   << " instead of " << get_token_type_name(expected[i]) << ".";
+        }
+        ++it;
+        if (it == lex.end() && i < countof(expected) - 1) {
+            FAIL() << "Ended after Token[" << i << "].";
+        }
+    }
+}
+
 TEST(lexer_test, DISABLED_quoted_string) {
     struct test_item {
         char const * txt;
