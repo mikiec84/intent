@@ -35,7 +35,7 @@ token_type get_token_type_by_index(size_t i) {
     if (i < tt_infos_count) {
         return tt_infos[i].number;
     }
-    return tt_null;
+    return tt_none;
 }
 
 struct operator_info {
@@ -63,7 +63,7 @@ token_type get_token_type_from_name(char const * name) {
             }
         }
     }
-    return tt_null;
+    return tt_none;
 }
 
 inline bool compare_tt(token_type_info const & tti, token_type tt) {

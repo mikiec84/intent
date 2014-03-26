@@ -135,7 +135,7 @@ bool lexer::advance() {
 
     // Reset state so we report invalid, zero-width token unless/until
     // we report otherwise.
-    t.type = tt_null;
+    t.type = tt_none;
     t.value = 0;
     p = t.substr.begin = t.substr.end;
 
@@ -190,7 +190,7 @@ bool lexer::advance() {
         t.type = tt_private_comment;
         // Do not break
     case '|':
-        if (t.type == tt_null) {
+        if (t.type == tt_none) {
             t.type = tt_doc_comment;
         }
         t.substr.end = get_comment_token();
@@ -376,7 +376,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
         if (c == '0') {
             if (p + 2 < end) {
                 c = p[1];
-                token_type tt = tt_null;
+                token_type tt = tt_none;
                 if (c == 'x' || c == 'X') {
                     t.substr.end = scan_hex_digits(p + 2, end, whole_number);
                     tt = tt_hex_number;
@@ -387,7 +387,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
                     t.substr.end = scan_octal_digits(p + 2, end, whole_number);
                     tt = tt_octal_number;
                 }
-                if (tt != tt_null) {
+                if (tt != tt_none) {
                     t.type = tt;
                     set_possibly_signed_value(t, negative, whole_number);
                     return true;

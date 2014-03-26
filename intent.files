@@ -114,7 +114,11 @@ src/core/scan_numbers.cpp
 src/core/unicode-inline.h
 test/core/unicode_test.cpp
 src/lang/code_site.h
-src/lang/code_site.cpp
+src/lang/code_site-inline.h
 test/lang/code_site_test.cpp
-src/lang/code_issue.h
-src/lang/code_issue.cpp
+src/lang/note.h
+src/lang/note.cpp
+src/lang/issue_tuples.h
+src/lang/issue.h
+src/lang/issue.cpp
+test/lang/note_test.cpp

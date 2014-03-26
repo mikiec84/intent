@@ -3,7 +3,7 @@
 //TUPLE( number, name, example, comment )
 
 // structural
-TUPLE( 0x00000000, null, "\x0", "placeholder or uninitialized token value" )
+TUPLE( 0x00000000, none, "\x0", "placeholder or uninitialized token value" )
 TUPLE( 0x00000001, error, "<error>", "represents a tokenization error, typically caused by invalid syntax" )
 TUPLE( 0x00000002, indent, "\t", "increase nesting" )
 TUPLE( 0x00000003, dedent, "\x08", "decrease nesting" )
