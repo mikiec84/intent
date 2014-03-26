@@ -28,4 +28,8 @@ inline char const * rtrim(char const * begin, char const * end, char const * cha
     return begin;
 }
 
+inline bool is_null_or_empty(char const * p) {
+    return p == nullptr || *p == 0;
+}
+
 #endif

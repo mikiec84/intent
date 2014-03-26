@@ -3,8 +3,10 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 #include "lang/token.h"
+#include "lang/note.h"
 
 namespace intent {
 namespace lang {
@@ -52,6 +54,10 @@ private:
     uint32_t last_stack_insert_idx;
     uint8_t indent_stack[64];
 
+    typedef std::unique_ptr<note> note_handle_t;
+    note_handle_t pending_error;
+
+    void push_error(issue_id);
     bool advance();
     char const * get_comment_token();
     char get_indent_char() const;

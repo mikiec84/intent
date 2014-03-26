@@ -9,6 +9,15 @@ using boost::any_cast;
 
 using namespace intent::lang;
 
+TEST(lexer_test, unterminated_string_literal) {
+    lexer lex("\"abc\n"
+              "xyz");
+    auto it = lex.begin();
+    ASSERT_EQ(tt_quoted_string, it->type);
+    ++it;
+    ASSERT_EQ(tt_error, it->type);
+}
+
 TEST(lexer_test, wrapped_comment) {
     lexer lex("  | this is a comment\n"
               "  ... that spans multiple\n"

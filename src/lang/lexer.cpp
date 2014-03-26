@@ -122,6 +122,11 @@ char const * lexer::scan_beginning_of_line() {
     return p;
 }
 
+void lexer::push_error(issue_id issue) {
+    pending_error = note_handle_t(new note(issue, nullptr, line_number, p - line_begin));
+}
+
+
 uint32_t lexer::pop_indent() {
     unsigned width = 0;
     if (last_stack_insert_idx > EMPTY_INDENT_STACK) {
@@ -139,8 +144,15 @@ bool lexer::advance() {
     t.value = 0;
     p = t.substr.begin = t.substr.end;
 
-    // Before we scan more text, pop any errors or indents/dedents that
-    // are queued up.
+    // Before we scan more text, emit any errors that we've already discovered.
+    if (pending_error) {
+        t.type = tt_error;
+        t.value = pending_error->to_string();
+        pending_error.reset();
+        return true;
+    }
+
+    // Also before we scan more text, pop any indents/dedents that are queued up.
     if (indent_dedent_delta) {
         if (indent_dedent_delta > 0) {
             indent_dedent_delta = 0;
@@ -304,7 +316,8 @@ char const * lexer::scan_quoted_string() {
             if (next_line_continues(consume_line_break(p, txt.end))) {
                 c = ' ';
             } else {
-                // TODO: emit error token
+                push_error(ii_unterminated_string_literal);
+                break;
             }
         }
         if (!handled) {

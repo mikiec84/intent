@@ -1,5 +1,6 @@
 #include <sstream>
 
+#include "core/strutil.h"
 #include "lang/note.h"
 
 using std::string;
@@ -20,7 +21,10 @@ note::note(issue_id id, char const * url, unsigned line, unsigned offset):
 
 string note::to_string() const {
     stringstream txt;
-    txt << site.compilation_unit_url << ", line " << site.line_number << ", offset "
+    if (!is_null_or_empty(site.compilation_unit_url)) {
+        txt << site.compilation_unit_url << ", ";
+    }
+    txt << "line " << site.line_number << ", offset "
         << site.offset_on_line << ": error " << issue << " -- " << get_issue_msg(issue);
     return txt.str();
 }
