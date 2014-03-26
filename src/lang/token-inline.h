@@ -1,11 +1,11 @@
-#ifndef _76f2445c54594764807d34d85f7d53b7
-#define _76f2445c54594764807d34d85f7d53b7
+#ifndef TOKEN_INLINE_76f2445c54594764807d34d85f7d53b7
+#define TOKEN_INLINE_76f2445c54594764807d34d85f7d53b7
 
 #include <cfloat> // FLT_MAX, FLT_MIN
 #include <cstdint> // INT32_MAX, etc
 #include <cstring> // memset
 
-#ifndef _695ce797496541c9b74e67f9c5bfa6a1
+#ifndef TOKEN_695ce797496541c9b74e67f9c5bfa6a1
 #include "lang/token.h"
 #endif
 

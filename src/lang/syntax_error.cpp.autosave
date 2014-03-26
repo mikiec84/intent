@@ -1,0 +1,21 @@
+#include "lang/syntax_error.h"
+
+namespace intent {
+namespace lang {
+
+syntax_error::syntax_error(char const * msg, code_site const & site):
+    std::runtime_error(msg), msg(msg), 
+    site(site.compilation_unit_url, site.line_number, site.offset_on_line,
+         site.url_strategy) {
+}
+
+syntax_error::syntax_error(char const * msg, char const * url, unsigned line, unsigned offset,
+                 code_site::url_copy_strategy url_strategy = dont_copy):
+    std::runtime_error(msg), msg(msg), 
+    site(site.compilation_unit_url, site.line_number, site.offset_on_line,
+         site.url_strategy) {
+
+}
+
+} // end namespace lang
+} // end namespace intent

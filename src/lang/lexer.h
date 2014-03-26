@@ -1,5 +1,5 @@
-#ifndef _5e2636d642be46bc91ebd85c04781b80
-#define _5e2636d642be46bc91ebd85c04781b80
+#ifndef LEXER_5e2636d642be46bc91ebd85c04781b80
+#define LEXER_5e2636d642be46bc91ebd85c04781b80
 
 #include <cstddef>
 #include <cstdint>
@@ -45,15 +45,20 @@ private:
     char const * p;
     char const * inconsistent_indent;
     char const * error_msg;
+    uint32_t statement_number;
     uint32_t line_number;
     uint32_t total_indent_width;
     int32_t indent_dedent_delta;
     uint32_t last_stack_insert_idx;
-    uint8_t indent_stack[128];
+    uint8_t indent_stack[64];
 
     bool advance();
-    char const * scan_beginning_of_line();
+    char const * get_comment_token();
     char get_indent_char() const;
+    bool get_quoted_string_token();
+    bool next_line_continues(char const * beginning_of_next_line);
+    char const * scan_quoted_string();
+    char const * scan_beginning_of_line();
     void push_indent(uint32_t new_indent_width);
     uint32_t pop_indent();
 };

@@ -1,5 +1,5 @@
-#ifndef _c91db24c55bf4309ab2f258d899efd3f
-#define _c91db24c55bf4309ab2f258d899efd3f
+#ifndef TOKEN_TYPE_INLINE_c91db24c55bf4309ab2f258d899efd3f
+#define TOKEN_TYPE_INLINE_c91db24c55bf4309ab2f258d899efd3f
 
 #ifndef _e33c74c59d334c299b7d6a1cc61bc2d0
 #include "lang/token_type.h"

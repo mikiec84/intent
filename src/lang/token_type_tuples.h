@@ -3,13 +3,14 @@
 //TUPLE( number, name, example, comment )
 
 // structural
-TUPLE( 0x00000000, invalid, "\x0", "invalid token" )
-TUPLE( 0x00000001, indent, "\t", "increase nesting" )
-TUPLE( 0x00000002, dedent, "\x08", "decrease nesting" )
-TUPLE( 0x00000003, line_break, "\n", "separate one line from another" )
-TUPLE( 0x00000004, soft_break, "... ", "continue current statement on new line" )
-TUPLE( 0x00000005, noun_phrase, "foo", "" )
-TUPLE( 0x00000006, verb_phrase, "Do something", "" )
+TUPLE( 0x00000000, null, "\x0", "placeholder or uninitialized token value" )
+TUPLE( 0x00000001, error, "<error>", "represents a tokenization error, typically caused by invalid syntax" )
+TUPLE( 0x00000002, indent, "\t", "increase nesting" )
+TUPLE( 0x00000003, dedent, "\x08", "decrease nesting" )
+TUPLE( 0x00000004, line_break, "\n", "separate one line from another" )
+TUPLE( 0x00000005, soft_break, "... ", "continue current statement on new line" )
+TUPLE( 0x00000006, noun_phrase, "foo", "" )
+TUPLE( 0x00000007, verb_phrase, "Do something", "" )
 
 // keywords
 TUPLE( 0x00001000, keyword_mask, "", "" )

@@ -5,7 +5,7 @@
 namespace intent {
 namespace lang {
 
-token::token() : type(tt_invalid) {
+token::token() : type(tt_null) {
 }
 
 token::~token() {

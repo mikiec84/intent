@@ -2,6 +2,7 @@
 #include <string>
 
 #include "core/scan_numbers.h"
+#include "core/strutil.h"
 #include "core/unicode.h"
 #include "lang/lexer.h"
 
@@ -10,11 +11,10 @@ using std::string;
 namespace intent {
 namespace lang {
 
-char const * scan_line(char const * p, char const * end);
-char const * scan_quoted_string(char const * p, char const * end);
+bool is_line_break(char c);
+char const * scan_rest_of_line(char const * p, char const * end);
 char const * scan_spaces_and_tabs(char const * p, char const * end);
 bool get_number_token(char const * p, char const * end, token & t);
-bool get_quoted_string_token(char const * p, char const * end, token & t);
 char const * scan_phrase(char const * p, char const * end);
 
 const uint32_t NO_INDENT_YET = UINT32_MAX;
@@ -28,8 +28,8 @@ lexer::lexer(sslice const & txt) : lexer(txt.begin, txt.end) {
 
 lexer::lexer(char const * begin, char const * end) :
     txt(begin, end), line_begin(begin), p(begin), inconsistent_indent(nullptr),
-    line_number(0), total_indent_width(0), indent_dedent_delta(0),
-    last_stack_insert_idx(NO_INDENT_YET) {
+    statement_number(0), line_number(0), total_indent_width(0),
+    indent_dedent_delta(0), last_stack_insert_idx(NO_INDENT_YET) {
 
     if (p) {
         // Consume any whitespace at the beginning of the code. We always call
@@ -42,7 +42,8 @@ lexer::lexer(char const * begin, char const * end) :
     }
 }
 
-inline uint32_t get_indent_width(char const * p, char const * end, char indent_char, char const * & inconsistent) {
+inline uint32_t get_indent_width(char const * p, char const * end,
+                                 char indent_char, char const * & inconsistent) {
     uint32_t value = 0;
     inconsistent = nullptr;
     for (; p < end; ++p) {
@@ -61,9 +62,34 @@ void lexer::push_indent(uint32_t new_indent_width) {
     indent_dedent_delta = 1;
 }
 
-// Call this each time we find a line break in the code. This lets us do housekeeping
-// to indent and dedent, to keep track of which line number we're on, and to suppress
-// whitespace tokens that are irrelevant.
+/**
+ * Consume any form of line break -- \n, \r\n, or even \r by itself.
+ * @pre p points either to \r (which may or may not be followed by \n),
+ *     or to \n (not preceded by \r).
+ * @return pointer to first char after line break
+ */
+inline char const * consume_line_break(char const * p, char const * end) {
+    if (p + 1 < end) {
+        if (*p == '\r') {
+            if (p[1] == '\n') {
+                ++p;
+            }
+        }
+    }
+    ++p;
+    return p;
+}
+
+/**
+ * Call this each time we find a line break in the code. This lets us do housekeeping
+ * to indent and dedent, to keep track of which line number we're on, and to suppress
+ * whitespace tokens that are irrelevant.
+ *
+ * @pre p points to the first char after \n
+ * @post p points to the first char that's not indenting whitespace, at the beginning
+ *     of a new line--not necessarily the same line that we started with. line_number
+ *     and indents have been updated appropriately.
+ */
 char const * lexer::scan_beginning_of_line() {
     while (p < txt.end) {
         ++line_number;
@@ -74,14 +100,8 @@ char const * lexer::scan_beginning_of_line() {
         }
         p = end_of_indent;
         char c = *p;
-        if (c == '\r') {
-            if (p + 1 < txt.end && p[1] == '\n') {
-                ++p;
-            }
-            c = '\n';
-        }
-        if (c == '\n') {
-            ++p;
+        if (is_line_break(c)) {
+            p = consume_line_break(p, txt.end);
         } else {
             // Found a line that's not empty. Look at its indent.
             uint32_t indent_width = get_indent_width(line_begin, end_of_indent,
@@ -115,11 +135,12 @@ bool lexer::advance() {
 
     // Reset state so we report invalid, zero-width token unless/until
     // we report otherwise.
-    t.type = tt_invalid;
+    t.type = tt_null;
     t.value = 0;
     p = t.substr.begin = t.substr.end;
 
-    // Before we scan more text, pop any errors or indents/dedents that are queued up.
+    // Before we scan more text, pop any errors or indents/dedents that
+    // are queued up.
     if (indent_dedent_delta) {
         if (indent_dedent_delta > 0) {
             indent_dedent_delta = 0;
@@ -143,7 +164,7 @@ bool lexer::advance() {
     case 0:
         return false;
     case '\r':
-        if (p < txt.end - 1 && p[1] == '\n') ++p;
+        if (p + 1 < txt.end && p[1] == '\n') ++p;
         // fall through; don't break
     case '\n':
         if (++p < txt.end) {
@@ -166,22 +187,23 @@ bool lexer::advance() {
         p = scan_spaces_and_tabs(p + 1, txt.end);
         return advance();
     case '#':
-        t.substr.end = scan_line(p + 1, txt.end);
         t.type = tt_private_comment;
-        break;
+        // Do not break
     case '|':
-        t.substr.end = scan_line(p + 1, txt.end);
-        t.type = tt_doc_comment;
+        if (t.type == tt_null) {
+            t.type = tt_doc_comment;
+        }
+        t.substr.end = get_comment_token();
         break;
     case '"':
-        get_quoted_string_token(p, txt.end, t);
+        get_quoted_string_token();
         break;
     case '-':
     case '+':
         if (p < txt.end - 1 && isdigit(p[1])) {
             get_number_token(p, txt.end, t);
         } else {
-            t.type = tt_invalid;
+            t.type = tt_error;
             t.substr.end = p + 1;
         }
         break;
@@ -195,7 +217,7 @@ bool lexer::advance() {
             } else if (isdigit(c)) {
                 get_number_token(p, txt.end, t);
             } else {
-                t.type = tt_invalid;
+                t.type = tt_error;
                 t.substr.end = p + 1;
             }
         }
@@ -204,10 +226,48 @@ bool lexer::advance() {
     return true;
 }
 
-inline char const * scan_line(char const * p, char const * end) {
+bool lexer::next_line_continues(char const * beginning_of_next_line) {
+    auto last_line_num = line_number;
+    auto last_indent = total_indent_width;
+    p = beginning_of_next_line;
+    auto next = scan_beginning_of_line();
+    if (last_line_num + 1 != line_number || last_indent != total_indent_width) {
+        return false;
+    }
+    if (next + 3 >= txt.end || strncmp(next, "...", 3) != 0) {
+        return false;
+    }
+    p = next + 3;
+    return true;
+}
+
+char const * lexer::get_comment_token() {
+    string value;
+    while (true) {
+        ++p;
+        auto end_of_line = scan_rest_of_line(p, txt.end);
+        auto after_spaces = scan_spaces_and_tabs(p, txt.end);
+//        if (after_spaces > p) {
+//            if (*p == ' ' && p)
+//        }
+        if (after_spaces < end_of_line) {
+            auto rtrim_result = rtrim(after_spaces, end_of_line);
+            if (!value.empty()) {
+                value += ' ';
+            }
+            value += string(after_spaces, rtrim_result);
+        }
+        if (!next_line_continues(end_of_line + 1)) {
+            break;
+        }
+    }
+    t.value = value;
+    return p;
+}
+
+inline char const * scan_rest_of_line(char const * p, char const * end) {
     while (p < end) {
-        char c = *p;
-        if (c == '\n' || c == '\r') {
+        if (is_line_break(*p)) {
             break;
         }
         ++p;
@@ -215,10 +275,13 @@ inline char const * scan_line(char const * p, char const * end) {
     return p;
 }
 
-char const * scan_quoted_string(char const * first_content_char, char const * end, string & value) {
-    char const * p = first_content_char;
-    value.clear();
-    while (p < end) {
+/**
+ * @pre p points at first content char inside quoted str
+ * @post t.value contains the normalized content of quoted str
+ */
+char const * lexer::scan_quoted_string() {
+    string value;
+    while (p < txt.end) {
         bool handled = false;
         char c = *p;
         if (c == '"') {
@@ -227,7 +290,7 @@ char const * scan_quoted_string(char const * first_content_char, char const * en
             codepoint_t cp;
             // TODO: tweak scan_unicode_escape_sequence() so it honors end.
             char const * seq_end = scan_unicode_escape_sequence(p + 1, cp);
-            if (cp != UNICODE_REPLACEMENT_CHAR && seq_end > p && seq_end <= end) {
+            if (cp != UNICODE_REPLACEMENT_CHAR && seq_end > p && seq_end <= txt.end) {
                 handled = true;
                 char buf[16];
                 size_t buf_length = sizeof(buf);
@@ -237,21 +300,32 @@ char const * scan_quoted_string(char const * first_content_char, char const * en
                 value += buf;
                 p = seq_end;
             }
+        } else if (is_line_break(c)) {
+            if (next_line_continues(consume_line_break(p, txt.end))) {
+                c = ' ';
+            } else {
+                // TODO: emit error token
+            }
         }
         if (!handled) {
             value += c;
             ++p;
         }
     }
+    t.value = value;
     return p;
 }
 
-inline bool get_quoted_string_token(char const * p, char const * end, token & t) {
+/**
+ * @pre p points at opening quote char
+ * @post p points to first char after terminating quote
+ * @return true if able to get quoted string
+ */
+bool lexer::get_quoted_string_token() {
     t.type = tt_quoted_string;
-    string value;
-    char const * close_quote = scan_quoted_string(p + 1, end, value);
-    t.value = value;
-    if (close_quote != end) {
+    ++p;
+    char const * close_quote = scan_quoted_string();
+    if (close_quote != txt.end) {
         t.substr.end = close_quote + 1;
         return true;
     } else {
@@ -302,7 +376,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
         if (c == '0') {
             if (p + 2 < end) {
                 c = p[1];
-                token_type tt = tt_invalid;
+                token_type tt = tt_null;
                 if (c == 'x' || c == 'X') {
                     t.substr.end = scan_hex_digits(p + 2, end, whole_number);
                     tt = tt_hex_number;
@@ -313,7 +387,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
                     t.substr.end = scan_octal_digits(p + 2, end, whole_number);
                     tt = tt_octal_number;
                 }
-                if (tt != tt_invalid) {
+                if (tt != tt_null) {
                     t.type = tt;
                     set_possibly_signed_value(t, negative, whole_number);
                     return true;
@@ -374,6 +448,10 @@ char const * scan_phrase(char const * p, char const * end) {
         ++p;
     }
     return p;
+}
+
+inline bool is_line_break(char c) {
+    return c == '\n' || c == '\r';
 }
 
 } // end namespace lang

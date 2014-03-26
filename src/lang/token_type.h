@@ -1,5 +1,5 @@
-#ifndef _e33c74c59d334c299b7d6a1cc61bc2d0
-#define _e33c74c59d334c299b7d6a1cc61bc2d0
+#ifndef TOKEN_TYPE_e33c74c59d334c299b7d6a1cc61bc2d0
+#define TOKEN_TYPE_e33c74c59d334c299b7d6a1cc61bc2d0
 
 namespace intent {
 namespace lang {

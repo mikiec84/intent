@@ -9,6 +9,20 @@ using boost::any_cast;
 
 using namespace intent::lang;
 
+TEST(lexer_test, wrapped_comment) {
+    lexer lex("  | this is a comment\n"
+              "  ... that spans multiple\n"
+              "  ... lines.\n"
+              "  x = 3"
+                );
+    auto it = lex.begin();
+    ASSERT_EQ(tt_indent, it->type);
+    ++it;
+    ASSERT_EQ(tt_doc_comment, it->type);
+    string const & v = any_cast<string const &>(it->value);
+    ASSERT_STREQ("this is a comment that spans multiple lines.", v.c_str());
+}
+
 TEST(lexer_test, indent_and_dedent) {
     lexer lex(
                 "1\n"
@@ -49,7 +63,7 @@ TEST(lexer_test, indent_and_dedent) {
     }
 }
 
-TEST(lexer_test, DISABLED_quoted_string) {
+TEST(lexer_test, quoted_string) {
     struct test_item {
         char const * txt;
         char const * expected_value;

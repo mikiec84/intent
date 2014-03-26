@@ -1,7 +1,7 @@
-#ifndef _ec56261ea62b4f4ba1594eccf05494ff
-#define _ec56261ea62b4f4ba1594eccf05494ff
+#ifndef LEXER_INLINE_ec56261ea62b4f4ba1594eccf05494ff
+#define LEXER_INLINE_ec56261ea62b4f4ba1594eccf05494ff
 
-#ifndef _5e2636d642be46bc91ebd85c04781b80
+#ifndef LEXER_5e2636d642be46bc91ebd85c04781b80
 #include "lang/lexer.h"
 #endif
 

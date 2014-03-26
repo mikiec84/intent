@@ -1,5 +1,5 @@
-#ifndef _695ce797496541c9b74e67f9c5bfa6a1
-#define _695ce797496541c9b74e67f9c5bfa6a1
+#ifndef TOKEN_695ce797496541c9b74e67f9c5bfa6a1
+#define TOKEN_695ce797496541c9b74e67f9c5bfa6a1
 
 #include <cstdint>
 #include <memory>
