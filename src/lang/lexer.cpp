@@ -13,7 +13,6 @@ namespace lang {
 
 bool is_line_break(char c);
 char const * scan_rest_of_line(char const * p, char const * end);
-char const * scan_spaces_and_tabs(char const * p, char const * end);
 bool get_number_token(char const * p, char const * end, token & t);
 char const * scan_phrase(char const * p, char const * end);
 
@@ -60,24 +59,6 @@ void lexer::push_indent(uint32_t new_indent_width) {
     indent_stack[++last_stack_insert_idx] = new_indent_width;
     total_indent_width += new_indent_width;
     indent_dedent_delta = 1;
-}
-
-/**
- * Consume any form of line break -- \n, \r\n, or even \r by itself.
- * @pre p points either to \r (which may or may not be followed by \n),
- *     or to \n (not preceded by \r).
- * @return pointer to first char after line break
- */
-inline char const * consume_line_break(char const * p, char const * end) {
-    if (p + 1 < end) {
-        if (*p == '\r') {
-            if (p[1] == '\n') {
-                ++p;
-            }
-        }
-    }
-    ++p;
-    return p;
 }
 
 /**
@@ -346,18 +327,6 @@ bool lexer::get_quoted_string_token() {
         return false;
     }
 }
-
-inline char const * scan_spaces_and_tabs(char const * p, char const * end) {
-    while (p < end) {
-        char c = *p;
-        if (c != ' ' && c != '\t') {
-            break;
-        }
-        ++p;
-    }
-    return p;
-}
-
 
 void set_possibly_signed_value(token & t, bool negative, uint64_t n) {
     if (negative) {

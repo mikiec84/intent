@@ -21,4 +21,5 @@ TEST(strutil_test, rtrim) {
     try_trim(rtrim, " test", "");
     try_trim_ex(rtrim, " test", "st", "st");
     try_trim(rtrim, "\r\n \t ", "\r\n \t ");
+    try_trim(rtrim, "s ", " ");
 }
