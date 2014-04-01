@@ -205,8 +205,7 @@ bool lexer::advance() {
         {
             char c = *p;
             if (isalpha(c)) {
-                t.substr.end = scan_phrase(p + 1, txt.end);
-                t.type = tt_noun_phrase;
+                get_phrase_token();
             } else if (isdigit(c)) {
                 get_number_token(p, txt.end, t);
             } else {
@@ -218,6 +217,32 @@ bool lexer::advance() {
     }
     return true;
 }
+
+/**
+ * @pre p points at first char of phrase
+ * @post p points to first char after phrase
+ */
+bool lexer::get_phrase_token() {
+    string value;
+    t.type = isupper(*p) ? tt_verb_phrase : tt_noun_phrase;
+    for (; p != txt.end; ++p) {
+        char c = *p;
+        if (isalnum(c) || c == '\'' || c == ' ') {
+            value += c;
+        } else if (is_line_break(c)) {
+            if (next_line_continues(consume_line_break(p, txt.end))) {
+                value += ' ';
+            }
+            break;
+        } else {
+            break;
+        }
+    }
+    t.value = value;
+    return true;
+}
+
+
 
 bool lexer::next_line_continues(char const * beginning_of_next_line) {
     auto last_line_num = line_number;
@@ -270,6 +295,10 @@ inline char const * scan_rest_of_line(char const * p, char const * end) {
 
 /**
  * @pre p points at first content char inside quoted str
+ * @return next char worth analyzing, after close quote. This may be the
+ *     char immediately after the close quote, or it may be a few chars
+ *     later if the quoted string ended unnaturally and we analyzed line
+ *     breaks without seeing a continuation.
  * @post t.value contains the normalized content of quoted str
  */
 char const * lexer::scan_quoted_string() {
@@ -278,6 +307,7 @@ char const * lexer::scan_quoted_string() {
         bool handled = false;
         char c = *p;
         if (c == '"') {
+            ++p;
             break;
         } else if (c == '\\') {
             codepoint_t cp;
@@ -318,14 +348,8 @@ char const * lexer::scan_quoted_string() {
 bool lexer::get_quoted_string_token() {
     t.type = tt_quoted_string;
     ++p;
-    char const * close_quote = scan_quoted_string();
-    if (close_quote != txt.end) {
-        t.substr.end = close_quote + 1;
-        return true;
-    } else {
-        t.substr.end = close_quote;
-        return false;
-    }
+    t.substr.end = scan_quoted_string();
+    return true;
 }
 
 void set_possibly_signed_value(token & t, bool negative, uint64_t n) {

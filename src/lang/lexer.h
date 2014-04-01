@@ -61,6 +61,7 @@ private:
     bool advance();
     char const * get_comment_token();
     char get_indent_char() const;
+    bool get_phrase_token();
     bool get_quoted_string_token();
     bool next_line_continues(char const * beginning_of_next_line);
     char const * scan_quoted_string();

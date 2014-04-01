@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "core/countof.h"
+#include "core/interp.h"
 #include "lang/lexer.h"
 #include "gtest/gtest.h"
 
@@ -14,8 +15,22 @@ TEST(lexer_test, unterminated_string_literal) {
               "xyz");
     auto it = lex.begin();
     ASSERT_EQ(tt_quoted_string, it->type);
+    string v = any_cast<string>(it->value);
+    ASSERT_STREQ("abc", v.c_str());
+
+    // Prove that we emit an error in the correct place
     ++it;
     ASSERT_EQ(tt_error, it->type);
+    v = any_cast<string>(it->value);
+    string expected = interp("line 2, offset 0: error {1} -- {2}", {
+                           static_cast<int>(ii_unterminated_string_literal),
+                           get_issue_msg(ii_unterminated_string_literal)});
+    ASSERT_STREQ(expected.c_str(), v.c_str());
+    // Now prove that we resume in the correct state
+    ++it;
+    ASSERT_EQ(tt_noun_phrase, it->type);
+    v = any_cast<string>(it->value);
+    ASSERT_STREQ("xyz", v.c_str());
 }
 
 TEST(lexer_test, wrapped_comment) {
