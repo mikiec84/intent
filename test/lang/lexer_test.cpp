@@ -1,14 +1,55 @@
 #include <algorithm>
+#include <unistd.h>
 
 #include "core/countof.h"
 #include "core/interp.h"
+#include "core/sandbox.h"
 #include "lang/lexer.h"
+#include "testutil/testutil.h"
 #include "gtest/gtest.h"
 
 using std::string;
+using std::vector;
 using boost::any_cast;
-
+using namespace boost::filesystem;
 using namespace intent::lang;
+
+bool read_file(char const * fpath, std::vector<uint8_t> & bytes) {
+    return false;
+}
+
+void verify_lex(path const & i, path const & tsv) {
+    typedef vector<uint8_t> bytes;
+    bytes i_bytes;
+    if (read_file(i.c_str(), i_bytes)) {
+        bytes tsv_bytes;
+        if (read_file(tsv.c_str(), tsv_bytes)) {
+
+        }
+    }
+}
+
+TEST(lexer_test, samples) {
+    path data_folder = find_test_folder(__FILE__);
+    ASSERT_TRUE(data_folder.c_str()[0]);
+    data_folder /= "data";
+    directory_iterator end = directory_iterator();
+    for (directory_iterator i = directory_iterator(data_folder); i != end; ++i) {
+        if (strcmp(extension(*i).c_str(), ".i") == 0) {
+            path complement = i->path().parent_path() / i->path().stem() / ".tsv";
+            if (exists(complement)) {
+                verify_lex(*i, complement);
+            }
+        }
+    }
+#if 0
+    printf("this file is %s\n", __FILE__);
+    char buf[256];
+    printf("the cwd is %s\n", getcwd(buf, 256));
+    auto sb = sandbox::find_root(".");
+    printf("sandbox is %s\n", sb.c_str());
+#endif
+}
 
 TEST(lexer_test, unterminated_string_literal) {
     lexer lex("\"abc\n"

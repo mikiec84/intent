@@ -1,0 +1,6 @@
+Import('env')
+
+testutil = env.Library(target='intent-testutil', source=Glob('*.cpp'))
+
+Return('testutil')
+

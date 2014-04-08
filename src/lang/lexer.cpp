@@ -117,6 +117,149 @@ uint32_t lexer::pop_indent() {
     return width;
 }
 
+inline void lexer::scan_lt() {
+    if (p + 1 < txt.end) {
+        switch (p[1]) {
+        case '<':
+            if (p + 2 < txt.end && p[2] == '=') {
+                p += 3;
+                t.type = tt_operator_lshift_equals;
+            } else {
+                p += 2;
+                t.type = tt_operator_lshift;
+            }
+            return;
+        case '=':
+            if (p + 2 < txt.end && p[2] == '>') {
+                if (p + 3 < txt.end && p[3] == '?') {
+                    t.type = tt_operator_spaceshipq;
+                    p += 4;
+                } else {
+                    t.type = tt_operator_spaceship;
+                    p += 3;
+                }
+                return;
+            }
+            p += 2;
+            t.type = tt_operator_less_equal;
+            return;
+        default:
+            break;
+        }
+    }
+    ++p;
+    t.type = tt_operator_less;
+}
+
+inline void lexer::scan_gt() {
+    if (p + 1 < txt.end) {
+        switch (p[1]) {
+        case '>':
+            if (p + 2 < txt.end && p[2] == '=') {
+                p += 3;
+                t.type = tt_operator_rshift_equals;
+            } else {
+                p += 2;
+                t.type = tt_operator_rshift;
+            }
+            return;
+        case '=':
+            p += 2;
+            t.type = tt_operator_greater_equal;
+            return;
+        default:
+            break;
+        }
+    }
+    ++p;
+    t.type = tt_operator_greater;
+}
+
+inline void lexer::scan_minus() {
+    if (p + 1 < txt.end) {
+        switch (p[1]) {
+        case '>':
+            p += 2;
+            t.type = tt_operator_cast;
+            return;
+        case '=':
+            p += 2;
+            t.type = tt_operator_minus_equals;
+            return;
+        case '?':
+            p += 2;
+            t.type = tt_operator_implied_negative_mark;
+            return;
+        default:
+            if (isdigit(p[1])) {
+                get_number_token(p, txt.end, t);
+                return;
+            }
+            break;
+        }
+    }
+    ++p;
+    t.type = tt_operator_minus;
+}
+
+inline void lexer::scan_plus() {
+    if (p + 1 < txt.end) {
+        switch (p[1]) {
+        case '=':
+            p += 2;
+            t.type = tt_operator_plus_equals;
+            return;
+        case '?':
+            p += 2;
+            t.type = tt_operator_implied_positive_mark;
+            return;
+        default:
+            if (isdigit(p[1])) {
+                get_number_token(p, txt.end, t);
+                return;
+            }
+            break;
+        }
+    }
+    ++p;
+    t.type = tt_operator_plus;
+}
+
+inline void lexer::scan_q() {
+    if (p + 1 < txt.end) {
+        switch (p[1]) {
+        case '.':
+            p += 2;
+            t.type = tt_operator_safe_dot;
+            return;
+        case '[':
+            if (p + 2 > txt.end && p[2] == '?') {
+                t.type = tt_operator_safe_subscript_safe_empty;
+                p += 3;
+                return;
+            }
+            t.type = tt_operator_safe_subscript;
+            p += 2;
+            return;
+        case ':':
+            t.type = tt_operator_elvis;
+            p += 2;
+            return;
+        case '<':
+            if (p + 3 > txt.end && p[2] == '=' && p[3] == '>') {
+                t.type = tt_operator_qspaceship;
+                p += 4;
+                return;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    ++p;
+    t.type = tt_operator_greater;
+}
+
 bool lexer::advance() {
 
     // Reset state so we report invalid, zero-width token unless/until
@@ -179,6 +322,35 @@ bool lexer::advance() {
     case ' ':
         p = scan_spaces_and_tabs(p + 1, txt.end);
         return advance();
+    case '<':
+        scan_lt();
+        break;
+    case '>':
+        scan_gt();
+        break;
+    case '?':
+        scan_q();
+        break;
+    case '[':
+        if (p + 1 < txt.end && p[1] == '?') {
+            p += 2;
+            t.type = tt_operator_safe_empty;
+        } else {
+            ++p;
+            t.type = tt_operator_subscript;
+        }
+        break;
+    case ']':
+        ++p;
+        t.type = tt_operator_subscript_end;
+    case '(':
+        t.type = tt_operator_group;
+        ++p;
+        return true;
+    case ')':
+        t.type = tt_operator_ungroup;
+        ++p;
+        return true;
     case '#':
         t.type = tt_private_comment;
         // Do not break
@@ -192,15 +364,11 @@ bool lexer::advance() {
         get_quoted_string_token();
         break;
     case '-':
-    case '+':
-        if (p < txt.end - 1 && isdigit(p[1])) {
-            get_number_token(p, txt.end, t);
-        } else {
-            t.type = tt_error;
-            t.substr.end = p + 1;
-        }
+        scan_minus();
         break;
-
+    case '+':
+        scan_plus();
+        break;
     default:
         {
             char c = *p;

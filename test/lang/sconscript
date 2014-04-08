@@ -3,12 +3,13 @@ Import('core')
 Import('lang')
 Import('gmock')
 Import('gtest')
+Import('testutil')
 
 # Build all .cpp files in this folder into a single binary.
 sources = Glob('*.cpp')
 sources.extend(test_env.Object('#/src/external/gmock/gtest/src/gtest_main.cc'))
 
-libs = [lang, core, gmock, gtest, 'pthread']
+libs = [lang, core, testutil, gmock, gtest, 'boost_filesystem', 'boost_system', 'pthread']
 import platform
 if platform.uname()[0] != 'Darwin':
     libs.append('rt')

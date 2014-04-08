@@ -16,7 +16,7 @@ env = Environment(CPPPATH=[
         CPPDEFINES=['__STDC_LIMIT_MACROS'])
 
 # To link against boost libraries:
-#env['LIBPATH'] += ['#/boost/stage/lib']
+env['LIBPATH'] = ['#/boost/stage/lib']
 
 # To link against icu libraries:
 #ln -s /usr/local/Cellar/icu4c/<VERSION>/bin/icu-config /usr/local/bin/icu-config

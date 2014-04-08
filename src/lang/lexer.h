@@ -59,6 +59,11 @@ private:
 
     void push_error(issue_id);
     bool advance();
+    void scan_lt();
+    void scan_gt();
+    void scan_q();
+    void scan_minus();
+    void scan_plus();
     char const * get_comment_token();
     char get_indent_char() const;
     bool get_phrase_token();
