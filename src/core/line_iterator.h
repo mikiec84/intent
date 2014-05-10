@@ -1,0 +1,22 @@
+#ifndef line_iterator_h_ade0a606459645039152b22d3c95e1e2
+#define line_iterator_h_ade0a606459645039152b22d3c95e1e2
+
+#include "core/sslice.h"
+
+struct line_iterator {
+    line_iterator() {}
+    line_iterator(char const * begin, char const * end=nullptr);
+    bool operator ==(line_iterator const & rhs) const { return line == rhs.line; }
+    bool operator !=(line_iterator const & rhs) const { return !(*this == rhs); }
+    operator bool() const { return line.operator bool(); }
+    sslice & operator *() { return line; }
+    sslice * operator ->() { return &line; }
+    line_iterator & operator++();
+private:
+    sslice line;
+    char const * end;
+};
+
+#include "strutil-inline.h"
+
+#endif // sentry

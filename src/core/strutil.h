@@ -1,5 +1,5 @@
-#ifndef _2ae84901285444e9a2d091accbbd2d7e
-#define _2ae84901285444e9a2d091accbbd2d7e
+#ifndef strutil_h_2ae84901285444e9a2d091accbbd2d7e
+#define strutil_h_2ae84901285444e9a2d091accbbd2d7e
 
 char const * const ANY_WHITESPACE = " \t\r\n";
 char const * const LINE_WHITESPACE = " \t";

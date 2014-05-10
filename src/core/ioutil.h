@@ -4,6 +4,6 @@
 #include <cstdint>
 #include <vector>
 
-bool read_file(char const * fpath, std::vector<uint8_t> & bytes, size_t max_size=1024*1024);
+std::vector<uint8_t> read_file(char const * fpath, size_t max_size=1024*1024);
 
 #endif // IOUTIL_H

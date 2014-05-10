@@ -1,7 +1,11 @@
-#ifndef _8cb04c776a874c52b121ffba3ba0348c
-#define _8cb04c776a874c52b121ffba3ba0348c
+#ifndef strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
+#define strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
 
 #include <cstring>
+
+#ifndef strutil_h_2ae84901285444e9a2d091accbbd2d7e
+#include "core/strutil.h"
+#endif
 
 inline char const * find_char(char const * p, char c, char const * end) {
     if (p == nullptr) return nullptr;

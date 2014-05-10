@@ -3,6 +3,8 @@
 
 #include "core/countof.h"
 #include "core/interp.h"
+#include "core/ioutil.h"
+#include "core/line_iterator.h"
 #include "core/sandbox.h"
 #include "lang/lexer.h"
 #include "testutil/testutil.h"
@@ -14,18 +16,48 @@ using boost::any_cast;
 using namespace boost::filesystem;
 using namespace intent::lang;
 
-bool read_file(char const * fpath, std::vector<uint8_t> & bytes) {
-    return false;
-}
-
 void verify_lex(path const & i, path const & tsv) {
     typedef vector<uint8_t> bytes;
-    bytes i_bytes;
-    if (read_file(i.c_str(), i_bytes)) {
-        bytes tsv_bytes;
-        if (read_file(tsv.c_str(), tsv_bytes)) {
-
+    bytes i_bytes = read_file(i.c_str());
+    if (i_bytes.size() > 0) {
+        bytes tsv_bytes = read_file(tsv.c_str());
+        if (tsv_bytes.size() > 0) {
+            int i = 1;
+            lexer lex(reinterpret_cast<char const *>(&i_bytes[0]));
+            lexer::iterator lit = lex.begin();
+            line_iterator it(reinterpret_cast<char const *>(&tsv_bytes[0]));
+            while (true) {
+                char const * p = find_char(it->begin, '\t', it->end);
+                if (p != it->end) {
+                    //if (Lit == lex.end()) {
+                    //    ADD_FAILURE() << "Lexer ended after " << i
+                    //}
+                    sslice expected_token_type_name(it->begin, p);
+                    sslice expected_value(p + 1, it->end);
+                    char const * actual_token_type_name = get_token_type_name(lit->type);
+                    if (strcmp(expected_token_type_name, actual_token_type_name) != 0) {
+                        ADD_FAILURE() << "Expected token " << i << " to be of type "
+                                      << expected_token_type_name << ", not "
+                                      << actual_token_type_name << ".";
+                        return;
+                    }
+                    string actual_value = "";//any_cast<string>(t.value);
+                    if (strcmp(expected_value, actual_value.c_str()) != 0) {
+                        ADD_FAILURE() << "Expected token " << i << " to have value \""
+                                      << expected_value << "\", not \""
+                                      << actual_value << "\".";
+                        return;
+                    }
+                } else {
+                    ADD_FAILURE() << "Token " << i << " malformed in " << tsv;
+                    return;
+                }
+            }
+        } else {
+            fprintf(stderr, "%s is empty.\n", tsv.c_str());
         }
+    } else {
+        fprintf(stderr, "%s is empty.\n", i.c_str());
     }
 }
 

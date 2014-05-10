@@ -140,3 +140,9 @@ test/lang/data/shadowed.i
 test/lang/data/shadowed.i.tsv
 src/core/ioutil.h
 src/core/ioutil.cpp
+src/core/line_iterator.cpp
+src/core/line_iterator.h
+test/core/line_iterator_test.cpp
+src/core/sslice.cpp
+src/core/base_x_encode.h
+test/core/base_x_encode_test.cpp

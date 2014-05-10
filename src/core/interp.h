@@ -50,7 +50,7 @@
  * The motivation for this feature is to eliminate the antipattern where a conditional
  * is used to change a format string, like this:
  *
- *     sprintf("found %d error%s", error_count, error_count == 1 ? "" : "s");
+ *     sprintf(buf, "found %d error%s", error_count, error_count == 1 ? "" : "s");
  *
  * This sort of usage is completely incompatible with localization; a translator has no
  * opportunity to translate the suffix, can't alter the criterion whereby a suffix is

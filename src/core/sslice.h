@@ -2,6 +2,7 @@
 #define _0345e71582f34fa59792443fba711afd
 
 #include <cstdlib>
+#include <iosfwd>
 
 /**
  * A subset of a string that doesn't own the memory it refers to.
@@ -66,6 +67,15 @@ struct sslice {
 };
 
 extern const sslice null_sslice;
+
+int strcmp(char const * a, sslice const & b);
+int strcmp(sslice const & a, char const * b);
+int strcmp(sslice const & a, sslice const & b);
+int strncmp(char const * a, sslice const & b, size_t size);
+int strncmp(sslice const & a, char const * b, size_t size);
+int strncmp(sslice const & a, sslice const & b, size_t size);
+
+std::ostream & operator<<(std::ostream & out, const sslice & slice);
 
 #include "core/sslice-inline.h"
 
