@@ -16,18 +16,31 @@ using boost::any_cast;
 using namespace boost::filesystem;
 using namespace intent::lang;
 
-void verify_lex(path const & i, path const & tsv) {
+#define LOG(x) fprintf(stderr, "%s, line %d: %s\n", __FILE__, __LINE__, x)
+
+void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
+
+    #define FAIL_WITH(x) { \
+        if (!path_echoed) { \
+            ADD_FAILURE() << "Not all samples in " << i.parent_path().c_str() << " lexed correctly."; \
+            path_echoed = true; \
+        } \
+        string p(i.filename().c_str()); \
+        ADD_FAILURE() << x; \
+        return; \
+    }
+
     typedef vector<uint8_t> bytes;
     bytes i_bytes = read_file(i.c_str());
     if (i_bytes.size() > 0) {
         bytes tsv_bytes = read_file(tsv.c_str());
         if (tsv_bytes.size() > 0) {
-            int i = 1;
+            int n = 1;
             lexer lex(reinterpret_cast<char const *>(&i_bytes[0]));
             lexer::iterator lit = lex.begin();
             line_iterator it(reinterpret_cast<char const *>(&tsv_bytes[0]));
             while (true) {
-                char const * p = find_char(it->begin, '\t', it->end);
+                char const * p = find_char(it->begin, ',', it->end);
                 if (p != it->end) {
                     //if (Lit == lex.end()) {
                     //    ADD_FAILURE() << "Lexer ended after " << i
@@ -36,22 +49,22 @@ void verify_lex(path const & i, path const & tsv) {
                     sslice expected_value(p + 1, it->end);
                     char const * actual_token_type_name = get_token_type_name(lit->type);
                     if (strcmp(expected_token_type_name, actual_token_type_name) != 0) {
-                        ADD_FAILURE() << "Expected token " << i << " to be of type "
+                        FAIL_WITH("In " << p << ", expected token " << n << " to be of type "
                                       << expected_token_type_name << ", not "
-                                      << actual_token_type_name << ".";
-                        return;
+                                  << actual_token_type_name << ".");
                     }
-                    string actual_value = "";//any_cast<string>(t.value);
+                    string actual_value = any_cast<string>(lit->value);
                     if (strcmp(expected_value, actual_value.c_str()) != 0) {
-                        ADD_FAILURE() << "Expected token " << i << " to have value \""
+                        FAIL_WITH("In " << p << ", expected token " << n << " to have value \""
                                       << expected_value << "\", not \""
-                                      << actual_value << "\".";
-                        return;
+                                      << actual_value << "\".");
                     }
                 } else {
-                    ADD_FAILURE() << "Token " << i << " malformed in " << tsv;
-                    return;
+                    FAIL_WITH("In " << tsv.filename().c_str() << ", token " << n << " is malformed; expected tab-delimited line.");
                 }
+                ++n;
+                ++it;
+                ++lit;
             }
         } else {
             fprintf(stderr, "%s is empty.\n", tsv.c_str());
@@ -61,16 +74,18 @@ void verify_lex(path const & i, path const & tsv) {
     }
 }
 
-TEST(lexer_test, samples) {
+TEST(lexer_test, DISABLED_samples) {
+    bool path_echoed = false;
     path data_folder = find_test_folder(__FILE__);
     ASSERT_TRUE(data_folder.c_str()[0]);
     data_folder /= "data";
     directory_iterator end = directory_iterator();
     for (directory_iterator i = directory_iterator(data_folder); i != end; ++i) {
         if (strcmp(extension(*i).c_str(), ".i") == 0) {
-            path complement = i->path().parent_path() / i->path().stem() / ".tsv";
+            path complement(i->path());
+            complement += ".csv";
             if (exists(complement)) {
-                verify_lex(*i, complement);
+                verify_lex(*i, complement, path_echoed);
             }
         }
     }

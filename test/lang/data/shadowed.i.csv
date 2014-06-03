@@ -1,0 +1,3 @@
+tt_doc_comment,A +shadowed property is one that has a public getter and (optional) setter, but that is backed by some kind of internal storage.
+tt_noun_phrase,shadowed
+tt_define,:
