@@ -1,3 +1,47 @@
 tt_doc_comment,A +shadowed property is one that has a public getter and (optional) setter, but that is backed by some kind of internal storage.
 tt_noun_phrase,shadowed
 tt_define,:
+tt_noun_phrase,mark
+tt_indent,
+tt_noun_phrase,shared once
+tt_define,:
+tt_line_break,\n
+tt_indent,
+tt_noun_phrase,mark co-occurrence rules
+tt_define,:
+tt_line_break,\n
+tt_indent,
+tt_internal_comment,Whenever a noun is shadowed, it must be calculated as well, to whatever level of explicitness is claimed for shadowed.
+tt_line_break,\n
+tt_bullet,-
+tt_lbrace,{
+tt_mark,+calculated
+tt_comma,,
+tt_noun_phrase,claim
+tt_dot,.
+tt_noun_phrase,affirm
+tt_comma,,
+tt_noun_phrase,claim
+tt_dot,.
+tt_noun_phrase,affirm
+tt_rbrace,}
+tt_line_break,\n
+tt_dedent,...
+tt_dedent,...
+tt_noun_phrase,properties
+tt_define,:
+tt_line_break,\n
+tt_indent,
+tt_line_break,\n
+tt_bullet,-
+tt_noun_phrase,make
+tt_define,:
+tt_noun_phrase,ctor
+tt_mark,+copyargs
+tt_line_break,\n
+tt_indent
+tt_noun_phrase,takes
+tt_define,:
+tt_bullet,-
+tt_noun_phrase,type
+

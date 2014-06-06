@@ -10,7 +10,7 @@ Import('zmq')
 sources = Glob('*.cpp')
 sources.extend(test_env.Object('#/src/external/gmock/gtest/src/gtest_main.cc'))
 
-libs = [core, jsoncpp, zmq, gmock, gtest, 'pthread']
+libs = [core, jsoncpp, zmq, gmock, gtest, 'boost_filesystem', 'boost_system', 'pthread']
 import platform
 if platform.uname()[0] != 'Darwin':
     libs.append('rt')

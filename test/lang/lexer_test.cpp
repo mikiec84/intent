@@ -18,6 +18,8 @@ using namespace intent::lang;
 
 #define LOG(x) fprintf(stderr, "%s, line %d: %s\n", __FILE__, __LINE__, x)
 
+
+
 void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
 
     #define FAIL_WITH(x) { \
@@ -30,15 +32,14 @@ void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
         return; \
     }
 
-    typedef vector<uint8_t> bytes;
-    bytes i_bytes = read_file(i.c_str());
-    if (i_bytes.size() > 0) {
-        bytes tsv_bytes = read_file(tsv.c_str());
-        if (tsv_bytes.size() > 0) {
+    string i_txt = read_text_file(i.c_str());
+    if (i_txt.size() > 0) {
+        string csv_txt = read_text_file(tsv.c_str());
+        if (csv_txt.size() > 0) {
             int n = 1;
-            lexer lex(reinterpret_cast<char const *>(&i_bytes[0]));
+            lexer lex(i_txt.c_str());
             lexer::iterator lit = lex.begin();
-            line_iterator it(reinterpret_cast<char const *>(&tsv_bytes[0]));
+            line_iterator it(csv_txt.c_str());
             while (true) {
                 char const * p = find_char(it->begin, ',', it->end);
                 if (p != it->end) {
@@ -74,7 +75,7 @@ void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
     }
 }
 
-TEST(lexer_test, DISABLED_samples) {
+TEST(lexer_test, samples) {
     bool path_echoed = false;
     path data_folder = find_test_folder(__FILE__);
     ASSERT_TRUE(data_folder.c_str()[0]);

@@ -15,6 +15,6 @@ shadowed: mark
     properties:
         - type
         
-    make: +copyargs ctor
+    make: ctor +copyargs
         takes: - type
  

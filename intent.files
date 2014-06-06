@@ -150,3 +150,5 @@ syntax/block.i
 syntax/code element.i
 syntax/node type.i
 syntax/class.i
+test/core/ioutil_test.cpp
+test/core/sconscript
