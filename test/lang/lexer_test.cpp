@@ -16,31 +16,26 @@ using boost::any_cast;
 using namespace boost::filesystem;
 using namespace intent::lang;
 
-#define LOG(x) fprintf(stderr, "%s, line %d: %s\n", __FILE__, __LINE__, x)
+#define LOG() fprintf(stderr, "%s, line %d\n", __FILE__, __LINE__)
+#define LOG1(x) fprintf(stderr, "%s, line %d: %s\n", __FILE__, __LINE__, x)
 
-
-
-void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
-
-    #define FAIL_WITH(x) { \
-        if (!path_echoed) { \
-            ADD_FAILURE() << "Not all samples in " << i.parent_path().c_str() << " lexed correctly."; \
-            path_echoed = true; \
-        } \
-        string p(i.filename().c_str()); \
-        ADD_FAILURE() << x; \
-        return; \
+void complain(path const & p, unsigned n, string const & msg, string & errors) {
+    if (!errors.empty()) {
+        errors += '\n';
     }
+    errors += interp("{1}, token {2}: {3}.", {p.filename().c_str(), n, msg});
+}
 
-    string i_txt = read_text_file(i.c_str());
+void verify_lex(path const & i, path const & csv, string & errors) {
+    string i_txt = read_text_file(i);
     if (i_txt.size() > 0) {
-        string csv_txt = read_text_file(tsv.c_str());
+        string csv_txt = read_text_file(csv);
         if (csv_txt.size() > 0) {
-            int n = 1;
+            unsigned n = 1;
             lexer lex(i_txt.c_str());
             lexer::iterator lit = lex.begin();
             line_iterator it(csv_txt.c_str());
-            while (true) {
+            while (it && lit) {
                 char const * p = find_char(it->begin, ',', it->end);
                 if (p != it->end) {
                     //if (Lit == lex.end()) {
@@ -50,25 +45,36 @@ void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
                     sslice expected_value(p + 1, it->end);
                     char const * actual_token_type_name = get_token_type_name(lit->type);
                     if (strcmp(expected_token_type_name, actual_token_type_name) != 0) {
-                        FAIL_WITH("In " << p << ", expected token " << n << " to be of type "
-                                      << expected_token_type_name << ", not "
-                                  << actual_token_type_name << ".");
+                        complain(i, n, interp("expected token to be of type {1}, not {2}",
+                                              {expected_token_type_name,
+                                              actual_token_type_name} ), errors);
+                        break;
                     }
                     string actual_value = any_cast<string>(lit->value);
                     if (strcmp(expected_value, actual_value.c_str()) != 0) {
-                        FAIL_WITH("In " << p << ", expected token " << n << " to have value \""
-                                      << expected_value << "\", not \""
-                                      << actual_value << "\".");
+                        complain(i, n, interp("expected token to have value \"{1}\", not \"{2}\"",
+                                              {expected_value,
+                                              actual_value} ), errors);
+                        break;
                     }
                 } else {
-                    FAIL_WITH("In " << tsv.filename().c_str() << ", token " << n << " is malformed; expected tab-delimited line.");
+                    complain(csv, n, "malformed; expected comma-separated line", errors);
+                    break;
                 }
                 ++n;
+                LOG1(interp("{1}", {it->begin}).c_str());
                 ++it;
                 ++lit;
             }
+            if (it) {
+                complain(i, n, interp("ran out of tokens before {1} ended",
+                    {csv.filename().c_str()}), errors);
+            } else if (lit) {
+                complain(i, n, interp("kept generating tokens though {1} ended",
+                    {csv.filename().c_str()}), errors);
+            }
         } else {
-            fprintf(stderr, "%s is empty.\n", tsv.c_str());
+            fprintf(stderr, "%s is empty.\n", csv.c_str());
         }
     } else {
         fprintf(stderr, "%s is empty.\n", i.c_str());
@@ -76,7 +82,7 @@ void verify_lex(path const & i, path const & tsv, bool & path_echoed) {
 }
 
 TEST(lexer_test, samples) {
-    bool path_echoed = false;
+    string errors;
     path data_folder = find_test_folder(__FILE__);
     ASSERT_TRUE(data_folder.c_str()[0]);
     data_folder /= "data";
@@ -86,17 +92,14 @@ TEST(lexer_test, samples) {
             path complement(i->path());
             complement += ".csv";
             if (exists(complement)) {
-                verify_lex(*i, complement, path_echoed);
+                verify_lex(*i, complement, errors);
             }
         }
     }
-#if 0
-    printf("this file is %s\n", __FILE__);
-    char buf[256];
-    printf("the cwd is %s\n", getcwd(buf, 256));
-    auto sb = sandbox::find_root(".");
-    printf("sandbox is %s\n", sb.c_str());
-#endif
+    LOG();
+    if (!errors.empty()) {
+        ADD_FAILURE() << interp("Not all samples in {1} lexed correctly:\n\n{2}", {data_folder, errors});
+    }
 }
 
 TEST(lexer_test, unterminated_string_literal) {

@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <string>
 
+namespace boost { namespace filesystem { class path; }}
+struct sslice;
+
 /**
  * An arg is a specialized type of variant--a lightweight wrapper around
  * any argument passed to interp() or similar functions that need variadic
@@ -29,6 +32,8 @@ struct arg {
     arg(double value);
     arg(std::string const & str);
     arg(char const * cstr);
+    arg(boost::filesystem::path const & path);
+    arg(sslice const & str);
     arg(bool);
 
     /**
@@ -50,6 +55,9 @@ struct arg {
         vt_date,
         vt_str,
         vt_cstr,
+        vt_path,
+        vt_sslice,
+        vt_allocated_str,
         vt_bool
     };
     const value_type type;
@@ -59,8 +67,12 @@ struct arg {
         const double dbl;
         std::string const * str;
         char const * const cstr;
+        boost::filesystem::path const * path;
+        sslice const * slice;
+        char * allocated_str;
         const bool boolean;
     };
+    ~arg();
 private:
     arg();
     friend arg const & make_empty_arg();

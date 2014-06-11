@@ -1,7 +1,17 @@
+#include <boost/filesystem.hpp>
 #include <cstdio>
 #include <cstring>
 
 #include "core/arg.h"
+#include "core/sslice.h"
+
+using std::string;
+
+arg::~arg() {
+    if (type == vt_allocated_str) {
+        delete[] allocated_str;
+    }
+}
 
 arg::arg() : type(vt_empty) {
 }
@@ -26,6 +36,7 @@ int arg::snprintf(char * buf, size_t buflen, char const * format) const {
         buflen = 0;
     }
 
+    std::string const * s = nullptr;
     switch (type) {
     case vt_empty:
         return ::snprintf(buf, buflen, (format ? format : "%s"), "");
@@ -39,27 +50,58 @@ int arg::snprintf(char * buf, size_t buflen, char const * format) const {
         return ::snprintf(buf, buflen, "%s", (boolean ? "true" : "false"));
     case vt_date:
         return 0;
+    case vt_path:
+        s = &path->native();
+        // DO NOT BREAK
     case vt_str:
-        if (format == nullptr && buflen > str->size()) {
-            ::strncpy(buf, str->c_str(), buflen);
-            return str->size();
+        if (s == nullptr) {
+            s = str;
         }
-        return ::snprintf(buf, buflen, (format ? format : "%s"), str->c_str());
+        // On overflow, don't ask snprintf() to do any calculations; we
+        // already know the answer.
+        if (buflen < s->size() + 1) {
+            return s->size();
+        }
+        if (format == nullptr) {
+            // Use memcpy() to support embedded nulls.
+            ::memcpy(buf, s->c_str(), s->size() + 1);
+            return s->size();
+        }
+        return ::snprintf(buf, buflen, (format ? format : "%s"), s->c_str());
+    case vt_sslice:
+    {
+        size_t required_size = slice->size() + 1;
+        // If we are just going to calculate a size instead of actually printing
+        // something, don't bother calling snprintf(). This isn't just an optimization;
+        // in one impl of snprintf, the observed behavior was that snprintf() took
+        // strlen() of the arg, which would be wrong for a non-null-terminated sslice.
+        if (buflen < required_size) {
+            return slice->size();
+        }
+        return ::snprintf(buf, required_size, (format ? format : "%s"),
+                          (*slice ? slice->begin : ""));
+    }
     case vt_cstr:
+    case vt_allocated_str:
         return ::snprintf(buf, buflen, (format ? format : "%s"), (cstr ? cstr : "(null)"));
     default:
         return 0;
     }
 }
 
-std::string arg::to_string(char const * format) const {
+string arg::to_string(char const * format) const {
 
     switch (type) {
     case vt_empty:
         return "";
     case vt_str:
         return *str;
+    case vt_sslice:
+        return string(slice->begin, slice->end);
+    case vt_path:
+        return path->native();
     case vt_cstr:
+    case vt_allocated_str:
         return cstr ? cstr : "(null)";
     case vt_bool:
         return boolean ? "true" : "false";
@@ -83,5 +125,6 @@ std::string arg::to_string(char const * format) const {
         }
     }
     }
-
 }
+
+

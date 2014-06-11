@@ -53,6 +53,14 @@ inline arg::arg(char const * value) :
     type(vt_cstr), cstr(value) {
 }
 
+inline arg::arg(boost::filesystem::path const & p) :
+    type(vt_path), path(&p) {
+}
+
+inline arg::arg(sslice const & txt) :
+    type(vt_sslice), slice(&txt) {
+}
+
 inline arg::arg(bool value) :
     type(vt_bool), boolean(value) {
 }

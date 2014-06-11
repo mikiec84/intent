@@ -15,6 +15,7 @@ public:
     bool operator !=(iterator const & rhs) const { return !(*this == rhs); }
     token & operator *() { return lex->t; }
     token * operator ->() { return &(lex->t); }
+    operator bool() const { return lex != nullptr; }
     iterator & operator++() { if (!lex->advance()) lex = nullptr; return *this; }
 
 private:

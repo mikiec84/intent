@@ -1,9 +1,15 @@
+#include <boost/filesystem.hpp>
 #include "core/arg.h"
 #include "core/countof.h"
+#include "core/sslice.h"
 
 #include "gtest/gtest.h"
 
+const char * const txt = "abcxyz";
+sslice const slc(txt + 1, txt + 4); // bcx
+boost::filesystem::path file("/root/subdir/x.txt");
 std::string str_arg("my string");
+
 arg test_args[] = {
     25,
     1943872801L,
@@ -12,7 +18,9 @@ arg test_args[] = {
     "howdy",
     str_arg,
     true,
-    false
+    false,
+    slc,
+    file
 };
 
 char const * test_arg_strs[] = {
@@ -23,7 +31,9 @@ char const * test_arg_strs[] = {
     "howdy",
     "my string",
     "true",
-    "false"
+    "false",
+    "bcx",
+    "/root/subdir/x.txt"
 };
 
 TEST(arg_test, snprintf) {
@@ -57,6 +67,14 @@ TEST(arg_test, snprintf_overflow) {
     for (int i = 0; i < countof(test_args); ++i) {
         auto n = test_args[i].snprintf(buf, 0);
         if (n != strlen(test_arg_strs[i])) {
+            // From http://linux.die.net/man/3/snprintf:
+            // The functions snprintf() and vsnprintf() do not write more than
+            // size bytes (including the terminating null byte ('\0')). If the
+            // output was truncated due to this limit then the return value is
+            // the number of characters (excluding the terminating null byte)
+            // which would have been written to the final string if enough space
+            // had been available. Thus, a return value of size or more means
+            // that the output was truncated.
             ADD_FAILURE() << "For item " << i << ", expected \""
                           << strlen(test_arg_strs[i]) << "\", but got \""
                           << n << "\".";
