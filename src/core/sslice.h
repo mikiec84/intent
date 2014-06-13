@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <iosfwd>
+#include <string>
 
 /**
  * A subset of a string that doesn't own the memory it refers to.
@@ -28,6 +29,16 @@ struct sslice {
      */
     sslice(char const * cstr, size_t len);
     
+    /**
+     * Create a sslice from a std::string.
+     */
+    sslice(std::string const & str);
+
+    /**
+     * Create a sslice from a std::string and a length.
+     */
+    sslice(std::string const & str, size_t len);
+
     /**
      * Create one sslice from another, specifying a different
      * length.

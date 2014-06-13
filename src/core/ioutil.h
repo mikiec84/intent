@@ -73,8 +73,7 @@ public:
 boost::filesystem::path easy_temp_file_path();
 
 /**
- * @brief Open a file for writing in the temp folder. Optionally,
- *     delete file on exit.
+ * @brief Open a file for writing in the temp folder
  */
 struct easy_temp_c_file : public c_file {
     boost::filesystem::path path;

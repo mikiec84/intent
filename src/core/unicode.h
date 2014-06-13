@@ -76,12 +76,12 @@ char const * scan_unicode_escape_sequence(char const * seq, codepoint_t & cp);
  * Will append raw ascii for characters that do not need to be escaped.
  * Does not null-terminate.
  */
-bool add_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp);
+bool add_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp);
 
 /**
- * Same as add_unicode_escape_sequence(), only null-terminates.
+ * Same as add_utf8_or_escape_sequence(), only null-terminates.
  */
-bool cat_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp);
+bool cat_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp);
 
 /**
  * Analogous to strchr(), except searches for any unicode codepoint.

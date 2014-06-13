@@ -18,6 +18,14 @@ inline sslice::sslice(char const * begin) {
     assign(begin);
 }
 
+inline sslice::sslice(std::string const & str) {
+    assign(str.c_str(), str.c_str() + str.size());
+}
+
+inline sslice::sslice(std::string const & str, size_t len) {
+    assign(str.c_str(), str.c_str() + std::min(len, str.size()));
+}
+
 inline size_t sslice::size() const {
     return end - begin;
 }

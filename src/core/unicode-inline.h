@@ -23,20 +23,4 @@ inline bool is_utf8_lead_byte(char c) {
     return is_utf8_lead_byte(static_cast<uint8_t>(c));
 }
 
-inline bool cat_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp) {
-    bool ok = add_codepoint_to_utf8(buf, buf_length, cp);
-    if (ok && buf_length > 0) {
-        *buf = 0;
-    }
-    return ok;
-}
-
-inline bool cat_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
-    bool ok = add_unicode_escape_sequence(buf, buf_length, cp);
-    if (ok && buf_length > 0) {
-        *buf = 0;
-    }
-    return ok;
-}
-
 #endif // sentry

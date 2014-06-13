@@ -152,3 +152,5 @@ syntax/node type.i
 syntax/class.i
 test/core/ioutil_test.cpp
 test/core/sconscript
+src/core/escape_sequence.h
+src/core/escape_sequence.cpp

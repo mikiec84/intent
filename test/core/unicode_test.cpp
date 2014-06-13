@@ -135,17 +135,17 @@ TEST(unicode_test, scan_unicode_escape_sequence) {
     #undef CHECKSEQ
 }
 
-TEST(unicode_test, add_unicode_escape_sequence) {
+TEST(unicode_test, add_utf8_or_escape_sequence) {
     char buf[32];
     size_t buf_len = sizeof(buf);
     char * p = nullptr;
 
-    EXPECT_FALSE(add_unicode_escape_sequence(p, buf_len, 'a'));
+    EXPECT_FALSE(add_utf8_or_escape_sequence(p, buf_len, 'a'));
 
     #define CHECK_ADD(size, cp) \
         p = buf; \
         buf_len = sizeof(buf); \
-        add_unicode_escape_sequence(p, buf_len, cp); \
+        add_utf8_or_escape_sequence(p, buf_len, cp); \
         EXPECT_EQ(buf + size, p)
 
     CHECK_ADD(1, 'a');
@@ -166,27 +166,27 @@ TEST(unicode_test, add_unicode_escape_sequence) {
     #undef CHECK_ADD
 
     buf_len = 0;
-    EXPECT_FALSE(add_unicode_escape_sequence(p = buf, buf_len, 'a'));
+    EXPECT_FALSE(add_utf8_or_escape_sequence(p = buf, buf_len, 'a'));
 
     buf_len = 5;
-    EXPECT_FALSE(add_unicode_escape_sequence(p = buf, buf_len, 0x00F1));
-    EXPECT_FALSE(add_unicode_escape_sequence(p = buf, buf_len, 0x5C0D));
+    EXPECT_FALSE(add_utf8_or_escape_sequence(p = buf, buf_len, 0x00F1));
+    EXPECT_FALSE(add_utf8_or_escape_sequence(p = buf, buf_len, 0x5C0D));
 
     buf_len = 9;
-    EXPECT_FALSE(add_unicode_escape_sequence(p = buf, buf_len, 0x0010FF85));
+    EXPECT_FALSE(add_utf8_or_escape_sequence(p = buf, buf_len, 0x0010FF85));
 }
 
-TEST(unicode_test, cat_unicode_escape_sequence) {
+TEST(unicode_test, cat_utf8_or_escape_sequence) {
     char buf[32];
     size_t buf_len = sizeof(buf);
     char * p = nullptr;
 
-    EXPECT_FALSE(cat_unicode_escape_sequence(p, buf_len, 'a'));
+    EXPECT_FALSE(cat_utf8_or_escape_sequence(p, buf_len, 'a'));
 
     #define CHECKSEQ(expected, cp) \
         p = buf; \
         buf_len = sizeof(buf); \
-        cat_unicode_escape_sequence(p, buf_len, cp); \
+        cat_utf8_or_escape_sequence(p, buf_len, cp); \
         EXPECT_STREQ(expected, buf)
 
     CHECKSEQ("a", 'a');
@@ -204,12 +204,12 @@ TEST(unicode_test, cat_unicode_escape_sequence) {
     #undef CHECKSEQ
 
     buf_len = 0;
-    EXPECT_FALSE(cat_unicode_escape_sequence(p = buf, buf_len, 'a'));
+    EXPECT_FALSE(cat_utf8_or_escape_sequence(p = buf, buf_len, 'a'));
 
     buf_len = 5;
-    EXPECT_FALSE(cat_unicode_escape_sequence(p = buf, buf_len, 0x00F1));
-    EXPECT_FALSE(cat_unicode_escape_sequence(p = buf, buf_len, 0x5C0D));
+    EXPECT_FALSE(cat_utf8_or_escape_sequence(p = buf, buf_len, 0x00F1));
+    EXPECT_FALSE(cat_utf8_or_escape_sequence(p = buf, buf_len, 0x5C0D));
 
     buf_len = 9;
-    EXPECT_FALSE(cat_unicode_escape_sequence(p = buf, buf_len, 0x0010FF85));
+    EXPECT_FALSE(cat_utf8_or_escape_sequence(p = buf, buf_len, 0x0010FF85));
 }

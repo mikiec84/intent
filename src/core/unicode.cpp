@@ -113,6 +113,16 @@ bool add_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp)
     return true;
 }
 
+bool cat_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp) {
+    size_t buf_length_temp = buf_length - 1;
+    if (add_codepoint_to_utf8(buf, buf_length_temp, cp)) {
+        *buf++ = 0;
+        buf_length = buf_length_temp;
+        return true;
+    }
+    return false;
+}
+
 size_t count_codepoints_in_utf8(char const * utf8, char const * end)
 {
     size_t count = 0;
@@ -205,7 +215,41 @@ inline bool write_2byte_sequence(char *& buf, size_t & buf_length, char c) {
     return false;
 }
 
-bool add_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
+bool add_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
+    if (cp < ' ') {
+        const char * p = strchr(NEED_1CHAR_ESCAPES, static_cast<char>(cp));
+        if (p) {
+            return write_2byte_sequence(buf, buf_length, CHARS_FOR_1CHAR_ESCAPES[p - NEED_1CHAR_ESCAPES]);
+        }
+    }
+    if (cp == 0 || cp <= 0x7F) {
+        if (buf_length > 4) {
+            snprintf(buf, buf_length, "\\x%.2X", static_cast<uint8_t>(cp));
+            advance_and_return_true(4);
+        }
+    } else if (cp <= 0xFFFF) {
+        if (buf_length >= 6) {
+            snprintf(buf, buf_length, "\\u%.4hX", static_cast<uint16_t>(cp));
+            advance_and_return_true(6);
+        }
+    } else if (buf_length >= 10) {
+        snprintf(buf, buf_length, "\\U%.8X", cp);
+        advance_and_return_true(10);
+    }
+    return false;
+}
+
+bool cat_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
+    size_t buf_length_temp = buf_length - 1;
+    if (add_escape_sequence(buf, buf_length_temp, cp)) {
+        *buf++ = 0;
+        buf_length = buf_length_temp;
+        return true;
+    }
+    return false;
+}
+
+bool add_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
     if (buf == nullptr || buf_length < 1) {
         return false;
     }
@@ -244,6 +288,16 @@ bool add_unicode_escape_sequence(char *& buf, size_t & buf_length, codepoint_t c
     if (buf_length >= 10) {
         snprintf(buf, buf_length, "\\U%.8X", cp);
         advance_and_return_true(10);
+    }
+    return false;
+}
+
+bool cat_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
+    size_t buf_length_temp = buf_length - 1;
+    if (add_utf8_or_escape_sequence(buf, buf_length_temp, cp)) {
+        *buf++ = 0;
+        buf_length = buf_length_temp;
+        return true;
     }
     return false;
 }
