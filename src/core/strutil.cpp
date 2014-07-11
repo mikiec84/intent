@@ -1,13 +1,13 @@
 #include "core/strutil.h"
 
+#if 0
 const int INTEGER = 1;
 const int FLOAT = 2;
 const int HEX = 3;
 const int OCT = 4;
 const int BINARY = 5;
 
-#if 0
-const char 
+const char
     def _handle_number(txt, i, end, ttype=Number):
         digit_chars = '0123456789'
         c = txt[i]
