@@ -114,11 +114,13 @@ bool add_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp)
 }
 
 bool cat_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp) {
-    size_t buf_length_temp = buf_length - 1;
-    if (add_codepoint_to_utf8(buf, buf_length_temp, cp)) {
-        *buf++ = 0;
-        buf_length = buf_length_temp;
-        return true;
+    if (buf_length) {
+        size_t buf_length_temp = buf_length - 1;
+        if (add_codepoint_to_utf8(buf, buf_length_temp, cp)) {
+            *buf++ = 0;
+            buf_length = buf_length_temp;
+            return true;
+        }
     }
     return false;
 }
@@ -293,11 +295,13 @@ bool add_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t c
 }
 
 bool cat_utf8_or_escape_sequence(char *& buf, size_t & buf_length, codepoint_t cp) {
-    size_t buf_length_temp = buf_length - 1;
-    if (add_utf8_or_escape_sequence(buf, buf_length_temp, cp)) {
-        *buf++ = 0;
-        buf_length = buf_length_temp;
-        return true;
+    if (buf_length) {
+        size_t buf_length_temp = buf_length - 1;
+        if (add_utf8_or_escape_sequence(buf, buf_length_temp, cp)) {
+            *buf++ = 0;
+            buf_length = buf_length_temp;
+            return true;
+        }
     }
     return false;
 }
