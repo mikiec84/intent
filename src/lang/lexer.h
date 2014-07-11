@@ -64,6 +64,7 @@ private:
     void scan_q();
     void scan_minus();
     void scan_plus();
+    void scan_operator(char first);
     char const * get_comment_token();
     char get_indent_char() const;
     bool get_phrase_token();

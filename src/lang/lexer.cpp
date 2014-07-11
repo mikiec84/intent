@@ -173,6 +173,7 @@ inline void lexer::scan_gt() {
     }
     ++p;
     t.type = tt_operator_greater;
+    t.substr.end = p;
 }
 
 inline void lexer::scan_minus() {
@@ -200,6 +201,7 @@ inline void lexer::scan_minus() {
     }
     ++p;
     t.type = tt_operator_minus;
+    t.substr.end = p;
 }
 
 inline void lexer::scan_plus() {
@@ -223,6 +225,30 @@ inline void lexer::scan_plus() {
     }
     ++p;
     t.type = tt_operator_plus;
+    t.substr.end = p;
+}
+
+inline void lexer::scan_operator(char first) {
+    char second = p + 1 < txt.end ? p[1] : 0;
+    switch (first) {
+    case ':':
+        switch (second) {
+        case '=':
+            t.type = tt_operator_gets;
+            p += 2;
+            break;
+        default:
+            t.type = tt_operator_define;
+            p += 1;
+            break;
+        }
+        break;
+    default:
+        t.type = tt_error;
+        p += 1;
+        break;
+    }
+    t.substr.end = p;
 }
 
 inline void lexer::scan_q() {
@@ -320,7 +346,7 @@ bool lexer::advance() {
         return advance();
     case '\t':
     case ' ':
-        p = scan_spaces_and_tabs(p + 1, txt.end);
+        t.substr.end = scan_spaces_and_tabs(p + 1, txt.end);
         return advance();
     case '<':
         scan_lt();
@@ -369,6 +395,9 @@ bool lexer::advance() {
     case '+':
         scan_plus();
         break;
+    case ':':
+        scan_operator(*p);
+        break;
     default:
         {
             char c = *p;
@@ -406,6 +435,7 @@ bool lexer::get_phrase_token() {
             break;
         }
     }
+    t.substr.end = p;
     t.value = value;
     return true;
 }
