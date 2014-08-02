@@ -6,18 +6,16 @@ import buildutil
 # This keeps includes exceedingly clean and regular, and it makes #includes
 # unambiguous instead of mysterious. Also, force all builds to be done with
 # C++ 11 syntax and libraries.
-env = Environment(CPPPATH=[
+# Make scons sensitive to external env variables; see http://j.mp/1uRkFYW
+env = Environment(ENV = os.environ)
+env['CPPPATH']=[
             '#/src',
             '#/src/external/jsoncpp/include',
             '#/src/external/zmq/include',
             '/usr/local/include',
-            '#/boost'],
-        CXXFLAGS='-std=c++11', #on osx,  -stdlib=libc++
-        CPPDEFINES=['__STDC_LIMIT_MACROS'])
-env['PATH'] = os.environ['PATH']
-
-#env["CXX"] = "clang++"
-#os.system("which clang++")
+            '#/boost']
+env['CXXFLAGS='-std=c++11' #on osx,  -stdlib=libc++
+env['CPPDEFINES'=['__STDC_LIMIT_MACROS'])
 
 # To link against boost libraries:
 env['LIBPATH'] = ['#/boost/stage/lib']
