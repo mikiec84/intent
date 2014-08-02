@@ -15,6 +15,7 @@ env = Environment(CPPPATH=[
         CXXFLAGS='-std=c++11', #on osx,  -stdlib=libc++
         CPPDEFINES=['__STDC_LIMIT_MACROS'])
 env["CXX"] = "clang++"
+os.system("which clang++")
 
 # To link against boost libraries:
 env['LIBPATH'] = ['#/boost/stage/lib']
