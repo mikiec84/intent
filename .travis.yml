@@ -1,7 +1,7 @@
 language: cpp
 compiler:
   - clang
-script: scons && test/all
+script: ./run_travis_build
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y libboost-all-dev
