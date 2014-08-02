@@ -14,8 +14,8 @@ env['CPPPATH']=[
             '#/src/external/zmq/include',
             '/usr/local/include',
             '#/boost']
-env['CXXFLAGS='-std=c++11' #on osx,  -stdlib=libc++
-env['CPPDEFINES'=['__STDC_LIMIT_MACROS'])
+env['CXXFLAGS']='-std=c++11' #on osx,  -stdlib=libc++
+env['CPPDEFINES']=['__STDC_LIMIT_MACROS']
 
 # To link against boost libraries:
 env['LIBPATH'] = ['#/boost/stage/lib']
