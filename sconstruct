@@ -7,8 +7,7 @@ import buildutil
 # unambiguous instead of mysterious. Also, force all builds to be done with
 # C++ 11 syntax and libraries.
 # Make scons sensitive to external env variables; see http://j.mp/1uRkFYW
-env = Environment()
-env['PATH'] = os.environ['PATH']
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
 env['CXX'] = 'clang++'
 env['CPPPATH']=[
             '#/src',
