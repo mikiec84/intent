@@ -27,8 +27,10 @@ struct arg {
     arg(uint16_t value);
     arg(int8_t value);
     arg(uint8_t value);
+#ifdef DARWIN
     arg(long value);
     arg(unsigned long value);
+#endif
     arg(double value);
     arg(std::string const & str);
     arg(char const * cstr);

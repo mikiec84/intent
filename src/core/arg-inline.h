@@ -33,6 +33,7 @@ inline arg::arg(uint8_t value) :
     type(vt_unsigned), u64(value) {
 }
 
+#ifdef DARWIN
 inline arg::arg(long value) :
     type(vt_signed), i64(value) {
 }
@@ -40,6 +41,7 @@ inline arg::arg(long value) :
 inline arg::arg(unsigned long value) :
     type(vt_unsigned), u64(value) {
 }
+#endif
 
 inline arg::arg(double value) :
     type(vt_float), dbl(value) {

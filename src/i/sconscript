@@ -9,7 +9,7 @@ import platform
 if platform.uname()[0] != 'Darwin':
     libs.append('rt')
 
-prog = env.Program(target='intent', source=Glob('*.cpp'), LIBS=libs)
+prog = env.Program(target='i', source=Glob('*.cpp'), LIBS=libs)
 
 Return('prog')
 

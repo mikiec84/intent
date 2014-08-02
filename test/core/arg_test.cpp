@@ -13,7 +13,9 @@ std::string str_arg("my string");
 arg test_args[] = {
     25,
     1943872801L,
+#ifdef DARWIN
     2598239487120349ULL,
+#endif
     3.14,
     "howdy",
     str_arg,
@@ -26,7 +28,9 @@ arg test_args[] = {
 char const * test_arg_strs[] = {
     "25",
     "1943872801",
+#ifdef DARWIN
     "2598239487120349",
+#endif
     "3.14",
     "howdy",
     "my string",
