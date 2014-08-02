@@ -1,4 +1,4 @@
-import os
+import os, sys
 
 # In order to keep this codebase as clean as possible, we want to be very picky
 # about warnings. We don't turn on *all* of them, but we turn on most. (An
@@ -73,7 +73,7 @@ def check_config(config):
 	# that's able to deal with C++ 11 constructs (typically, g++ 4.6 or later).
     #    if not config.CheckCXX():
     #            print('C++ compiler unavailable.')
-    #            Exit(1)
+    #            sys.exit(1)
 
 	required_headers = ['unordered_map', 'cstdint']
 	missing = []
@@ -83,4 +83,8 @@ def check_config(config):
 	if missing:
 		print('The following headers are unavailable, but required to compile: %s' %
 			', '.join(['<%s>' % h for h in missing]))
-		Exit(1)
+        f = open('config.log', 'r')
+        txt = f.read()
+        f.close()
+        print(txt)
+        sys.exit(1)
