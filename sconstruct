@@ -39,6 +39,7 @@ if not GetOption('verbose'):
 	env['RANLIBCOMSTR'] = " Indexing $TARGET ..."
 
 env['CCFLAGS'] = buildutil.ccflags(GetOption('release'))
+print('env = ' + str(env))
 Export('env')
 
 config = Configure(env)
