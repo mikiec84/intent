@@ -1,10 +1,9 @@
 Import('env')
-Import('foundation')
 Import('core')
 Import('jsoncpp')
 Import('zmq')
 
-libs = [core, foundation, zmq, jsoncpp, 'pthread']
+libs = [core, zmq, jsoncpp, 'pthread']
 import platform
 if platform.uname()[0] != 'Darwin':
     libs.append('rt')

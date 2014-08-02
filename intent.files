@@ -425,3 +425,4 @@ src/i/sconscript
 src/core/sconscript
 src/foundation/sconscript
 src/lang/sconscript
+test/core/sconscript

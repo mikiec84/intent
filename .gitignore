@@ -73,3 +73,5 @@ build
 *.iml
 *.iws
 
+# QT creator artifacts
+*.creator.user

@@ -40,12 +40,10 @@ if not GetOption('verbose'):
 	env['RANLIBCOMSTR'] = " Indexing $TARGET ..."
 
 env['CCFLAGS'] = buildutil.ccflags(GetOption('release'))
-for key in env.items():
-	print('%s = %s' % key)
 Export('env')
 
 config = Configure(env)
-#buildutil.check_config(config)
+buildutil.check_config(config)
 
 for et in buildutil.external_projects:
 	globals()[et] = SConscript('src/external/%s/sconscript' % et,

@@ -83,8 +83,4 @@ def check_config(config):
     if missing:
         print('The following headers are unavailable, but required to compile: %s' %
               ', '.join(['<%s>' % h for h in missing]))
-    f = open('config.log', 'r')
-    txt = f.read()
-    f.close()
-    print(txt)
-    sys.exit(1)
+        sys.exit(1)
