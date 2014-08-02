@@ -420,3 +420,8 @@ test/lang/token_test.cpp
 tester/overall-requirements.i
 buildutil.py
 sandbox.i
+sconstruct
+src/i/sconscript
+src/core/sconscript
+src/foundation/sconscript
+src/lang/sconscript

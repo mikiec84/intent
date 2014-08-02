@@ -63,14 +63,17 @@ def list_buildable_subdirs(folder):
 
 external_projects = list_buildable_subdirs(os.path.join(_my_folder, 'src', 'external'))
 components = list_buildable_subdirs(os.path.join(_my_folder, 'src'))
+# Make sure the "i" component comes last (dependent on others)
+components.remove('i')
+components.append('i')
 tests = list_buildable_subdirs(os.path.join(_my_folder, 'test'))
 
 def check_config(config):
 	# Do some very simple sanity checking on tools. Prove that we have a compiler
 	# that's able to deal with C++ 11 constructs (typically, g++ 4.6 or later).
-	if not config.CheckCXX():
-		print('C++ compiler unavailable.')
-		Exit(1)
+        if not config.CheckCXX():
+                print('C++ compiler unavailable.')
+                Exit(1)
 
 	required_headers = ['unordered_map', 'cstdint']
 	missing = []
