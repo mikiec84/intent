@@ -73,10 +73,12 @@ TEST(token_test, unique_numbers) {
     std::unordered_map<int, char const *> counts;
     #define TUPLE(number, name, example, comment) \
     { \
-        auto pair = counts.emplace(number, "tt_" #name); \
-        if (!pair.second) { \
-            ADD_FAILURE() << number << " already bound to \"" << pair.first->second \
+        auto already = counts[number]; \
+        if (already) { \
+            ADD_FAILURE() << number << " already bound to \"" << already \
                 << "\"; can't also bind to \"" << "tt_" #name << "\""; \
+        } else { \
+            counts[number] = "tt_" #name; \
         } \
     }
     #include "lang/token_type_tuples.h"
