@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(intent-core-testrunner)
 
-include(../../common.cmake)
+include(../../cmake/common.cmake)
 
 include_directories(
     ../../src
@@ -12,7 +12,7 @@ include_directories(
 file(GLOB SRC_LIST "*.cpp")
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-include(../../boost.cmake)
+include(../../cmake/boost.cmake)
 
 target_link_libraries(${PROJECT_NAME}
     intent-core

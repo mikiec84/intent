@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 
 project(intent-lang-testrunner)
 
-include(../../common.cmake)
+include(../../cmake/common.cmake)
 
 include_directories(
     ../../src
     ${gtest_SOURCE_DIR}/include
 )
 
-include(../../boost.cmake)
+include(../../cmake/boost.cmake)
 
 file(GLOB SRC_LIST "*.cpp")
 add_executable(${PROJECT_NAME} ${SRC_LIST})

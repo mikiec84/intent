@@ -1,5 +1,0 @@
-#! /usr/bin/env python
-import os, sys
-
-print('path = %s' % os.environ['PATH'])
-os.system('scons')

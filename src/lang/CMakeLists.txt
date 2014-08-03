@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(intent-lang)
 
-include(../../common.cmake)
+include(../../cmake/common.cmake)
 
 include_directories(..)
 
-include(../../boost.cmake)
+include(../../cmake/boost.cmake)
 
 file(GLOB SRC_LIST "*.cpp")
 

@@ -1,0 +1,6 @@
+#! /usr/bin/env python
+import os, sys
+
+os.makedirs('build')
+os.chdir('build')
+sys.exit(os.system('cmake .. && make -j8 && make test'))

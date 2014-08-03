@@ -7,6 +7,6 @@ include_directories(..)
 
 file(GLOB SRC_LIST "*.cpp")
 
-include(../../boost.cmake)
+include(../../cmake/boost.cmake)
 
 add_library(${TARGET_NAME} ${SRC_LIST})
