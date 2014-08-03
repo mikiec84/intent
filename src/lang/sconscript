@@ -1,6 +1,0 @@
-Import('env')
-
-lang = env.Library(target='intent-lang', source=Glob('*.cpp'))
-
-Return('lang')
-
