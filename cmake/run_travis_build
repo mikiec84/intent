@@ -11,5 +11,5 @@ if __name__ == '__main__':
     os.makedirs('build')
     os.chdir('build')
     x('cmake ..')
-    x('make VERBOSE=1')
+    x('make')
     x('make test')
