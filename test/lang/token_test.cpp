@@ -85,10 +85,12 @@ TEST(token_test, unique_numbers) {
 
     #define TUPLE(number, precedence, associativity, name, example, comment) \
     { \
-        auto pair = counts.emplace(0x8000 | number, "tt_operator_" #name); \
-        if (!pair.second) { \
-            ADD_FAILURE() << number << " already bound to \"" << pair.first->second \
+        auto already = counts[0x8000 | number]; \
+        if (already) { \
+            ADD_FAILURE() << number << " already bound to \"" << already \
                 << "\"; can't also bind to \"" << "tt_operator_" #name << "\""; \
+        } else { \
+            counts[0x8000 | number] = "tt_operator_" #name; \
         } \
     }
     #include "lang/operator_tuples.h"
