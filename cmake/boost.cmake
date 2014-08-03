@@ -3,7 +3,7 @@
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost 1.46.0 REQUIRED COMPONENTS filesystem system)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS filesystem system)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # To link against boost libraries, simply add ${Boost_LIBRARIES} to link

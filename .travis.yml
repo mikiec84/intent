@@ -3,5 +3,8 @@ compiler:
   - clang
 script: cmake/run_travis_build
 before_install:
+  - sudo apt-get remove libboost-*-dev -y
+  - sudo apt-get autoremove -y
+  - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y libboost-all-dev
+  - sudo apt-get install -y libboost1.55-all-dev
