@@ -3,7 +3,7 @@
 
 #include "core/unicode.h"
 
-class sslice;
+struct sslice;
 
 std::string expand_escape_sequences(sslice const &);
 

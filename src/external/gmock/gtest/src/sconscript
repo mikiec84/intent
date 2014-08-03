@@ -1,5 +1,0 @@
-Import('test_env')
-
-gtest = test_env.Library(target='gtest', source='gtest-all.cc')
-
-Return('gtest')

@@ -1,5 +1,0 @@
-Import('test_env')
-
-gmock = test_env.Library(target='gmock', source='gmock-all.cc')
-
-Return('gmock')

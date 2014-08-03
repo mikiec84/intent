@@ -27,7 +27,7 @@ lexer::lexer(sslice const & txt) : lexer(txt.begin, txt.end) {
 
 lexer::lexer(char const * begin, char const * end) :
     txt(begin, end), line_begin(begin), p(begin), inconsistent_indent(nullptr),
-    statement_number(0), line_number(0), total_indent_width(0),
+    line_number(0), total_indent_width(0),
     indent_dedent_delta(0), last_stack_insert_idx(NO_INDENT_YET) {
 
     if (p) {

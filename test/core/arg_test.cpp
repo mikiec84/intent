@@ -12,10 +12,8 @@ std::string str_arg("my string");
 
 arg test_args[] = {
     25,
-    1943872801L,
-#ifdef DARWIN
-    2598239487120349ULL,
-#endif
+    static_cast<int32_t>(1943872801),
+    static_cast<uint64_t>(2598239487120349ULL),
     3.14,
     "howdy",
     str_arg,
@@ -28,9 +26,7 @@ arg test_args[] = {
 char const * test_arg_strs[] = {
     "25",
     "1943872801",
-#ifdef DARWIN
     "2598239487120349",
-#endif
     "3.14",
     "howdy",
     "my string",
@@ -42,7 +38,7 @@ char const * test_arg_strs[] = {
 
 TEST(arg_test, snprintf) {
     char buf[64];
-    for (int i = 0; i < countof(test_args); ++i) {
+    for (unsigned i = 0; i < countof(test_args); ++i) {
         buf[0] = 0;
         test_args[i].snprintf(buf, sizeof(buf));
         if (strcmp(test_arg_strs[i], buf) != 0) {
@@ -54,7 +50,7 @@ TEST(arg_test, snprintf) {
 }
 
 TEST(arg_test, to_string) {
-    for (int i = 0; i < countof(test_args); ++i) {
+    for (unsigned i = 0; i < countof(test_args); ++i) {
         auto s = test_args[i].to_string();
         if (strcmp(test_arg_strs[i], s.c_str()) != 0) {
             ADD_FAILURE() << "For item " << i << ", expected \""
@@ -68,8 +64,8 @@ TEST(arg_test, snprintf_overflow) {
     char buf[64];
     buf[0] = 1;
     buf[1] = 0;
-    for (int i = 0; i < countof(test_args); ++i) {
-        auto n = test_args[i].snprintf(buf, 0);
+    for (unsigned i = 0; i < countof(test_args); ++i) {
+        unsigned n = test_args[i].snprintf(buf, 0);
         if (n != strlen(test_arg_strs[i])) {
             // From http://linux.die.net/man/3/snprintf:
             // The functions snprintf() and vsnprintf() do not write more than

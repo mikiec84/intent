@@ -19,7 +19,7 @@ TEST(line_iterator_test, empty_is_not_end) {
 
 void check_lines(char const * txt, std::initializer_list<char const *> lines) {
     line_iterator it(txt);
-    for (int i = 0; ; ++i) {
+    for (unsigned i = 0; ; ++i) {
         if (i == lines.size()) {
             break;
         }

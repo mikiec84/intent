@@ -59,7 +59,7 @@ TEST(interp_test, pluralize) {
             "Found 2 warnings.",
             "Found 3 warnings."
     };
-    for (int i = 0; i < countof(args); ++i) {
+    for (unsigned i = 0; i < countof(args); ++i) {
         auto s = interp(fmt, {args[i]});
         EXPECT_STREQ(expected[i], s.c_str());
     }

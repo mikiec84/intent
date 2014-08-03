@@ -4,5 +4,5 @@
 
 TEST(pstr_test, size) {
     pstr s("hi");
-    ASSERT_EQ(2, s.size());
+    ASSERT_EQ(2U, s.size());
 }

@@ -47,7 +47,7 @@ TEST(ioutil_test, read_binary_file) {
     fclose(x);
     file_delete_on_exit fdoe(x.path);
     std::vector<uint8_t> bytes = read_binary_file(x.path);
-    ASSERT_EQ(7, bytes.size());
+    ASSERT_EQ(7U, bytes.size());
     ASSERT_STREQ(test_data, reinterpret_cast<char const *>(&bytes[0]));
 }
 
@@ -57,6 +57,6 @@ TEST(ioutil_test, read_text_file) {
     fclose(x);
     file_delete_on_exit fdoe(x.path);
     std::string txt = read_text_file(x.path);
-    ASSERT_EQ(7, txt.size());
+    ASSERT_EQ(7U, txt.size());
     ASSERT_STREQ(test_data, txt.c_str());
 }

@@ -93,7 +93,7 @@ TEST(lexer_test, indent_and_dedent) {
         tt_dedent
     };
     auto it = lex.begin();
-    for (int i = 0; i < countof(expected); ++i) {
+    for (unsigned i = 0; i < countof(expected); ++i) {
         EXPECT_TOKEN_TYPE(expected[i], it->type, i);
         ++it;
         if (it == lex.end() && i < countof(expected) - 1) {
@@ -123,7 +123,7 @@ TEST(lexer_test, simple) {
             break;
         }
     }
-    EXPECT_EQ(2, i);
+    EXPECT_EQ(2U, i);
 }
 
 TEST(lexer_test, quoted_string) {
@@ -141,7 +141,7 @@ TEST(lexer_test, quoted_string) {
         {QUOTE("\\r\\n\\t\\b\\v\\a\\f \\u "), "\r\n\t\b\v\a\f \\u "},
         {QUOTE("abc\n... def"), "abc def"},
     };
-    for (int i = 0; i < countof(quoted_strs); ++i) {
+    for (unsigned i = 0; i < countof(quoted_strs); ++i) {
         auto txt = quoted_strs[i].txt;
         lexer lex(txt);
         auto it = lex.begin();
@@ -168,7 +168,7 @@ TEST(lexer_test, numbers) {
         "0", "-1", "+25.7", "36121", "123_456_789", "0x03", "0b0100100", "0023", "3.7e-5",
     };
 
-    for (int i = 0; i < countof(number_strs); ++i) {
+    for (unsigned i = 0; i < countof(number_strs); ++i) {
         lexer lex(number_strs[i]);
         auto it = lex.begin();
         if (!is_number_literal(it->type)) {

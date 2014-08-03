@@ -46,8 +46,6 @@ private:
     char const * line_begin;
     char const * p;
     char const * inconsistent_indent;
-    char const * error_msg;
-    uint32_t statement_number;
     uint32_t line_number;
     uint32_t total_indent_width;
     int32_t indent_dedent_delta;

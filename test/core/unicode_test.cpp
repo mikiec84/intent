@@ -36,11 +36,11 @@ TEST(unicode_test, get_codepoint_from_utf8) {
     codepoint_t cp;
     EXPECT_STREQ(0, get_codepoint_from_utf8(nullptr, cp));
     EXPECT_STREQ("bc", get_codepoint_from_utf8("abc", cp));
-    EXPECT_EQ('a', cp);
+    EXPECT_EQ(static_cast<codepoint_t>('a'), cp);
     EXPECT_STREQ(" XYZ", get_codepoint_from_utf8("\xC3\xB1 XYZ", cp));
-    EXPECT_EQ(0x00F1, cp);
+    EXPECT_EQ(0x00F1U, cp);
     EXPECT_STREQ(" xyz", get_codepoint_from_utf8("\xE5\xB0\x8D xyz", cp));
-    EXPECT_EQ(0x5C0D, cp);
+    EXPECT_EQ(0x5C0DU, cp);
     EXPECT_STREQ("\xB0\x8D xyz", get_codepoint_from_utf8("\x85\xB0\x8D xyz", cp));
     EXPECT_EQ(UNICODE_REPLACEMENT_CHAR, cp);
     EXPECT_STREQ("\x8D xyz", get_codepoint_from_utf8("\xB0\x8D xyz", cp));
@@ -121,7 +121,7 @@ TEST(unicode_test, scan_unicode_escape_sequence) {
 
     #define CHECKSEQ(seq, expected_str, expected_cp) \
         EXPECT_STREQ(expected_str, scan_unicode_escape_sequence(seq, cp)); \
-        EXPECT_EQ(expected_cp, cp)
+        EXPECT_EQ(static_cast<codepoint_t>(expected_cp), cp)
 
     CHECKSEQ("x252", "2", 0x25);
     CHECKSEQ("0470", "0", 39);
