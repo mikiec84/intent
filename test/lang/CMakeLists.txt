@@ -24,3 +24,10 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
+
+# Make cmake think other files are significant, even if they are not required
+# for a build. This causes cmake to place the files in a project tree where
+# an IDE can interact with them.
+file(GLOB_RECURSE data "data/*")
+add_custom_target(data SOURCES ${data})
+

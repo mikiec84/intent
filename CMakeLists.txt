@@ -1,23 +1,25 @@
 cmake_minimum_required(VERSION 2.8)
 
-
-
-message("Using compiler: ${BoldCyan}${CMAKE_CXX_COMPILER}${ColourReset}")
-if(("${CMAKE_BUILD_TYPE}" MATCHES "test_.*") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "analyze"))
-        if(${CLANG})
-        else()
-                message(FATAL_ERROR "${BoldRed}You must use clang for ${CMAKE_BUILD_TYPE} builds.${ColourReset}")
-        endif()
-endif()
-
-#
-# General flags
-#
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wreturn-type -Wno-write-strings -Wno-unused-result -pipe")
-
 project(intent)
 
 enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(test)
+
+# Make cmake think other files are significant, even if they are not required
+# for a build. This causes cmake to place the files in a project tree where
+# an IDE can interact with them.
+file(GLOB_RECURSE assets "assets/*")
+file(GLOB_RECURSE snippets "snippets/*")
+file(GLOB_RECURSE grammar "grammar/*")
+add_custom_target(misc SOURCES
+    .travis.yml
+    cmake/run_travis_build
+    README.md
+    LICENSE
+    .gitignore
+    ${assets}
+    ${snippets}
+    ${grammar}
+)
