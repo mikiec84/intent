@@ -1,14 +1,14 @@
-#include <stdio.h>
+#include <cstdio>
+#include <exception>
 
-#include "core/cmdline.h"
+//#include "core/cmdline.h"
 
-using namespace intent;
-using namespace std;
+//using namespace intent;
+//using namespace std;
 
-int main(int argc, char ** argv) {
+int main(int /*argc*/, char ** /*argv*/) {
 
-	// Unlike Adaptive's other C/C++ code, this codebase is a green field,
-	// giving us an opportunity to use many cutting-edge constructs from C++03
+    // We have an opportunity to use many cutting-edge constructs from C++03
 	// and C++11. Part of that modernization is that we use exceptions to
 	// communicate errors in many cases, which is why the body of our main()
 	// function is enclosed in try...catch. Some subroutines called by main()
@@ -28,12 +28,13 @@ int main(int argc, char ** argv) {
 
 	try {
 
+#if 0
 		cmdline cmdline(argc, (char const **)argv);
 		if (cmdline.help_needed()) {
 			printf("%s", cmdline.get_help().c_str());
 			return 1;
 		}
-
+#endif
 		return 0;
 
 	} catch (std::exception const & e) {

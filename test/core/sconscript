@@ -1,5 +1,4 @@
 Import('test_env')
-Import('foundation')
 Import('core')
 Import('gmock')
 Import('gtest')

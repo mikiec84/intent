@@ -73,3 +73,6 @@ build
 *.iml
 *.iws
 
+# QT creator artifacts
+*.user
+*.files
