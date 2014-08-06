@@ -5,7 +5,20 @@ def x(cmd):
     print(cmd)
     subprocess.check_call(cmd.split(' '))
 
+def install_required_tools():
+    travis_os = os.getenv('TRAVIS_OS_NAME')
+    if travis_os == 'linux':
+        x('sudo apt-get remove libboost-*-dev -y')
+        x('sudo apt-get autoremove -y')
+        x('sudo add-apt-repository ppa:boost-latest/ppa -y')
+        x('sudo apt-get update -qq')
+        x('sudo apt-get install -y libboost1.55-all-dev')
+    elif travis_os == 'osx':
+        x('brew install cmake')
+        x('brew install boost')
+
 if __name__ == '__main__':
+    install_required_tools()
     if os.path.isdir('build'):
         shutil.rmtree('build')
     os.makedirs('build')
