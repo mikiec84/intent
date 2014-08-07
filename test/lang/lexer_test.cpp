@@ -11,7 +11,7 @@
 #include "core/line_iterator.h"
 #include "core/sandbox.h"
 #include "lang/lexer.h"
-#include "testutil/testutil.h"
+#include "../util/testutil.h"
 #include "gtest/gtest.h"
 
 using std::string;

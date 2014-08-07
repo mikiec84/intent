@@ -50,7 +50,6 @@ std::vector<uint8_t> read_binary_file(path const & fpath, size_t max_size) {
             if (size > 0) {
                 bytes.resize(size);
                 fread(&bytes[0], 1, size, f);
-                bytes[size] = 0;
             }
         }
     }

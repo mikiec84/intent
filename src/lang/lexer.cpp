@@ -309,7 +309,7 @@ bool lexer::advance() {
             t.type = tt_indent;
             return true;
         } else {
-            indent_dedent_delta += pop_indent();
+            indent_dedent_delta += static_cast<int>(pop_indent());
             if (indent_dedent_delta > 0) {
                 indent_dedent_delta = 0;
                     // TODO: issue error

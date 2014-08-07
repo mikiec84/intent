@@ -1,13 +1,19 @@
 set(DEBUG_SANITIZERS integer undefined unsigned-integer-overflow)
+set(BUILD_TESTRUNNERS 1)
 
 # Figure out what build types are possible.
 if ("$ENV{INTENT_BUILD_TYPES}" STREQUAL "")
     set(BUILD_TYPES "Debug|Release|analyze|leaks|profile")
-    get_filename_component(MY_PATH ${CMAKE_CURRENT_LIST_FILE} DIRECTORY)
+
+    # Figure out fully qualified path to the detect_sanitizers script.
+    # There are better ways to do this in recent versions of cmake, but
+    # we have to use this awkward way for 2.8 compatibility.
+    get_filename_component(MY_PATH ${CMAKE_CURRENT_LIST_FILE} ABSOLUTE)
+    string(FIND ${MY_PATH} "/" LAST_SLASH REVERSE)
+    string(SUBSTRING ${MY_PATH} 0 ${LAST_SLASH} MY_PATH)
     execute_process(COMMAND python ${MY_PATH}/detect_sanitizers
         OUTPUT_STRIP_TRAILING_WHITESPACE
         OUTPUT_VARIABLE SANITIZERS)
-    message("found sanitizers: ${SANITIZERS}")
     separate_arguments(SANITIZERS)
     foreach(sanitizer ${SANITIZERS})
         if (NOT "${DEBUG_SANITIZERS}" MATCHES ${sanitizer})
@@ -72,9 +78,11 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug|sanitize-.*")
             set(SFLAGS "${SFLAGS},address")
         endif()
     elseif (${CMAKE_BUILD_TYPE} STREQUAL "sanitize-thread")
-        set(SFLAGS "${SFLAGS},thread -fPIE -pie")
+        set(SFLAGS "${SFLAGS},thread -fPIC -pie")
+        set(BUILD_TESTRUNNERS 0)
     elseif (${CMAKE_BUILD_TYPE} STREQUAL "sanitize-memory")
-        set(SFLAGS "${SFLAGS},memory -fPIE -pie")
+        set(SFLAGS "${SFLAGS},memory -fPIC -pie")
+        set(BUILD_TESTRUNNERS 0)
     endif()
     if (NOT ${SFLAGS} STREQUAL "")
         string(SUBSTRING ${SFLAGS} 1 -1 SFLAGS)

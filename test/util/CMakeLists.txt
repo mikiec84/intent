@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(testutil)
+project(test-util)
+
+include(../../cmake/common.cmake)
 
 include_directories(..)
 

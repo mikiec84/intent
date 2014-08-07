@@ -1,4 +1,4 @@
-#include "testutil/testutil.h"
+#include "testutil.h"
 
 using namespace boost::filesystem;
 

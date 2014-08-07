@@ -1,0 +1,2 @@
+fun:.*boost.*serialization.*singleton.*get_instance.*
+fun:.*boost.*any_cast.*

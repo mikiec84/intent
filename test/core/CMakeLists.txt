@@ -10,15 +10,20 @@ include_directories(
 )
 
 file(GLOB SRC_LIST "*.cpp")
-add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-include(../../cmake/boost.cmake)
+if (BUILD_TESTRUNNERS)
+    add_executable(${PROJECT_NAME} ${SRC_LIST})
 
-target_link_libraries(${PROJECT_NAME}
-    intent-core
-    gtest
-    gtest_main
-    ${Boost_LIBRARIES}
-)
+    include(../../cmake/boost.cmake)
 
-add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}
+        intent-core
+        gtest
+        gtest_main
+        ${Boost_LIBRARIES}
+    )
+    add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
+else()
+    message("${PROJECT_NAME} is not built in ${CMAKE_BUILD_TYPE} builds.")
+    add_custom_target(${PROJECT_NAME} ${SRC_LIST})
+endif()
