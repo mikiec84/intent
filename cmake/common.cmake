@@ -58,12 +58,11 @@ set(WARNING_FLAGS "${WARNING_FLAGS} -Qunused-arguments -Wno-missing-field-initia
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -pipe ${WARNING_FLAGS}")
 
-# Regardless of whether we're in release or debug mode, always generate
-# a map file and make debugging possible.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-omit-frame-pointer")
+# Regardless of whether we're in release or debug mode, always enable debugging.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
 
-# In release mode, still generate a map file and make debugging possible.
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
+# In release mode, still generate a map file; go for moderate optimization.
+set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS_RELEASE}")
 
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug|sanitize-.*")
     set(SFLAGS "")
