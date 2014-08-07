@@ -111,9 +111,8 @@ TEST(lexer_test, simple) {
     lexer::iterator lit = lex.begin();
     unsigned i = 0;
     for (int j = 0; j < 10; ++i, ++j) {
-        token_type tt;
+        token_type tt = tt_noun_phrase;
         switch (i) {
-        case 0: tt = tt_noun_phrase; break;
         case 1: tt = tt_operator_define; break;
         case 2: tt = tt_decimal_number; break;
         }

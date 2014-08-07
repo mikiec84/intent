@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(intent)
 
-message("You must compile with clang.")
+if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    message(FATAL_ERROR "You must compile with Clang, due to LLVM dependencies.")
+endif ()
 
 enable_testing()
 
@@ -15,6 +17,7 @@ add_subdirectory(test)
 file(GLOB_RECURSE assets "assets/*")
 file(GLOB_RECURSE snippets "snippets/*")
 file(GLOB_RECURSE grammar "grammar/*")
+file(GLOB_RECURSE cmake "cmake/*")
 add_custom_target(misc SOURCES
     .travis.yml
     cmake/run_travis_build
@@ -24,4 +27,5 @@ add_custom_target(misc SOURCES
     ${assets}
     ${snippets}
     ${grammar}
+    ${cmake}
 )

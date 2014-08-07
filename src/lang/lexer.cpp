@@ -606,6 +606,8 @@ bool get_number_token(char const * p, char const * end, token & t) {
     if (!floating_point && p < end && *p == '.') {
         floating_point = true;
         p = scan_decimal_digits_post_radix(++p, end, significand);
+    } else {
+        significand = 0.0;
     }
 
     // Now we've read everything except possibly an exponent. Make sure we've

@@ -5,6 +5,9 @@ project(i)
 include(../../cmake/common.cmake)
 
 file(GLOB SRC_LIST "*.cpp")
+file(GLOB HEADERS "*.h")
+list(APPEND SRC_LIST ${HEADERS})
+
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 include(../../cmake/boost.cmake)

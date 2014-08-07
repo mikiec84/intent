@@ -3,7 +3,7 @@
 import os, sys, subprocess, shlex, tempfile
 
 def detect_available_sanitizers(compiler):
-    possible = 'integer,undefined,unsigned-integer-overflow,address,thread,mem,dataflow'.split(',')
+    possible = 'integer,undefined,unsigned-integer-overflow,address,thread,memory,dataflow'.split(',')
     folder = tempfile.mkdtemp()
     available = []
     try:

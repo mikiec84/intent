@@ -40,7 +40,8 @@ std::string insert_escape_sequences(sslice const & s, should_escape_func should_
     result.reserve(s.size());
     codepoint_t cp;
     char buf[12];
-    for (const char * p = s.begin; p != s.end; p = get_codepoint_from_utf8(p, cp)) {
+    for (const char * p = s.begin; p != s.end;) {
+        p = get_codepoint_from_utf8(p, cp);
         if (should_escape(cp)) {
             char * bufp = buf;
             size_t bufsize = sizeof(buf);

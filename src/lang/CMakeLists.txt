@@ -9,6 +9,7 @@ include_directories(..)
 include(../../cmake/boost.cmake)
 
 file(GLOB SRC_LIST "*.cpp")
+file(GLOB HEADERS "*.h")
+list(APPEND SRC_LIST ${HEADERS})
 
-set(TARGET_NAME ${PROJECT_NAME})
 add_library(${PROJECT_NAME} ${SRC_LIST})
