@@ -20,7 +20,8 @@ def detect_available_sanitizers(compiler):
                     pass
         finally:
             os.remove(cpp_path)
-        print(' '.join(available))
+        if available:
+            print(' '.join(available))
     finally:
         os.rmdir(folder)
 
