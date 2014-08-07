@@ -68,9 +68,13 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug|sanitize-.*")
     set(SFLAGS "")
     foreach(sanitizer ${DEBUG_SANITIZERS})
-        # If this sanitizer is supported, turn it on.
+        # If this sanitizer is supported, turn it on, unless it's
+        # "address" -- that one conflicts with "thread" and
+        # "memory", so we can only do it in Debug builds.
         if ("${SANITIZERS}" MATCHES ${sanitizer})
-            set(SFLAGS "${SFLAGS},${sanitizer}")
+            if (NOT ${sanitizer} STREQUAL "address")
+              set(SFLAGS "${SFLAGS},${sanitizer}")
+            endif()
         endif()
     endforeach()
     if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -97,6 +101,7 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "profile")
             "   $ export HEAPPROFILE=hprof.out ./${PROJECT_NAME}")
 elseif (${CMAKE_BUILD_TYPE} STREQUAL "analyze")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze")
+    set(BUILD_TESTRUNNERS 0)
 endif()
 
 

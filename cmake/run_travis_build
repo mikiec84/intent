@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import os, sys, subprocess, shutil
+import sanitizers
 
 def x(cmd):
     print(cmd)
@@ -19,10 +20,21 @@ def install_required_tools():
 
 if __name__ == '__main__':
     install_required_tools()
-    if os.path.isdir('build'):
-        shutil.rmtree('build')
-    os.makedirs('build')
-    os.chdir('build')
-    x('cmake ..')
-    x('make')
-    x('make test')
+    non_build_variants = 'integer undefined unsigned-integer-overflow address'.split(' ')
+    build_variants = ['Debug', 'Release', 'analyze'] + ['sanitize-' + s for s in sanitizers.detect() 
+        if s not in non_build_variants]
+    os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+    old_cwd = os.getcwd()
+    for variant in build_variants: 
+        print('\n---------------------------------- %s build ------' % variant)
+        folder = 'build/travis-%s' % variant
+        if os.path.isdir(folder):
+            shutil.rmtree(folder)
+        os.makedirs(folder)
+        os.chdir(folder)
+        try:
+            x('cmake -DCMAKE_BUILD_TYPE=%s ../..' % variant)
+            x('make')
+            x('make test')
+        finally:
+            os.chdir(old_cwd)
