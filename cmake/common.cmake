@@ -1,4 +1,4 @@
-set(DEBUG_SANITIZERS integer undefined unsigned-integer-overflow)
+set(DEBUG_SANITIZERS integer undefined unsigned-integer-overflow address)
 set(BUILD_TESTRUNNERS 1)
 
 # Figure out what build types are possible.
