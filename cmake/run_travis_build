@@ -36,5 +36,7 @@ if __name__ == '__main__':
             x('cmake -DCMAKE_BUILD_TYPE=%s ../..' % variant)
             x('make')
             x('make test')
+            if variant == 'Release':
+                 x('make package')
         finally:
             os.chdir(old_cwd)
