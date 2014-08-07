@@ -14,11 +14,11 @@ list(APPEND SRC_LIST ${HEADERS})
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST})
 
-add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})
-target_link_libraries(${PROJECT_NAME}-shared
-    intent-core
-    ${Boost_LIBRARIES}
-)
+#add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})
+#target_link_libraries(${PROJECT_NAME}-shared
+#    intent-core
+#    ${Boost_LIBRARIES}
+#)
 
 install(TARGETS intent-lang ARCHIVE DESTINATION lib)
 #install(TARGETS intent-lang-shared ARCHIVE DESTINATION lib)

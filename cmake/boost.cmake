@@ -1,6 +1,8 @@
 # See http://j.mp/1qS8GbQ and http://j.mp/1uV5U7A for info about how to use
 # boost with cmake.
-set(Boost_USE_STATIC_LIBS ON)
+if ("${Boost_USE_STATIC_LIBS}" STREQUAL "")
+    set(Boost_USE_STATIC_LIBS ON)
+endif()
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.48.0 REQUIRED COMPONENTS filesystem system)

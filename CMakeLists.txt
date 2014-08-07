@@ -30,7 +30,7 @@ add_custom_target(misc SOURCES
     ${cmake}
 )
 
-set(CPACK_PACKAGE_NAME "Intent")
+set(CPACK_PACKAGE_NAME "intent")
 set(CPACK_PACKAGE_VENDOR "intentlang.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Intent Programming Ecosystem")
 set(CPACK_PACKAGE_VERSION "1.0.0")
@@ -39,8 +39,14 @@ set(CPACK_PACKAGE_VERSION_MINOR "0")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "intent")
 set(CPACK_GENERATOR "TGZ;ZIP;STGZ")
+set(CPACK_PACKAGE_CONTACT "daniel.hardman@gmail.com")
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(CPACK_GENERATOR "${CPACK_GENERATOR};DEB;RPM")
+    execute_process(COMMAND which rpmbuild OUTPUT_STRIP_TRAILING_WHITESPACE
+        OUTPUT_VARIABLE found)
+    if (NOT "${found}" STREQUAL "")
+        set(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
+    endif()
+    set(CPACK_GENERATOR "${CPACK_GENERATOR};DEB")
 endif()
 
  # This must always be last!
