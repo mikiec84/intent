@@ -17,3 +17,6 @@ target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
 )
 
+install(TARGETS
+    i
+    RUNTIME DESTINATION bin)

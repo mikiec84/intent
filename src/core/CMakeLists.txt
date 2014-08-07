@@ -12,4 +12,13 @@ list(APPEND SRC_LIST ${HEADERS})
 
 include(../../cmake/boost.cmake)
 
-add_library(${PROJECT_NAME} ${SRC_LIST})
+add_library(${PROJECT_NAME} STATIC ${SRC_LIST})
+
+add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})
+target_link_libraries(${PROJECT_NAME}-shared
+    ${Boost_LIBRARIES}
+)
+
+install(TARGETS intent-core ARCHIVE DESTINATION lib)
+#install(TARGETS intent-core-shared ARCHIVE DESTINATION lib)
+

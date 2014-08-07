@@ -104,5 +104,3 @@ elseif (${CMAKE_BUILD_TYPE} STREQUAL "analyze")
     set(BUILD_TESTRUNNERS 0)
 endif()
 
-
-
