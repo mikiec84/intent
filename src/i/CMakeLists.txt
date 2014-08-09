@@ -4,6 +4,8 @@ project(i)
 
 include(../../cmake/common.cmake)
 
+include_directories(..)
+
 file(GLOB SRC_LIST "*.cpp")
 file(GLOB HEADERS "*.h")
 list(APPEND SRC_LIST ${HEADERS})
