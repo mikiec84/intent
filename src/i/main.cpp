@@ -27,7 +27,8 @@ int main(int argc, char ** argv) {
 
     try {
 
-        intent::core::cmdline cmdline(argc, (char const **)argv);
+        intent::core::cmdline cmdline;
+        cmdline.set_args(argc, (char const **)argv);
         if (cmdline.help_needed()) {
             printf("%s", cmdline.get_help().c_str());
             return 1;

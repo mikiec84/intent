@@ -8,36 +8,69 @@
 namespace intent {
 namespace core {
 
-struct cmdline_parameter;
+struct cmdline_param;
 
 /**
  * Examine a single arg and validate it against its corresponding parameter
  * definition. Return a string describing problems, or the empty string on
  * success.
+ *
+ * @param reference_data: allows the same algorithm to compare against different
+ *     reference values (e.g., the same "number is in range" function comparing
+ *     against different boundaries each time it's invoked).
  */
-typedef std::string (* arg_validator_func)(cmdline_parameter const &,
+typedef std::string (* arg_validator_func)(cmdline_param const & param,
+    char const * value, void * reference_data);
+
+std::string is_boolean(cmdline_param const &,
     char const * value);
+
+/**
+ * Hold information about one defined flag.
+ */
+struct cmdline_flag {
+    std::vector<std::string> names;
+    std::string help;
+};
 
 /**
  * Hold information about one defined parameter.
  */
-struct cmdline_parameter {
+struct cmdline_param {
     std::vector<std::string> names;
     std::string help;
     char occurrence_rule;
     std::string placeholder;
     arg_validator_func validator;
+    void * reference_data;
+
+    /**
+     * Return true if this param is recognized by its position rather than
+     * a hyphen-prefixed name.
+     */
+    bool is_positional() const;
 };
 
 /**
  * Hold information about a combination of parameters and semantics that
  * apply to one cmdline.
+ *
+ * The lifetime of this object falls into two distinct phases: definition,
+ * and usage. In the definition phase, it is legal to call the ctor and all
+ * setters/adders. The usage phase begins when set_args() is called; thereafter,
+ * it is legal to call getters, but not to change the object's definitions.
+ * set_args() may be called repeatedly on the same object; each time, validation
+ * and and errors are recalculated.
  */
 class cmdline {
 public:
-    cmdline(int argc, char const * argv[]);
-    cmdline(std::initializer_list<std::string> args);
+    cmdline();
+    cmdline(const cmdline &) = delete;
+
     virtual ~cmdline();
+
+    void set_args(int argc, char const * argv[]);
+    void set_args(std::initializer_list<std::string> args);
 
     /**
      * Override argv[0] as the name of the program.
@@ -74,13 +107,29 @@ public:
      *     "?" means zero or 1, "*" means zero or more, "+" means 1 or more,
      *     any other digit forces that exact count).
      * @param placeholder: represents the value of this arg in overall usage,
-     *     such as "FNAME" in --infile FNAME.
+     *     such as "FNAME" in "--infile FNAME". This parameter is ignored for
+     *     positional args (ones with a names not preceded by hyphens).
      */
-    void define_parameter(char const * names, char const * help,
+    void define_param(char const * names, char const * help,
         char occurrence_rule = '1', char const * placeholder = nullptr,
-        arg_validator_func validator=nullptr);
+        arg_validator_func validator = nullptr,
+        void * validator_reference_data = nullptr);
 
-    std::vector<cmdline_parameter> get_parameters();
+    /**
+     * Define a flag -- a parameter that, if present, signals "true", and if
+     * missing, signals false.
+     */
+    void define_flag(char const * names, char const * help);
+
+    std::vector<cmdline_param> const & get_params() const;
+    std::vector<cmdline_flag> const & get_flags() const;
+    std::vector<std::string> const & get_args() const;
+
+    /**
+     * Given all known flags and params, what is the maximum width of the
+     * widest names?
+     */
+    size_t get_max_name_width() const;
 
     bool help_needed() const;
     std::string get_help() const;

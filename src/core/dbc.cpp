@@ -12,7 +12,7 @@ constexpr char const * get_contract_type_name(contract_type ctype) {
 }
 
 std::string make_exception_msg(contract_type ctype, char const * expr,
-    char const * file, int line) {
+    char const * file, int line, char const * function) {
 
     stringstream s;
     auto p = strrchr(file, '/');
@@ -24,13 +24,15 @@ std::string make_exception_msg(contract_type ctype, char const * expr,
         file = p + 1;
     }
     s << "Failed " << get_contract_type_name(ctype) << " at " << file
-        << ", line " << line << ". Expected \"" << expr << "\" to be true.";
+        << ", line " << line << ", function " << function << "(). Expected \""
+        << expr << "\" to be true.";
     return s.str();
 }
 
 } // end anonymous namespace
 
 contract_violation::contract_violation(contract_type ctype, char const * expr,
-    char const * file, int line) :
-    std::logic_error(make_exception_msg(ctype, expr, file, line)), ctype(ctype) {
+    char const * file, int line, char const * function) :
+    std::logic_error(make_exception_msg(ctype, expr, file, line, function)),
+    ctype(ctype) {
 }

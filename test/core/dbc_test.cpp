@@ -1,5 +1,5 @@
 #define CONTRACT_VIOLATION_ACTION(contract_type, expr) \
-    report_violation(contract_type, expr, __FILE__, __LINE__)
+    report_violation(contract_type, expr, __FILE__, __LINE__, __FUNCTION__)
 
 #include "core/dbc.h"
 
@@ -9,12 +9,10 @@ bool should_throw = true;
 unsigned violation_count = 0;
 
 static void report_violation(contract_type type, char const * expr,
-    char const * file, int line) {
-    printf("in report_violation: \"%s\" wasn't true\n", expr);
+    char const * file, int line, char const * function) {
     ++violation_count;
     if (should_throw) {
-        contract_violation x(type, expr, file, line);
-        printf("About to throw: %s\n", x.what());
+        contract_violation x(type, expr, file, line, function);
         throw x;
     }
 }
@@ -77,7 +75,7 @@ TEST(dbc_test, check) {
 TEST(dbc_test, contract_violation_is_catchable) {
     bool caught = false;
     try {
-        throw contract_violation(contract_type::post, "i == 0", "x.cpp", 25);
+        throw contract_violation(contract_type::post, "i == 0", "x.cpp", 25, "func");
     } catch (contract_violation const & cv) {
         caught = true;
     }
@@ -107,4 +105,11 @@ TEST(dbc_test, postcondition) {
         FAIL() << "Expected POSTCONDITION to trip, since the value of i was 5"
                   " when we went out of scope.";
     }
+}
+
+TEST(dbc_test, failed_precondition_aborts_program_if_not_overridden) {
+    ASSERT_DEATH({
+        int i = 0;
+        POSTCONDITION(i == 1);
+    }, "Failed postcondition");
 }

@@ -14,7 +14,7 @@ enum class contract_type: unsigned {
 struct contract_violation: public std::logic_error {
     const contract_type ctype;
     contract_violation(contract_type ctype, char const * expr, char const * file,
-        int line);
+        int line, char const * function);
 };
 
 /**
@@ -22,7 +22,7 @@ struct contract_violation: public std::logic_error {
  */
 #ifndef CONTRACT_VIOLATION_ACTION
 #define CONTRACT_VIOLATION_ACTION(contract_type, expr) \
-    throw contract_violation(contract_type, #expr, __FILE__, __LINE__)
+    throw contract_violation(contract_type, #expr, __FILE__, __LINE__, __FUNCTION__)
 #endif
 
 #ifndef PRECONDITION_VIOLATION_ACTION
