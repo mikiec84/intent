@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "scan_numbers.h"
+
 namespace intent {
 namespace core {
 
@@ -20,10 +22,7 @@ struct cmdline_param;
  *     against different boundaries each time it's invoked).
  */
 typedef std::string (* arg_validator_func)(cmdline_param const & param,
-    char const * value, void * reference_data);
-
-std::string is_boolean(cmdline_param const &,
-    char const * value);
+    char const * value, void const * reference_data);
 
 /**
  * Hold information about one defined flag.
@@ -138,6 +137,19 @@ private:
     struct data_t;
     data_t * data;
 };
+
+template <typename T>
+struct numeric_range_info {
+    T min;
+    T max;
+    numeric_formats allowed_formats;
+};
+
+/**
+ * A validator for numbers passed as cmdline args.
+ */
+std::string in_numeric_range(cmdline_param const & param, char const * value, 
+    void const * numeric_range_info);
 
 }} // end namespace
 

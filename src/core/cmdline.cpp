@@ -3,6 +3,8 @@
 
 #include "cmdline.h"
 #include "dbc.h"
+#include "interp.h"
+#include "scan_numbers.h"
 #include "strutil.h"
 
 using std::string;
@@ -305,5 +307,20 @@ vector<cmdline_param> const & cmdline::get_params() const {
 vector<cmdline_flag> const & cmdline::get_flags() const {
     return data->flags;
 }
+
+std::string in_numeric_range(cmdline_param const & param, char const * value, 
+    void const * range_info) {
+#if 0
+    PRECONDITION(range_info != nullptr);
+    const char * const MSG = "Expected a number between {1} and {2} (inclusive)"
+            " for {2}; got \"{4}\" instead.";
+    number_info info;
+    auto ptr_to_null_char = strchr(value, 0);
+    auto end = scan_number(value, ptr_to_null_char, numeric_formats::all, info);
+    //valid = (end == ptr_to_null_char) &&
+#endif
+    return "";//valid ? "" : interp(MSG, nri.min, nri.max, param.names[0], value);
+}
+
 
 }} // end namespace

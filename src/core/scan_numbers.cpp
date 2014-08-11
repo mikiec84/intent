@@ -99,7 +99,7 @@ char const * scan_decimal_digits_post_radix(char const * p, char const * end, do
 }
 
 char const * scan_decimal_number(char const * p, char const * end, bool & negative, uint64_t & n) {
-    if (p < end) {
+    if (p && p < end) {
         char c = *p;
         negative = (c == '-');
         if (c == '+' || c == '-') {
@@ -108,5 +108,87 @@ char const * scan_decimal_number(char const * p, char const * end, bool & negati
         p = scan_decimal_digits_pre_radix(p, end, n);
     }
     return p;
+}
+
+char const * scan_number(char const * text, char const * end, numeric_formats
+    allowed_formats, number_info & info) {
+    char const * p = text;
+#if 0
+
+    info.whole_number = 0;
+
+    char c = *p;
+
+    info.negative = (c == '-');
+    if (c == '+' || c == '-') {
+        c = *++p;
+    }
+
+    bool floating_point = (c == '.');
+
+    if (!floating_point) {
+        if (c == '0') {
+            if (p + 2 < end) {
+                c = p[1];
+                info.format = numeric_formats::all;
+                if (c == 'x' || c == 'X') {
+                    p = scan_hex_digits(p + 2, end, info.whole_number);
+                    info.format = numeric_formats::hex;
+                } else if (c == 'b' || c == 'B') {
+                    p = scan_binary_digits(p + 2, end, info.whole_number);
+                    info.format = numeric_formats::binary;
+                } else if (c >= '0' && c <= '7') {
+                    p = scan_octal_digits(p + 2, end, info.whole_number);
+                    info.format = numeric_formats::octal;
+                }
+                if (info.format != numeric_formats::all) {
+                    return (info.format & allowed_formats) ? p : text;
+                }
+            }
+        }
+        p = scan_decimal_digits_pre_radix(p, end, info.whole_number);
+    }
+
+    double significand, value;
+
+    if (!floating_point && p < end && *p == '.') {
+        floating_point = true;
+        p = scan_decimal_digits_post_radix(++p, end, significand);
+    } else {
+        significand = 0.0;
+    }
+
+    // Now we've read everything except possibly an exponent. Make sure we've
+    // combined values to left and right of radix, if appropriate.
+    if (floating_point) {
+        significand += info.whole_number;
+    }
+
+    // Check for exponent.
+    if (p + 1 < end && (*p == 'e' || *p == 'E')) {
+        floating_point = true;
+
+        bool negative_exponent;
+        uint64_t exponent;
+        p = scan_decimal_number(++p, end, negative_exponent, exponent);
+        double exp = exponent;
+        if (negative_exponent) {
+            exp *= -1;
+        }
+        // TODO: what if exponent is too big? What if there's nothing after "e"?
+        value = significand * pow(10, exp);
+        if (negative) {
+            value *= -1;
+        }
+    }
+
+    if (floating_point) {
+        info.format = numeric_formats::floating_point;
+        info.floating_point = value;
+    } else {
+        info.format = numeric_formats::decimal;
+    }
+#endif
+    return (static_cast<unsigned>(info.format) & static_cast<unsigned>(allowed_formats)) ? p : text;
 }
 
