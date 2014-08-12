@@ -100,6 +100,8 @@ char const * scan_decimal_digits_post_radix(char const * p, char const * end, do
 }
 
 char const * scan_decimal_number(char const * p, char const * end, bool & negative, uint64_t & n) {
+    n = 0;
+    negative = false;
     if (p && p < end) {
         char c = *p;
         negative = (c == '-');
