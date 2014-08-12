@@ -1,3 +1,4 @@
+#include <cmath>
 #include "core/scan_numbers.h"
 
 /**
@@ -113,7 +114,6 @@ char const * scan_decimal_number(char const * p, char const * end, bool & negati
 char const * scan_number(char const * text, char const * end, numeric_formats
     allowed_formats, number_info & info) {
     char const * p = text;
-#if 0
 
     info.whole_number = 0;
 
@@ -142,7 +142,7 @@ char const * scan_number(char const * text, char const * end, numeric_formats
                     info.format = numeric_formats::octal;
                 }
                 if (info.format != numeric_formats::all) {
-                    return (info.format & allowed_formats) ? p : text;
+                    return (static_cast<bool>(info.format & allowed_formats)) ? p : text;
                 }
             }
         }
@@ -177,18 +177,21 @@ char const * scan_number(char const * text, char const * end, numeric_formats
         }
         // TODO: what if exponent is too big? What if there's nothing after "e"?
         value = significand * pow(10, exp);
-        if (negative) {
+        if (info.negative) {
             value *= -1;
         }
+    } else if (floating_point) {
+        value = significand;
     }
 
     if (floating_point) {
-        info.format = numeric_formats::floating_point;
+        info.format = numeric_formats::floating_point_only;
         info.floating_point = value;
     } else {
         info.format = numeric_formats::decimal;
     }
-#endif
-    return (static_cast<unsigned>(info.format) & static_cast<unsigned>(allowed_formats)) ? p : text;
+    return (static_cast<bool>(info.format & allowed_formats)) ? p : text;
 }
+
+
 

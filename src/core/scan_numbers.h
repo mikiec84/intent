@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "numeric_formats.h"
+
 typedef char const * (* scan_digits_func)(char const * p, char const * end, uint64_t & n);
 
 /**
@@ -41,19 +43,6 @@ char const * scan_decimal_digits_post_radix(char const * p, char const * end, do
  * @return offset of first char beyond digits of the number.
  */
 char const * scan_decimal_number(char const * p, char const * end, bool & negative, uint64_t & n);
-
-/**
- * Describe numeric formats that might be allowed for a particular token. This
- * enum supports bitmasking.
- */
-enum class numeric_formats : unsigned {
-    decimal = 1,
-    octal = 2,
-    hex = 4,
-    binary = 8,
-    floating_point = 16,
-    all = 16 | 8 | 4 | 2 | 1,
-};
 
 /**
  * Describes a numeric literal found in text.

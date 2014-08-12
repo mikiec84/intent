@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "scan_numbers.h"
+#include "numeric_formats.h"
 
 namespace intent {
 namespace core {
@@ -138,10 +139,9 @@ private:
     data_t * data;
 };
 
-template <typename T>
 struct numeric_range_info {
-    T min;
-    T max;
+    double min;
+    double max;
     numeric_formats allowed_formats;
 };
 

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <sstream>
 
 #include "cmdline.h"
@@ -310,16 +311,35 @@ vector<cmdline_flag> const & cmdline::get_flags() const {
 
 std::string in_numeric_range(cmdline_param const & param, char const * value, 
     void const * range_info) {
-#if 0
+
+    const char * const MSG = "For {1=param name}, expected a value between "
+        "{2=min} and {3=max} (inclusive), formatted as {4}; got \"{5}\" instead.";
     PRECONDITION(range_info != nullptr);
-    const char * const MSG = "Expected a number between {1} and {2} (inclusive)"
-            " for {2}; got \"{4}\" instead.";
+
+    numeric_range_info const & nri =
+        *reinterpret_cast<numeric_range_info const *>(range_info);
     number_info info;
     auto ptr_to_null_char = strchr(value, 0);
-    auto end = scan_number(value, ptr_to_null_char, numeric_formats::all, info);
-    //valid = (end == ptr_to_null_char) &&
-#endif
-    return "";//valid ? "" : interp(MSG, nri.min, nri.max, param.names[0], value);
+    auto end = scan_number(value, ptr_to_null_char, nri.allowed_formats, info);
+    auto valid = (end == ptr_to_null_char);
+    if (valid) {
+        if (info.format == numeric_formats::floating_point_only) {
+            if (!std::isnan(nri.min) && info.floating_point < nri.min) {
+                valid = false;
+            } else if (!std::isnan(nri.max) && info.floating_point > nri.max) {
+                valid = false;
+            }
+        } else {
+            int64_t n = static_cast<int64_t>(info.whole_number);
+            if (info.negative) {
+                n *= -1;
+            }
+            valid = n >= nri.min && n <= nri.max;
+        }
+    }
+    return valid ? "" :
+        interp(MSG, {param.names[0], nri.min, nri.max,
+            get_names_for_numeric_formats(nri.allowed_formats), value});
 }
 
 

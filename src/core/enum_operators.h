@@ -3,6 +3,10 @@
 
 #include <type_traits>
 
+#define enable_if_has_operators(which) \
+    template <typename T> \
+    inline typename std::enable_if<enum_has_##which##_operators<T>::value, T>::type
+
 // Unless overridden, all enums lack bitwise operators.
 template <typename T>
 struct enum_has_bitwise_operators {
@@ -15,43 +19,39 @@ struct enum_has_bitwise_operators {
         static constexpr bool value = true; \
     }
 
-#define enable_if_bitwise_operators \
-    template <typename T> \
-    inline typename std::enable_if<enum_has_bitwise_operators<T>::value, T>::type
-
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 operator |(T lhs, T rhs) {
     return static_cast<T>(static_cast<unsigned>(lhs) | static_cast<unsigned>(rhs));
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 operator &(T lhs, T rhs) {
     return static_cast<T>(static_cast<unsigned>(lhs) & static_cast<unsigned>(rhs));
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 operator ^(T lhs, T rhs) {
     return static_cast<T>(static_cast<unsigned>(lhs) ^ static_cast<unsigned>(rhs));
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 operator ~(T lhs) {
     return static_cast<T>(~static_cast<unsigned>(lhs));
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 & operator |=(T & lhs, T rhs) {
     lhs = lhs | rhs;
     return lhs;
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 & operator &=(T & lhs, T rhs) {
     lhs = lhs & rhs;
     return lhs;
 }
 
-enable_if_bitwise_operators
+enable_if_has_operators(bitwise)
 & operator ^=(T & lhs, T rhs) {
     lhs = lhs ^ rhs;
     return lhs;
@@ -121,5 +121,7 @@ operator ++(T & lhs, int) {
     lhs += 1;
     return tmp;
 }
+
+#undef enable_if_has_operators
 
 #endif // sentry

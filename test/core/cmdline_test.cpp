@@ -1,10 +1,12 @@
 #include "core/cmdline.h"
 #include "core/countof.h"
+#include "core/interp.h"
 #include "core/scope_guard.h"
 
 #include "gtest/gtest.h"
 
-using intent::core::cmdline;
+using std::string;
+using namespace intent::core;
 
 TEST(cmdline_test, basic) {
     cmdline c;
@@ -54,7 +56,7 @@ TEST(cmdline_test, get_help) {
     c.set_epilog("Files should be smaller than 10MB.");
     auto help = c.get_help();
     auto help_c = help.c_str();
-    printf("help = \"%s\"", help_c);
+    //printf("help = \"%s\"", help_c);
     for (auto & item: c.get_params()) {
         check_item(help_c, item);
     }
@@ -68,6 +70,63 @@ TEST(cmdline_test, get_help) {
     check_text(help_c, "-i=FNAME [-i=FNAME...]");
     check_text(help_c, "[--outfile=OUTFILE]");
     check_text(help_c, "-s=STYLE1...-s=STYLE4");
+}
+
+static void check_is_in_range(char const * value, numeric_range_info const & nri,
+        bool expected) {
+    cmdline_param param;
+    param.names.push_back("--number");
+    auto err = in_numeric_range(param, value, &nri);
+    if (expected != err.empty()) {
+        auto msg = interp("With value = \"{1}\", min = {2}, max = {3}, and "
+            "allowed_formats = {4}, is_in_range() should {5}.\nInstead, it {6}",
+            { value, nri.min, nri.max,
+              get_names_for_numeric_formats(nri.allowed_formats),
+              (expected ? "succeed" : "fail"),
+              (expected ? interp("failed with an error:\n    {1}\n", {err})
+                        : string("succeeded.\n"))});
+        ADD_FAILURE() << msg;
+    }
+}
+
+TEST(cmdline_test, in_numeric_range1) {
+    numeric_range_info range = {0, 31, numeric_formats::all};
+    check_is_in_range("3", range, true);
+    check_is_in_range("31", range, true);
+    check_is_in_range("0", range, true);
+    check_is_in_range("07", range, true);
+    check_is_in_range("0x0000001f", range, true);
+    check_is_in_range("14.7", range, true);
+    check_is_in_range("0b0000_1011", range, true);
+    check_is_in_range("-1", range, false);
+}
+
+TEST(cmdline_test, in_numeric_range2) {
+    numeric_range_info range = {-2.9, 3.61e3,
+        numeric_formats::floating_point};
+    check_is_in_range("3", range, true);
+    check_is_in_range("0", range, true);
+    check_is_in_range("-2", range, true);
+    check_is_in_range("3610", range, true);
+    check_is_in_range("3610.1", range, false);
+    check_is_in_range("0x0000001f", range, false); // disallowed format
+    check_is_in_range("14.7", range, true);
+    check_is_in_range("0b0000_1011", range, false); // disallowed format
+    check_is_in_range("-5", range, false);
+}
+
+TEST(cmdline_test, in_numeric_range3) {
+    numeric_range_info range = {1025, 65535, numeric_formats::decimal};
+    check_is_in_range("3", range, false);
+    check_is_in_range("0", range, false);
+    check_is_in_range("1024", range, false);
+    check_is_in_range("3610", range, true);
+    check_is_in_range("3610.1", range, false);
+    check_is_in_range("0x0000001f", range, false); // disallowed format
+    check_is_in_range("14.7", range, false); // disallowed format
+    check_is_in_range("0b0000_1011", range, false); // disallowed format
+    check_is_in_range("-5", range, false);
+    check_is_in_range("65536", range, false);
 }
 
 TEST(cmdline_test, DISABLED_more_to_do) {
