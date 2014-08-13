@@ -4,16 +4,16 @@ project(intent-lang-testrunner)
 
 include(../../cmake/common.cmake)
 
-include_directories(
-    ../../src
-    ${gtest_SOURCE_DIR}/include
-)
-
-include(../../cmake/boost.cmake)
-
 file(GLOB SRC_LIST "*.cpp")
 
 if (BUILD_TESTRUNNERS)
+    include_directories(
+        ../../src
+        ${gtest_SOURCE_DIR}/include
+    )
+
+    include(../../cmake/boost.cmake)
+
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize-blacklist=${intent-core_SOURCE_DIR}/../../cmake/sanitize-blacklist.txt")
     add_executable(${PROJECT_NAME} ${SRC_LIST})
 

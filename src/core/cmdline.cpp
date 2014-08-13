@@ -2,6 +2,8 @@
 #include <cmath>
 #include <sstream>
 
+#include <pcrecpp.h> // "brew install pcre" or "sudo apt-get install libpcre3-dev"
+
 #include "cmdline.h"
 #include "dbc.h"
 #include "interp.h"
@@ -342,5 +344,16 @@ std::string in_numeric_range(cmdline_param const & param, char const * value,
             get_names_for_numeric_formats(nri.allowed_formats), value});
 }
 
+std::string matches_regex(cmdline_param const & param, char const * value,
+        void /*precpp::RE*/ const * regex) {
+
+    PRECONDITION(regex != nullptr);
+    pcrecpp::RE const & re = *reinterpret_cast<pcrecpp::RE const *>(regex);
+    if (!re.FullMatch(value)) {
+        return interp("For {1=param name}, expected a value matching regex \"{2}\"; "
+               "got \"{3}\" instead.", {param.names[0], re.pattern(), value});
+    }
+    return "";
+}
 
 }} // end namespace

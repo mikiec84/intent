@@ -6,6 +6,18 @@ if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     message(FATAL_ERROR "You must compile with Clang, due to LLVM dependencies.")
 endif ()
 
+# Include our own custom "find" modules.
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+
+# Prefer static linking. We do this because it simplifies distribution, and it
+# makes our binaries less dependent and less likely to be influenced by what's
+# installed on target systems. The extra cost in file size does not seem like
+# a significant drawback.
+if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+    list(REMOVE_DUPLICATES CMAKE_FIND_LIBRARY_SUFFIXES)
+endif()
+
 enable_testing()
 
 add_subdirectory(src)

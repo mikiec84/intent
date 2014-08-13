@@ -149,7 +149,10 @@ struct numeric_range_info {
  * A validator for numbers passed as cmdline args.
  */
 std::string in_numeric_range(cmdline_param const & param, char const * value, 
-    void const * numeric_range_info);
+    void /*numeric_range_info*/ const *);
+
+std::string matches_regex(cmdline_param const & param, char const * value,
+    void /*precpp::RE*/ const *);
 
 }} // end namespace
 

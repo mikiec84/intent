@@ -1,3 +1,5 @@
+#include <pcrecpp.h>
+
 #include "core/cmdline.h"
 #include "core/countof.h"
 #include "core/interp.h"
@@ -127,6 +129,30 @@ TEST(cmdline_test, in_numeric_range3) {
     check_is_in_range("0b0000_1011", range, false); // disallowed format
     check_is_in_range("-5", range, false);
     check_is_in_range("65536", range, false);
+}
+
+static void check_regex(char const * value, pcrecpp::RE const & re,
+        bool expected) {
+    cmdline_param param;
+    param.names.push_back("--expr");
+    auto err = matches_regex(param, value, &re);
+    if (expected != err.empty()) {
+        auto msg = interp("With value = \"{1}\" and regex = \"{2}\", "
+            "matches_regex() should {3}.\nInstead, it {4}",
+            { value, re.pattern(),
+              (expected ? "succeed" : "fail"),
+              (expected ? interp("failed with an error:\n    {1}\n", {err})
+                        : string("succeeded.\n"))});
+        ADD_FAILURE() << msg;
+    }
+}
+
+TEST(cmdline_test, matches_regex) {
+    pcrecpp::RE ipaddr_pat(
+        "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}"
+        "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)");
+    check_regex("192.168.1.1", ipaddr_pat, true);
+    check_regex("292.168.1.1", ipaddr_pat, false);
 }
 
 TEST(cmdline_test, DISABLED_more_to_do) {
