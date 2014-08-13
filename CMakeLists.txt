@@ -14,8 +14,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 # installed on target systems. The extra cost in file size does not seem like
 # a significant drawback.
 if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
-    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
-    list(REMOVE_DUPLICATES CMAKE_FIND_LIBRARY_SUFFIXES)
+    if (NOT ${CMAKE_BUILD_TYPE} MATCHES "sanitize-(memory|thread)")
+        set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
+        list(REMOVE_DUPLICATES CMAKE_FIND_LIBRARY_SUFFIXES)
+    endif()
 endif()
 
 enable_testing()

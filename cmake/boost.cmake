@@ -15,7 +15,7 @@ endif()
 # allow it to be overridden.
 set(Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS} CACHE BOOL "link against static libs for boost" FORCE)
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_USE_STATIC_RUNTIME ${Boost_USE_STATIC_LIBS})
 find_package(Boost 1.48.0 REQUIRED COMPONENTS filesystem system)
 set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} CACHE STRING "where boost headers are")
 include_directories(${Boost_INCLUDE_DIRS})
