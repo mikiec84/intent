@@ -59,6 +59,10 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         set(CPACK_GENERATOR "${CPACK_GENERATOR};RPM")
     endif()
     set(CPACK_GENERATOR "${CPACK_GENERATOR};DEB")
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    set(CPACK_INSTALLER_PROGRAM "${CMAKE_CURRENT_LIST_DIR}/tools/PackageMaker.app/Contents/MacOS/PackageMaker" CACHE STRING "" FORCE)
+    message("path to binary = ${CPACK_INSTALLER_PROGRAM}")
+    set(CPACK_GENERATOR "${CPACK_GENERATOR};PackageMaker")
 endif()
 
  # This must always be last!
