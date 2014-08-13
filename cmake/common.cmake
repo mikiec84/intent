@@ -3,7 +3,7 @@ set(BUILD_TESTRUNNERS 1)
 
 # Figure out what build types are possible.
 if ("$ENV{INTENT_BUILD_TYPES}" STREQUAL "")
-    set(BUILD_TYPES "Debug|Release|analyze|leaks|profile")
+    set(BUILD_TYPES "Debug|Release|analyze")
 
     # Figure out fully qualified path to the detect_sanitizers script.
     # There are better ways to do this in recent versions of cmake, but
@@ -29,7 +29,7 @@ endif()
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "")
     set(CMAKE_BUILD_TYPE Debug CACHE STRING
-        "Choose the type of build, options are: ${BUILD_TYPES}" FORCE)
+        "Valid build types are: ${BUILD_TYPES}" FORCE)
 endif()
 
 if (NOT ("${CMAKE_BUILD_TYPE}" MATCHES "Debug|Release"))
@@ -91,13 +91,6 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug|sanitize-.*")
         string(SUBSTRING ${SFLAGS} 1 -1 SFLAGS)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=${SFLAGS}")
     endif()
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "leaks")
-    message("NOTE - Must set env var to enable leak detection, such as:\n"
-            "   $ export HEAPCHECK=normal ./${PROJECT_NAME}")
-elseif (${CMAKE_BUILD_TYPE} STREQUAL "profile")
-    message("NOTE - Must set env var to enable profiling, such as:\n"
-            "   $ export CPUPROFILE=prof.out ./${PROJECT_NAME}$\n"
-            "   $ export HEAPPROFILE=hprof.out ./${PROJECT_NAME}")
 elseif (${CMAKE_BUILD_TYPE} STREQUAL "analyze")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --analyze")
     set(BUILD_TESTRUNNERS 0)
