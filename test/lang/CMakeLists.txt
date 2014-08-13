@@ -27,7 +27,7 @@ if (BUILD_TESTRUNNERS)
     )
     add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
 else()
-    message("${PROJECT_NAME} is not build in ${CMAKE_BUILD_TYPE} builds.")
+    message("${PROJECT_NAME} is not built in ${CMAKE_BUILD_TYPE} builds.")
     add_custom_target(${PROJECT_NAME} ${SRC_LIST})
 endif()
 # Make cmake think other files are significant, even if they are not required
