@@ -105,8 +105,15 @@ TEST(cmdline_validators_test, matches_regex) {
 }
 
 #define THIS_FNAME "cmdline_validators_test.cpp"
-static const auto this_folder = find_test_folder("test/core/" THIS_FNAME);
-static const auto this_file = this_folder / THIS_FNAME;
+const path & this_folder() {
+    static path the_path = find_test_folder("test/core/" THIS_FNAME);
+    return the_path;
+}
+
+const path & this_file() {
+    static path the_path = this_folder() / THIS_FNAME;
+    return the_path;
+}
 
 static const filesys_info existing_file_readable = {
     {regular_file}, 0444U, 0444U,
@@ -136,12 +143,12 @@ inline cmdline_param const & get_param() {
 }
 
 TEST(cmdline_validators_test, matches_filesys_info1) {
-    auto err = matches_filesys_info(get_param(), this_file.c_str(), &existing_file_readable);
+    auto err = matches_filesys_info(get_param(), this_file().c_str(), &existing_file_readable);
     EXPECT_STREQ("", err.c_str());
 }
 
 TEST(cmdline_validators_test, matches_filesys_info2) {
-    auto err = matches_filesys_info(get_param(), this_folder.c_str(), &existing_file_readable);
+    auto err = matches_filesys_info(get_param(), this_folder().c_str(), &existing_file_readable);
     EXPECT_TRUE(strstr(err.c_str(), "is a folder"));
 }
 
@@ -152,7 +159,7 @@ TEST(cmdline_validators_test, matches_filesys_info3) {
 }
 
 TEST(cmdline_validators_test, matches_filesys_info4) {
-    auto err = matches_filesys_info(get_param(), this_file.c_str(), &existing_file_min_size);
+    auto err = matches_filesys_info(get_param(), this_file().c_str(), &existing_file_min_size);
     EXPECT_TRUE(strstr(err.c_str(), "too small"));
 }
 
@@ -162,7 +169,7 @@ static const filesys_info existing_file_exe_max_size = {
 };
 
 TEST(cmdline_validators_test, matches_filesys_info5) {
-    auto err = matches_filesys_info(get_param(), this_file.c_str(), &existing_file_exe_max_size);
+    auto err = matches_filesys_info(get_param(), this_file().c_str(), &existing_file_exe_max_size);
     EXPECT_TRUE(strstr(err.c_str(), "too big"));
     EXPECT_TRUE(strstr(err.c_str(), "not executable"));
 }
