@@ -5,6 +5,9 @@
 
 #include "numeric_formats.h"
 
+namespace intent {
+namespace core {
+
 typedef char const * (* scan_digits_func)(char const * p, char const * end, uint64_t & n);
 
 /**
@@ -85,5 +88,7 @@ struct number_info {
  */
 char const * scan_number(char const * txt, char const * end, numeric_formats
     formats, number_info & info);
+
+}} // end namespace
 
 #endif // sentry

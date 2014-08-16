@@ -5,6 +5,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace intent::core;
+
 bool should_throw = true;
 unsigned violation_count = 0;
 

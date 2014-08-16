@@ -5,6 +5,9 @@
 
 #include "scope_guard.h"
 
+namespace intent {
+namespace core {
+
 enum class contract_type: unsigned {
     pre,
     check,
@@ -56,5 +59,7 @@ struct contract_violation: public std::logic_error {
     on_scope_exit(if (!(expr)) { \
         POSTCONDITION_VIOLATION_ACTION(contract_type::post, #expr); \
     } )
+
+}} // end namespace
 
 #endif // sentry

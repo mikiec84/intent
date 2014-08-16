@@ -6,6 +6,9 @@
 
 #include "core/sslice.h"
 
+namespace intent {
+namespace core {
+
 inline sslice::sslice() :
     begin(nullptr), end(nullptr) {
 }
@@ -61,7 +64,7 @@ inline sslice & sslice::assign(char const * _begin) {
 inline int strcmp(char const * a, sslice const & b) {
     if (a) {
         if (b != null_sslice) {
-            int n = strncmp(a, b.begin, b.size());
+            int n = ::strncmp(a, b.begin, b.size());
             if (n == 0) {
                 n = (a[b.size()] ? 1 : 0);
             }
@@ -77,7 +80,7 @@ inline int strcmp(char const * a, sslice const & b) {
 inline int strcmp(sslice const & a, char const * b) {
     if (a != null_sslice) {
         if (b) {
-            int n = strncmp(a.begin, b, a.size());
+            int n = ::strncmp(a.begin, b, a.size());
             if (n == 0) {
                 n = (b[a.size()] ? -1 : 0);
             }
@@ -93,7 +96,7 @@ inline int strcmp(sslice const & a, char const * b) {
 inline int strcmp(sslice const & a, sslice const & b) {
     if (a != null_sslice) {
         if (b != null_sslice) {
-            int n = strncmp(a.begin, b.begin, std::min(a.size(), b.size()));
+            int n = ::strncmp(a.begin, b.begin, std::min(a.size(), b.size()));
             if (n == 0) {
                 n = static_cast<int>(a.size()) - static_cast<int>(b.size());
             }
@@ -109,7 +112,7 @@ inline int strcmp(sslice const & a, sslice const & b) {
 inline int strncmp(char const * a, sslice const & b, size_t size) {
     if (a) {
         if (b != null_sslice) {
-            return strncmp(a, b.begin, std::min(size, b.size()));
+            return ::strncmp(a, b.begin, std::min(size, b.size()));
         } else {
             return 1;
         }
@@ -121,7 +124,7 @@ inline int strncmp(char const * a, sslice const & b, size_t size) {
 inline int strncmp(sslice const & a, char const * b, size_t size) {
     if (a != null_sslice) {
         if (b) {
-            return strncmp(a.begin, b, std::min(size, a.size()));
+            return ::strncmp(a.begin, b, std::min(size, a.size()));
         } else {
             return 1;
         }
@@ -133,7 +136,7 @@ inline int strncmp(sslice const & a, char const * b, size_t size) {
 inline int strncmp(sslice const & a, sslice const & b, size_t size) {
     if (a != null_sslice) {
         if (b != null_sslice) {
-            return strncmp(a.begin, b.begin, std::min(size, std::min(a.size(), b.size())));
+            return ::strncmp(a.begin, b.begin, std::min(size, std::min(a.size(), b.size())));
         } else {
             return 1;
         }
@@ -141,5 +144,7 @@ inline int strncmp(sslice const & a, sslice const & b, size_t size) {
         return b ? -1 : 0;
     }
 }
+
+}} // end namespace
 
 #endif // sentry

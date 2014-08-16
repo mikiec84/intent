@@ -4,6 +4,9 @@ using boost::filesystem::path;
 using boost::filesystem::temp_directory_path;
 using boost::filesystem::unique_path;
 
+namespace intent {
+namespace core {
+
 c_file::c_file(FILE * _f) : f(_f)
 {
 }
@@ -86,3 +89,4 @@ easy_temp_c_file::easy_temp_c_file() :
     f = fopen(path.c_str(), "w");
 }
 
+}} // end namespace

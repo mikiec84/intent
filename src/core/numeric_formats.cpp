@@ -5,6 +5,9 @@
 using std::string;
 using std::stringstream;
 
+namespace intent {
+namespace core {
+
 std::string get_names_for_numeric_formats(numeric_formats f, char const * delim) {
     stringstream ss;
     unsigned n = 0;
@@ -36,3 +39,4 @@ std::string get_names_for_numeric_formats(numeric_formats f, char const * delim)
     return std::move(ss.str());
 }
 
+}} // end namespace

@@ -1,5 +1,10 @@
-#ifndef ARGINLINE_H
-#define ARGINLINE_H
+#ifndef _arg_inline_h_3074bc899bee4ef2997655952c2e486c
+#define _arg_inline_h_3074bc899bee4ef2997655952c2e486c
+
+#include "arg.h"
+
+namespace intent {
+namespace core {
 
 inline arg::arg(int64_t value) :
     type(vt_signed), i64(value) {
@@ -67,4 +72,6 @@ inline arg::arg(bool value) :
     type(vt_bool), boolean(value) {
 }
 
-#endif // ARGINLINE_H
+}} // end namespace
+
+#endif // sentry

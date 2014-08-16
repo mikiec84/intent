@@ -3,10 +3,15 @@
 
 #include <boost/filesystem.hpp>
 
+namespace intent {
+namespace core {
+
 class sandbox
 {
 public:
     static boost::filesystem::path find_root(char const * folder_within_sandbox) noexcept(false);
 };
 
-#endif // SANDBOX_H
+}} // end namespace
+
+#endif // sentry

@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace intent::core;
+
 TEST(unicode_test, is_utf8_lead_byte) {
     EXPECT_TRUE(is_utf8_lead_byte(static_cast<char>(0xc0)));
     EXPECT_TRUE(is_utf8_lead_byte(static_cast<char>(0xd8)));

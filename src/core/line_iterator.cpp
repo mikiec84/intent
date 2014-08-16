@@ -1,4 +1,8 @@
 #include "core/line_iterator.h"
+#include "strutil.h"
+
+namespace intent {
+namespace core {
 
 line_iterator::line_iterator(char const * begin, char const * _end) {
     if (begin) {
@@ -35,3 +39,4 @@ line_iterator & line_iterator::operator++() {
     return *this;
 }
 
+}} // end namespace

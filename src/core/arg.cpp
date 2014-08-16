@@ -7,6 +7,9 @@
 
 using std::string;
 
+namespace intent {
+namespace core {
+
 arg::~arg() {
     if (type == vt_allocated_str) {
         delete[] allocated_str;
@@ -127,4 +130,4 @@ string arg::to_string(char const * format) const {
     }
 }
 
-
+}} // end namespace

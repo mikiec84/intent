@@ -1,7 +1,10 @@
-#ifndef BASE_X_ENCODE_H
-#define BASE_X_ENCODE_H
+#ifndef _base_x_encode_h_8dd310f0fba3450e9131e67a526cd297
+#define _base_x_encode_h_8dd310f0fba3450e9131e67a526cd297
 
 #include <cstddef>
+
+namespace intent {
+namespace core {
 
 /**
  * Represent an arbitrary, unsigned number in an arbitrary base.
@@ -56,5 +59,6 @@ bool base_x_encode(UNIT n, char * buf, size_t buf_count, char const * digit_inve
     return true;
 }
 
+}} // end namespace
 
-#endif // BASE_X_ENCODE_H
+#endif // sentry

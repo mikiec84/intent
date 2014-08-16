@@ -20,8 +20,7 @@ issue_id get_issue_id_from_name(char const * name);
 char const * get_issue_name(issue_id);
 char const * get_issue_msg(issue_id);
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #include "lang/token_type-inline.h"
 

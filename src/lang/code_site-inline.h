@@ -3,9 +3,7 @@
 
 #include <cstring>
 
-#ifndef code_site_h_e2e12222496d404491498772700655f4
 #include "lang/code_site.h"
-#endif
 
 namespace intent {
 namespace lang {
@@ -50,7 +48,6 @@ inline code_site<T>::~code_site() {
     T::deallocate(compilation_unit_url);
 }
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #endif // sentry

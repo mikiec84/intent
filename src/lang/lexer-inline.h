@@ -34,7 +34,6 @@ inline char lexer::get_indent_char() const {
     return indent_stack[0];
 }
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #endif

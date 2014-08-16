@@ -3,6 +3,9 @@
 
 #include <cstdlib>
 
+namespace intent {
+namespace core {
+
 /**
  * A length-prefixed string.
  */
@@ -21,6 +24,6 @@ private:
     char const * end;
 };
 
+}} // end namespace
 
-
-#endif
+#endif // sentry

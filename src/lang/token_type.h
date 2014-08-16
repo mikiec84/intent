@@ -48,8 +48,7 @@ char const * get_token_type_comment(token_type);
 int get_operator_precedence(token_type);
 operator_associativity get_operator_associativity(token_type);
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #include "lang/token_type-inline.h"
 

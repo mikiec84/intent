@@ -1,9 +1,12 @@
 #include <boost/filesystem.hpp>
+
 #include "core/arg.h"
 #include "core/countof.h"
 #include "core/sslice.h"
 
 #include "gtest/gtest.h"
+
+using namespace intent::core;
 
 const char * const txt = "abcxyz";
 sslice const slc(txt + 1, txt + 4); // bcx

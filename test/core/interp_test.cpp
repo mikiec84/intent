@@ -3,6 +3,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace intent::core;
+
 TEST(interp_test, null_arg) {
     auto s = interp("hello, {1}.", {nullptr});
     EXPECT_STREQ("hello, (null).", s.c_str());

@@ -33,7 +33,7 @@ class lexer {
 public:
     lexer(char const * begin);
     lexer(char const * begin, char const * end);
-    lexer(sslice const & txt);
+    lexer(intent::core::sslice const & txt);
 
     class iterator;
 
@@ -41,7 +41,7 @@ public:
     iterator end() const;
 
 private:
-    sslice txt;
+    intent::core::sslice txt;
     token t;
     char const * line_begin;
     char const * p;
@@ -74,8 +74,7 @@ private:
     uint32_t pop_indent();
 };
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #include "lang/lexer-inline.h"
 

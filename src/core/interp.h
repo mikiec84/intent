@@ -5,6 +5,9 @@
 
 #include "core/arg.h"
 
+namespace intent {
+namespace core {
+
 /**
  * Interpolate args into a format string. This function is conceptually similar to
  * the sprintf() family, except that it is type-safe, does not require you to supply
@@ -72,4 +75,6 @@ std::string interp(char const * format);
  */
 void interp_into(std::string &, char const * format, std::initializer_list<arg>);
 
-#endif // INTERP_H
+}} // end namespace
+
+#endif // sentry

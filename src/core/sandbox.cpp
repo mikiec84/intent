@@ -2,6 +2,9 @@
 
 using namespace boost::filesystem;
 
+namespace intent {
+namespace core {
+
 const char * const sandbox_prop_file = "sandbox.i";
 
 bool is_sandbox_root(path const & p) {
@@ -22,3 +25,5 @@ path sandbox::find_root(char const * folder_within_sandbox) noexcept(false) {
         }
     }
 }
+
+}} // end namespace

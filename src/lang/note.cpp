@@ -3,6 +3,8 @@
 #include "core/strutil.h"
 #include "lang/note.h"
 
+using namespace intent::core;
+
 using std::string;
 using std::stringstream;
 

@@ -16,7 +16,6 @@ inline bool token::operator ==(token const & rhs) const {
     return type == rhs.type && substr == rhs.substr;
 }
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #endif // sentry

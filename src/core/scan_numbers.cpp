@@ -1,6 +1,9 @@
 #include <cmath>
 #include "core/scan_numbers.h"
 
+namespace intent {
+namespace core {
+
 /**
  * Read digits until end of hexadecimal number. Put numeric value into n.
  * @return offset of first char beyond digits of the number.
@@ -195,5 +198,4 @@ char const * scan_number(char const * text, char const * end, numeric_formats
     return (static_cast<bool>(info.format & allowed_formats)) ? p : text;
 }
 
-
-
+}} // end namespace

@@ -13,13 +13,8 @@
 
 #include <utility>
 
-#define SCOPEGUARD_NAME_CONCAT(a, b) a ## b
-#define MAKE_SCOPEGUARD_NAME(ln) SCOPEGUARD_NAME_CONCAT(_scope_guard_on_line_, ln)
-#define on_scope_exit(...) \
-    auto MAKE_SCOPEGUARD_NAME(__LINE__) = \
-        make_scope_guard([&]{__VA_ARGS__;})
-#define named_scope_exit(name, ...) \
-    auto name = make_scope_guard([&]{__VA_ARGS__;})
+namespace intent {
+namespace core {
 
 template <typename FUNC>
 struct scope_guard {
@@ -39,5 +34,15 @@ template <typename FUNC>
 auto make_scope_guard(FUNC && f) -> scope_guard<FUNC> {
     return scope_guard<FUNC>(std::forward<FUNC>(f));
 }
+
+}} // end namespace
+
+#define SCOPEGUARD_NAME_CONCAT(a, b) a ## b
+#define MAKE_SCOPEGUARD_NAME(ln) SCOPEGUARD_NAME_CONCAT(_scope_guard_on_line_, ln)
+#define on_scope_exit(...) \
+    auto MAKE_SCOPEGUARD_NAME(__LINE__) = \
+        intent::core::make_scope_guard([&]{__VA_ARGS__;})
+#define named_scope_exit(name, ...) \
+    auto name = intent::core::make_scope_guard([&]{__VA_ARGS__;})
 
 #endif // sentry

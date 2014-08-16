@@ -3,6 +3,9 @@
 
 using std::string;
 
+namespace intent {
+namespace core {
+
 std::string expand_escape_sequences(sslice const & s) {
     char buf[8];
     std::string result;
@@ -62,3 +65,5 @@ std::string insert_escape_sequences(sslice const & s, should_escape_func should_
     }
     return result;
 }
+
+}} // end namespace

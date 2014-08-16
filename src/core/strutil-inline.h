@@ -3,9 +3,10 @@
 
 #include <cstring>
 
-#ifndef strutil_h_2ae84901285444e9a2d091accbbd2d7e
 #include "core/strutil.h"
-#endif
+
+namespace intent {
+namespace core {
 
 inline char const * find_char(char const * p, char c, char const * end) {
     if (p == nullptr) return nullptr;
@@ -81,6 +82,6 @@ inline char const * consume_line_break(char const * p, char const * end) {
     return p;
 }
 
+}} // end namespace
 
-
-#endif
+#endif // sentry

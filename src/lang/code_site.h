@@ -42,8 +42,7 @@ struct code_site
 typedef code_site<no_copy_strategy> dependent_code_site;
 typedef code_site<make_private_copy_strategy> independent_code_site;
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #include "lang/code_site-inline.h"
 

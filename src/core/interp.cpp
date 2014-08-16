@@ -6,6 +6,9 @@
 using std::initializer_list;
 using std::string;
 
+namespace intent {
+namespace core {
+
 string interp(char const * format) {
     return format;
 }
@@ -129,3 +132,5 @@ std::string interp(char const * format, std::initializer_list<arg> args) {
     interp_into(txt, format, args);
     return txt;
 }
+
+}} // end namespace

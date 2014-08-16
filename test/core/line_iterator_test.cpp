@@ -1,6 +1,8 @@
 #include "core/line_iterator.h"
 #include "gtest/gtest.h"
 
+using namespace intent::core;
+
 TEST(line_iterator_test, default_is_end) {
     line_iterator it;
     ASSERT_FALSE(it);

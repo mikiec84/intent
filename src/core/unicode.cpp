@@ -8,6 +8,9 @@
 #include "core/scan_numbers.h"
 #include "core/unicode.h"
 
+namespace intent {
+namespace core {
+
 inline size_t length_of_codepoint_from_char(char ch) {
     unsigned c = static_cast<unsigned>(ch);
     if (c < 0x80) {
@@ -339,3 +342,5 @@ char const * find_codepoint_in_utf8(char const * utf8, char const * end, codepoi
         utf8 = p;
     }
 }
+
+}} // end namespace

@@ -6,6 +6,7 @@
 #include "core/unicode.h"
 #include "lang/lexer.h"
 
+using namespace intent::core;
 using std::string;
 
 namespace intent {

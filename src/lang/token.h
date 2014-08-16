@@ -18,7 +18,7 @@ class token {
 public:
     token();
     //token(token_type type, char const * begin, char const * end);
-    token(token_type type, sslice const & slice);
+    token(token_type type, intent::core::sslice const & slice);
     ~token();
 
     token(token const & other);
@@ -29,13 +29,12 @@ public:
      */
     bool operator ==(token const & rhs) const;
 
-    sslice substr;
+    intent::core::sslice substr;
     token_type type;
     boost::any value;
 };
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #include "lang/token-inline.h"
 

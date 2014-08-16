@@ -4,6 +4,9 @@
 #include <string>
 #include "enum_operators.h"
 
+namespace intent {
+namespace core {
+
 /**
  * Describe numeric formats that might be allowed for a particular token. This
  * enum supports bitmasking.
@@ -25,4 +28,6 @@ define_bitwise_operators_for_enum(numeric_formats);
 std::string get_names_for_numeric_formats(numeric_formats,
     char const * delim = "|");
 
-#endif // NUMERIC_FORMATS_H
+}} // end namespace
+
+#endif // sentry

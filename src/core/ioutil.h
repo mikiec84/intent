@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 
+namespace intent {
+namespace core {
+
 /**
  * @brief read_file Return all the bytes in a file.
  *
@@ -84,4 +87,6 @@ struct easy_temp_c_file : public c_file {
     easy_temp_c_file & operator =(easy_temp_c_file &) = delete;
 };
 
-#endif // IOUTIL_H
+}} // end namespace
+
+#endif // sentry

@@ -1,10 +1,14 @@
-#ifndef ARG_H
-#define ARG_H
+#ifndef _arg_h_6a7fc5c4e4ac4de6856e8cbc2769f04b
+#define _arg_h_6a7fc5c4e4ac4de6856e8cbc2769f04b
 
 #include <cstdint>
 #include <string>
 
 namespace boost { namespace filesystem { class path; }}
+
+namespace intent {
+namespace core {
+
 struct sslice;
 
 /**
@@ -80,6 +84,8 @@ private:
     friend arg const & make_empty_arg();
 };
 
+}} // end namespace
+
 #include "core/arg-inline.h"
 
-#endif // ARG_H
+#endif // sentry

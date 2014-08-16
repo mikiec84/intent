@@ -5,6 +5,9 @@
 #include <iosfwd>
 #include <string>
 
+namespace intent {
+namespace core {
+
 /**
  * A subset of a string that doesn't own the memory it refers to.
  */
@@ -86,7 +89,9 @@ int strncmp(char const * a, sslice const & b, size_t size);
 int strncmp(sslice const & a, char const * b, size_t size);
 int strncmp(sslice const & a, sslice const & b, size_t size);
 
-std::ostream & operator<<(std::ostream & out, const sslice & slice);
+}} // end namespace
+
+std::ostream & operator<<(std::ostream & out, const intent::core::sslice & slice);
 
 #include "core/sslice-inline.h"
 

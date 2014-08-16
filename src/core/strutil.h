@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+namespace intent {
+namespace core {
+
 struct sslice;
 
 char const * const ANY_WHITESPACE = " \t\r\n";
@@ -69,6 +72,7 @@ std::vector<T> split(char const * p, char const * splitters);
 template <> std::vector<std::string> split(char const * p, char const * splitters);
 template <> std::vector<sslice> split(char const * p, char const * splitters);
 
+}} // end namespace
 
 #include "strutil-inline.h"
 

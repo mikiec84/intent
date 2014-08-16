@@ -2,6 +2,8 @@
 
 #include "gtest/gtest.h"
 
+using namespace intent::core;
+
 TEST(sslice_test, size) {
 
     sslice t1("hello");

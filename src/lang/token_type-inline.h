@@ -34,7 +34,6 @@ inline bool is_operator(token_type tt) {
     return (tt & tt_operator_mask) == tt_operator_mask;
 }
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #endif // sentry

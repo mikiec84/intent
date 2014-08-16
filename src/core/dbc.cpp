@@ -6,6 +6,8 @@ using std::stringstream;
 
 namespace {
 
+using intent::core::contract_type;
+
 constexpr char const * get_contract_type_name(contract_type ctype) {
     return (ctype == contract_type::pre ? "precondition" :
             ctype == contract_type::post ? "postcondition" : "check");
@@ -31,8 +33,13 @@ std::string make_exception_msg(contract_type ctype, char const * expr,
 
 } // end anonymous namespace
 
+namespace intent {
+namespace core {
+
 contract_violation::contract_violation(contract_type ctype, char const * expr,
     char const * file, int line, char const * function) :
     std::logic_error(make_exception_msg(ctype, expr, file, line, function)),
     ctype(ctype) {
 }
+
+}} // end namespace

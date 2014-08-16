@@ -3,6 +3,9 @@
 
 #include "core/unicode.h"
 
+namespace intent {
+namespace core {
+
 struct sslice;
 
 std::string expand_escape_sequences(sslice const &);
@@ -23,6 +26,6 @@ bool add_escape_sequence(char *& buf, size_t & buf_length, codepoint_t);
  */
 bool cat_escape_sequence(char *& buf, size_t & buf_length, codepoint_t);
 
-
+}} // end namespace
 
 #endif // sentry

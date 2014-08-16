@@ -3,6 +3,9 @@
 
 #include "core/sslice.h"
 
+namespace intent {
+namespace core {
+
 struct line_iterator {
     line_iterator() {}
     line_iterator(char const * begin, char const * end=nullptr);
@@ -17,6 +20,6 @@ private:
     char const * end;
 };
 
-#include "strutil-inline.h"
+}} // end namespace
 
 #endif // sentry

@@ -26,7 +26,6 @@ public:
     std::string to_string() const;
 };
 
-} // end namespace lang
-} // end namespace intent
+}} // end namespace
 
 #endif // SYNTAX_ERROR_H

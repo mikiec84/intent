@@ -1,5 +1,5 @@
-#ifndef CMDLINEINLINE_H
-#define CMDLINEINLINE_H
+#ifndef _cmdline_inline_h_929db26470444d75a6330f6f7a95c30b
+#define _cmdline_inline_h_929db26470444d75a6330f6f7a95c30b
 
 #include "cmdline.h"
 
