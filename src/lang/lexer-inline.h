@@ -1,9 +1,7 @@
-#ifndef LEXER_INLINE_ec56261ea62b4f4ba1594eccf05494ff
-#define LEXER_INLINE_ec56261ea62b4f4ba1594eccf05494ff
+#ifndef _lexer_inline_h_ec56261ea62b4f4ba1594eccf05494ff
+#define _lexer_inline_h_ec56261ea62b4f4ba1594eccf05494ff
 
-#ifndef LEXER_5e2636d642be46bc91ebd85c04781b80
 #include "lang/lexer.h"
-#endif
 
 namespace intent {
 namespace lang {

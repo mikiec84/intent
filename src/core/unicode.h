@@ -1,5 +1,5 @@
-#ifndef UNICODE_H_a2c4bf80275c4eebb036e7a63c2ed4ca
-#define UNICODE_H_a2c4bf80275c4eebb036e7a63c2ed4ca
+#ifndef _unicode_h_a2c4bf80275c4eebb036e7a63c2ed4ca
+#define _unicode_h_a2c4bf80275c4eebb036e7a63c2ed4ca
 
 #include <cstddef>
 #include <cstdint>

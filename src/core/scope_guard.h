@@ -1,5 +1,5 @@
-#ifndef SCOPE_GUARD_H
-#define SCOPE_GUARD_H
+#ifndef _scope_guard_h_271b4719f97347828cb85c11be7915a2
+#define _scope_guard_h_271b4719f97347828cb85c11be7915a2
 
 #include "stringize.h"
 

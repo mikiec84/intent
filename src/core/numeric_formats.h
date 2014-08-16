@@ -1,5 +1,5 @@
-#ifndef NUMERIC_FORMATS_H
-#define NUMERIC_FORMATS_H
+#ifndef _numeric_formats_h_ba1c181ffe534ab8b2724542ee0fb244
+#define _numeric_formats_h_ba1c181ffe534ab8b2724542ee0fb244
 
 #include <string>
 #include "enum_operators.h"

@@ -1,5 +1,5 @@
-#ifndef strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
-#define strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
+#ifndef _strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
+#define _strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
 
 #include <cstring>
 

@@ -1,5 +1,5 @@
-#ifndef strutil_h_2ae84901285444e9a2d091accbbd2d7e
-#define strutil_h_2ae84901285444e9a2d091accbbd2d7e
+#ifndef _strutil_h_2ae84901285444e9a2d091accbbd2d7e
+#define _strutil_h_2ae84901285444e9a2d091accbbd2d7e
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef TOKEN_INLINE_76f2445c54594764807d34d85f7d53b7
-#define TOKEN_INLINE_76f2445c54594764807d34d85f7d53b7
+#ifndef _token_inline_h_76f2445c54594764807d34d85f7d53b7
+#define _token_inline_h_76f2445c54594764807d34d85f7d53b7
 
 #include <cfloat> // FLT_MAX, FLT_MIN
 #include <cstdint> // INT32_MAX, etc

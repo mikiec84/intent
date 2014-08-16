@@ -1,5 +1,5 @@
-#ifndef sslice_h_0345e71582f34fa59792443fba711afd
-#define sslice_h_0345e71582f34fa59792443fba711afd
+#ifndef _sslice_h_0345e71582f34fa59792443fba711afd
+#define _sslice_h_0345e71582f34fa59792443fba711afd
 
 #include <cstdlib>
 #include <iosfwd>

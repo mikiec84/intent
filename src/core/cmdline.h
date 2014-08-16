@@ -1,5 +1,5 @@
-#ifndef CMDLINE_H
-#define CMDLINE_H
+#ifndef _cmdline_h_e0e1bcc720d740f79112970fc6b98fc9
+#define _cmdline_h_e0e1bcc720d740f79112970fc6b98fc9
 
 #include <initializer_list>
 #include <string>
@@ -53,13 +53,18 @@ struct cmdline_param {
 };
 
 /**
- * Hold information about a combination of parameters and semantics that
+ * Hold information about the combination of parameters and semantics that
  * apply to one cmdline.
  *
- * The lifetime of this object falls into two distinct phases: definition,
- * and usage. In the definition phase, it is legal to call the ctor and all
- * setters/adders. The usage phase begins when set_args() is called; thereafter,
- * it is legal to call getters, but not to change the object's definitions.
+ * The lifetime of this object falls into three distinct phases: definition,
+ * validation, and usage. In the definition phase, it is legal to call the ctor
+ * and all setters/adders. PRECONDITIONs are used to validate some definition
+ * input, but holistic validation is deferred. The validation phase lasts for
+ * the duration of a call to validate(); during this phase, all definitions are
+ * sanity-checked for mutual compatibility. If the caller does not call validate()
+ * explicitly, it is called the when a request to transition to the usage phase
+ * is made by calling set_args() is called. During the usage phase, it is legal
+ * to call getters, but not to change the object's definitions.
  * set_args() may be called repeatedly on the same object; each time, validation
  * and and errors are recalculated.
  */

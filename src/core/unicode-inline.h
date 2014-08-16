@@ -1,9 +1,7 @@
-#ifndef UNICODEINLINE_H_c3579b98cf454bf5a90ffa0c7394f6ec
-#define UNICODEINLINE_H_c3579b98cf454bf5a90ffa0c7394f6ec
+#ifndef _unicode_inline_h_c3579b98cf454bf5a90ffa0c7394f6ec
+#define _unicode_inline_h_c3579b98cf454bf5a90ffa0c7394f6ec
 
-#ifndef UNICODE_H_a2c4bf80275c4eebb036e7a63c2ed4ca
 #include "core/unicode.h"
-#endif
 
 inline bool is_utf8_trail_byte(uint8_t c) {
     // Top bit is set, but not next bit

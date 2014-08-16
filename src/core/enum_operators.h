@@ -1,5 +1,5 @@
-#ifndef ENUM_OPERATORS_H
-#define ENUM_OPERATORS_H
+#ifndef _enum_operators_h_2bb13545d85545dda653e67c5d476ebb
+#define _enum_operators_h_2bb13545d85545dda653e67c5d476ebb
 
 #include <type_traits>
 

@@ -1,5 +1,5 @@
-#ifndef DBC_H
-#define DBC_H
+#ifndef _dbc_h_fdc93b5c5bc947f39b82b049e3b02eed
+#define _dbc_h_fdc93b5c5bc947f39b82b049e3b02eed
 
 #include <stdexcept>
 

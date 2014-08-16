@@ -1,5 +1,5 @@
-#ifndef NOTE_69cd2c3b9bf94f40b25d4aed9ae07240
-#define NOTE_69cd2c3b9bf94f40b25d4aed9ae07240
+#ifndef _note_h_69cd2c3b9bf94f40b25d4aed9ae07240
+#define _note_h_69cd2c3b9bf94f40b25d4aed9ae07240
 
 #include <string>
 

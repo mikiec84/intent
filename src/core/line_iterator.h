@@ -1,5 +1,5 @@
-#ifndef line_iterator_h_ade0a606459645039152b22d3c95e1e2
-#define line_iterator_h_ade0a606459645039152b22d3c95e1e2
+#ifndef _line_iterator_h_ade0a606459645039152b22d3c95e1e2
+#define _line_iterator_h_ade0a606459645039152b22d3c95e1e2
 
 #include "core/sslice.h"
 

@@ -1,5 +1,5 @@
-#ifndef _70f7ab8f82804dbd841d7599d5e84008
-#define _70f7ab8f82804dbd841d7599d5e84008
+#ifndef _pstr_h_70f7ab8f82804dbd841d7599d5e84008
+#define _pstr_h_70f7ab8f82804dbd841d7599d5e84008
 
 #include <cstdlib>
 

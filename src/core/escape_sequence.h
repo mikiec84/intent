@@ -1,5 +1,5 @@
-#ifndef ESCAPE_SEQUENCE_H_a2c4bf80275c4eebb036e7a63c2ed4ca
-#define ESCAPE_SEQUENCE_H_a2c4bf80275c4eebb036e7a63c2ed4ca
+#ifndef _escape_sequence_h_a2c4bf80275c4eebb036e7a63c2ed4ca
+#define _escape_sequence_h_a2c4bf80275c4eebb036e7a63c2ed4ca
 
 #include "core/unicode.h"
 
