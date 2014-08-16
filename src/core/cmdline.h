@@ -49,6 +49,7 @@ struct cmdline_param {
      * a hyphen-prefixed name.
      */
     bool is_positional() const;
+    std::string const & get_preferred_name() const;
 };
 
 /**
@@ -138,21 +139,6 @@ private:
     struct data_t;
     data_t * data;
 };
-
-struct numeric_range_info {
-    double min;
-    double max;
-    numeric_formats allowed_formats;
-};
-
-/**
- * A validator for numbers passed as cmdline args.
- */
-std::string in_numeric_range(cmdline_param const & param, char const * value, 
-    void /*numeric_range_info*/ const *);
-
-std::string matches_regex(cmdline_param const & param, char const * value,
-    void /*precpp::RE*/ const *);
 
 }} // end namespace
 

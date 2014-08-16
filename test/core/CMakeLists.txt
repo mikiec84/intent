@@ -22,6 +22,7 @@ if (BUILD_TESTRUNNERS)
 
     target_link_libraries(${PROJECT_NAME}
         intent-core
+        test-util
         gtest
         gtest_main
         ${Boost_LIBRARIES}

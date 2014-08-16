@@ -2,12 +2,8 @@
 #include <cmath>
 #include <sstream>
 
-#include <pcrecpp.h> // "brew install pcre" or "sudo apt-get install libpcre3-dev"
-
 #include "cmdline.h"
 #include "dbc.h"
-#include "interp.h"
-#include "scan_numbers.h"
 #include "strutil.h"
 
 using std::string;
@@ -309,51 +305,6 @@ vector<cmdline_param> const & cmdline::get_params() const {
 
 vector<cmdline_flag> const & cmdline::get_flags() const {
     return data->flags;
-}
-
-std::string in_numeric_range(cmdline_param const & param, char const * value, 
-    void const * range_info) {
-
-    const char * const MSG = "For {1=param name}, expected a value between "
-        "{2=min} and {3=max} (inclusive), formatted as {4}; got \"{5}\" instead.";
-    PRECONDITION(range_info != nullptr);
-
-    numeric_range_info const & nri =
-        *reinterpret_cast<numeric_range_info const *>(range_info);
-    number_info info;
-    auto ptr_to_null_char = strchr(value, 0);
-    auto end = scan_number(value, ptr_to_null_char, nri.allowed_formats, info);
-    auto valid = (end == ptr_to_null_char);
-    if (valid) {
-        if (info.format == numeric_formats::floating_point_only) {
-            if (!std::isnan(nri.min) && info.floating_point < nri.min) {
-                valid = false;
-            } else if (!std::isnan(nri.max) && info.floating_point > nri.max) {
-                valid = false;
-            }
-        } else {
-            int64_t n = static_cast<int64_t>(info.whole_number);
-            if (info.negative) {
-                n *= -1;
-            }
-            valid = n >= nri.min && n <= nri.max;
-        }
-    }
-    return valid ? "" :
-        interp(MSG, {param.names[0], nri.min, nri.max,
-            get_names_for_numeric_formats(nri.allowed_formats), value});
-}
-
-std::string matches_regex(cmdline_param const & param, char const * value,
-        void /*precpp::RE*/ const * regex) {
-
-    PRECONDITION(regex != nullptr);
-    pcrecpp::RE const & re = *reinterpret_cast<pcrecpp::RE const *>(regex);
-    if (!re.FullMatch(value)) {
-        return interp("For {1=param name}, expected a value matching regex \"{2}\"; "
-               "got \"{3}\" instead.", {param.names[0], re.pattern(), value});
-    }
-    return "";
 }
 
 }} // end namespace
