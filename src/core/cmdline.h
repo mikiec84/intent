@@ -142,4 +142,6 @@ private:
 
 }} // end namespace
 
+#include "cmdline-inline.h"
+
 #endif // sentry

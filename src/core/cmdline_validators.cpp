@@ -62,7 +62,7 @@ std::string in_numeric_range(cmdline_param const & param, char const * value,
         }
     }
     return valid ? "" :
-        interp(MSG, {param.names[0], value, nri.min, nri.max,
+        interp(MSG, {param.get_preferred_name(), value, nri.min, nri.max,
             get_names_for_numeric_formats(nri.allowed_formats)});
 }
 
@@ -81,7 +81,7 @@ std::string matches_regex(cmdline_param const & param, char const * value,
             pat = "\"" + pat + "\"";
         }
         return interp("Error with {1}=\"{2}\": expected a value matching regex {3}.",
-               {param.names[0], value, pat});
+               {param.get_preferred_name(), value, pat});
     }
     return "";
 }
@@ -181,7 +181,7 @@ string matches_filesys_info(cmdline_param const & param, char const * value,
         }
     }
     if (problem_count) {
-        return interp("Error with {1}=\"{2}\": {3}.", {param.names[0], value, err.str()});
+        return interp("Error with {1}=\"{2}\": {3}.", {param.get_preferred_name(), value, err.str()});
     }
     return "";
 }

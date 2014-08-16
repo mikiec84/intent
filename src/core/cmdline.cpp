@@ -79,10 +79,6 @@ static string get_usage_for_param(stringstream & ss, cmdline_param const & param
     }
 }
 
-bool cmdline_param::is_positional() const {
-    return names.size() == 1 && names[0][0] != '-';
-}
-
 struct cmdline::data_t {
     bool defining;
     string program_name;
