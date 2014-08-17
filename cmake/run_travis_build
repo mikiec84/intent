@@ -11,7 +11,7 @@ def install_required_tools():
     if travis_os == 'linux':
         x('sudo apt-get remove -qq libboost-*-dev -y')
         x('sudo apt-get autoremove -qq -y')
-        x('sudo add-apt-repository -qq ppa:boost-latest/ppa -y')
+        x('sudo add-apt-repository ppa:boost-latest/ppa -y')
         x('sudo apt-get update -qq')
         x('sudo apt-get install -qq -y libboost1.55-all-dev')
         x('sudo apt-get install -qq -y libpcre3-dev')
