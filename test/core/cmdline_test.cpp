@@ -17,6 +17,7 @@ TEST(cmdline_test, basic) {
 
     char const * argv[] = {"this", "is", "a", "test"};
     int argc = countof(argv);
+    c.validate();
     c.set_args(argc, argv);
 
     EXPECT_EQ(4U, c.get_args().size());
@@ -56,6 +57,7 @@ TEST(cmdline_test, get_help) {
     c.define_param("--outfile", "output file", '?');
     c.define_param("-s, --style", "what style of output should we create?", '4');
     c.set_epilog("Files should be smaller than 10MB.");
+    c.validate();
     auto help = c.get_help();
     auto help_c = help.c_str();
     //printf("help = \"%s\"", help_c);

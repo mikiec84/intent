@@ -5,8 +5,10 @@
 #include <string>
 #include <vector>
 
-#include "scan_numbers.h"
+#include "lifecycle_semantics.h"
 #include "numeric_formats.h"
+#include "scan_numbers.h"
+#include "thread_semantics.h"
 
 namespace intent {
 namespace core {
@@ -68,38 +70,55 @@ struct cmdline_param {
  * set_args() may be called repeatedly on the same object; each time, validation
  * and and errors are recalculated.
  */
-class cmdline {
+NOT_THREADSAFE class cmdline {
 public:
+
+    enum lifecycle_phase {
+        definition,
+        validation,
+        usage
+    };
+
     cmdline();
     cmdline(const cmdline &) = delete;
 
     virtual ~cmdline();
 
+    CALLABLE_IN_LIFECYCLE_PHASES(usage)
     void set_args(int argc, char const * argv[]);
+
+    CALLABLE_IN_LIFECYCLE_PHASES(usage)
     void set_args(std::initializer_list<std::string> args);
 
     /**
      * Override argv[0] as the name of the program.
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void set_program_name(char const * name);
+
     char const * get_program_name() const;
 
     /**
      * Describe the purpose and behavior associated with this cmdline.
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void set_description(char const * descrip);
+
     char const * get_description() const;
 
     /**
      * Add explanatory text after syntax dump.
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void set_epilog(char const * epilog);
+
     char const * get_epilog() const;
 
     /**
      * Copy args from another cmdline. This method can be called multiple
      * times.
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void add_source(cmdline const & source, bool include_positionals = false);
 
     /**
@@ -116,6 +135,7 @@ public:
      *     such as "FNAME" in "--infile FNAME". This parameter is ignored for
      *     positional args (ones with a names not preceded by hyphens).
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void define_param(char const * names, char const * help,
         char occurrence_rule = '1', char const * placeholder = nullptr,
         arg_validator_func validator = nullptr,
@@ -125,6 +145,7 @@ public:
      * Define a flag -- a parameter that, if present, signals "true", and if
      * missing, signals false.
      */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void define_flag(char const * names, char const * help);
 
     std::vector<cmdline_param> const & get_params() const;
@@ -133,12 +154,29 @@ public:
 
     /**
      * Given all known flags and params, what is the maximum width of the
-     * widest names?
+     * widest names? This is useful for printing names in a fixed-width column.
      */
     size_t get_max_name_width() const;
 
+    CALLABLE_IN_LIFECYCLE_PHASES(usage)
     bool help_needed() const;
+
+    CALLABLE_IN_LIFECYCLE_PHASES(usage)
     std::string get_help() const;
+
+    lifecycle_phase get_lifecycle_phase() const;
+
+    /**
+     * Thrown when cmdline definitions are not mutually compatible.
+     */
+    struct validation_error: public std::logic_error {};
+
+    /**
+     * Transitions from definition to usage. Throws validation_error when
+     * problems are found.
+     */
+    CALLABLE_IN_LIFECYCLE_PHASES(definition)
+    void validate() noexcept(false);
 
 private:
     struct data_t;

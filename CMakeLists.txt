@@ -25,6 +25,23 @@ enable_testing()
 add_subdirectory(src)
 add_subdirectory(test)
 
+# add a target to generate API documentation with Doxygen
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    if (${DOXYGEN_DOT_PATH} STREQUAL "")
+        message("Doxygen installed, but graphviz/dot not found; doc target unavailable.")
+    else()
+        configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+        add_custom_target(doc
+            ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen" VERBATIM
+        )
+    endif()
+else()
+    message("Doxygen not found; doc target unavailable.")
+endif(DOXYGEN_FOUND)
+
 # Make cmake think other files are significant, even if they are not required
 # for a build. This causes cmake to place the files in a project tree where
 # an IDE can interact with them.

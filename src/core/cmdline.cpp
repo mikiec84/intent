@@ -80,7 +80,7 @@ static string get_usage_for_param(stringstream & ss, cmdline_param const & param
 }
 
 struct cmdline::data_t {
-    bool defining;
+    cmdline::lifecycle_phase phase;
     string program_name;
     string description;
     string epilog;
@@ -92,21 +92,21 @@ struct cmdline::data_t {
     vector<cmdline_flag> flags;
     vector<string> args;
 
-    data_t() : defining(true) {}
+    data_t() : phase(cmdline::lifecycle_phase::definition) {}
 };
 
 cmdline::cmdline() : data(new data_t) {
 }
 
 void cmdline::set_args(int argc, const char *argv[]) {
-    data->defining = false;
+    PRECONDITION(data->phase == lifecycle_phase::usage);
     for (int i = 0; i < argc; ++i) {
         data->args.push_back(string(argv[i]));
     }
 }
 
 void cmdline::set_args(std::initializer_list<string> args) {
-    data->defining = false;
+    PRECONDITION(data->phase == lifecycle_phase::usage);
     for (auto arg: args) {
         data->args.push_back(string(arg));
     }
@@ -117,13 +117,24 @@ cmdline::~cmdline() {
 }
 
 vector<string> const & cmdline::get_args() const {
-    PRECONDITION(!data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::usage);
     return data->args;
 }
 
 bool cmdline::help_needed() const {
-    PRECONDITION(!data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::usage);
     return false;
+}
+
+cmdline::lifecycle_phase cmdline::get_lifecycle_phase() const {
+    return data->phase;
+}
+
+void cmdline::validate() {
+    PRECONDITION(data->phase == lifecycle_phase::definition);
+    data->phase = lifecycle_phase::validation;
+
+    data->phase = lifecycle_phase::usage;
 }
 
 template <typename T>
@@ -186,6 +197,7 @@ static inline void delimit(stringstream & ss, unsigned n,
 }
 
 string cmdline::get_help() const {
+    PRECONDITION(data->phase == lifecycle_phase::usage);
     stringstream ss;
     size_t name_width = std::min(std::max(10UL, get_max_name_width()), 30UL);
     auto prog = get_program_name();
@@ -234,7 +246,7 @@ string cmdline::get_help() const {
 }
 
 void cmdline::set_program_name(char const * name) {
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     data->program_name = name;
 }
 
@@ -243,7 +255,7 @@ char const * cmdline::get_program_name() const {
 }
 
 void cmdline::set_description(char const * descrip) {
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     data->description = descrip;
 }
 
@@ -252,7 +264,7 @@ char const * cmdline::get_description() const {
 }
 
 void cmdline::set_epilog(char const * epilog) {
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     data->epilog = epilog;
 }
 
@@ -261,15 +273,15 @@ char const * cmdline::get_epilog() const {
 }
 
 void cmdline::add_source(cmdline const & source, bool include_positionals) {
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     data->sources.push_back(std::make_pair(&source, include_positionals));
 }
 
 void cmdline::define_param(char const * names, char const * help,
-    char occurrence_rule, char const * placeholder,
-    arg_validator_func validator, void * ref_data) {
+        char occurrence_rule, char const * placeholder,
+        arg_validator_func validator, void * ref_data) {
 
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     PRECONDITION(!is_null_or_empty(names));
     PRECONDITION(!is_null_or_empty(help));
     PRECONDITION(strchr("?*1+23456789", occurrence_rule));
@@ -288,7 +300,7 @@ void cmdline::define_param(char const * names, char const * help,
 }
 
 void cmdline::define_flag(char const * names, char const * help) {
-    PRECONDITION(data->defining);
+    PRECONDITION(data->phase == lifecycle_phase::definition);
     cmdline_flag flag;
     flag.names = split<string>(names, ", ");
     flag.help = help;
