@@ -38,6 +38,9 @@ if __name__ == '__main__':
         os.makedirs(folder)
         os.chdir(folder)
         try:
+            # Most of the time, build in parallel. However, on the first build in
+            # the group, run the build in serial, so error messages are easier to
+            # understand.
             make_flags = ' -j12'
             if variant == build_variants[0]:
                 make_flags = ''
