@@ -11,7 +11,7 @@ c_file::c_file(FILE * _f) : f(_f)
 {
 }
 
-c_file::c_file(path const & fpath, char const * mode) :
+c_file::c_file(boost::filesystem::path const & fpath, char const * mode) :
     f(fopen(fpath.c_str(), mode)) {
 }
 

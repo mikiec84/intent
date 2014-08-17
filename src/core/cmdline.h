@@ -135,6 +135,13 @@ public:
      * @param placeholder: represents the value of this arg in overall usage,
      *     such as "FNAME" in "--infile FNAME". This parameter is ignored for
      *     positional args (ones with a names not preceded by hyphens).
+     * @param validator: A function that tests validity of values associated
+     *     with this parameter.
+     * @param validator_reference_data: An arbitrary piece of state that can
+     *     be used to customize validator behavior. For example, multiple
+     *     cmdline_param instances may all use a "matches_regex" validator,
+     *     but each one may take a different regex as input, passed through
+     *     this parameter.
      */
     CALLABLE_IN_LIFECYCLE_PHASES(definition)
     void define_param(char const * names, char const * help,
