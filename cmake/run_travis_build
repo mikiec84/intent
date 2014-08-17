@@ -38,8 +38,11 @@ if __name__ == '__main__':
         os.makedirs(folder)
         os.chdir(folder)
         try:
+            make_flags = ' -j12'
+            if variant == build_variants[0]:
+                make_flags = ''
             x('cmake -DCMAKE_BUILD_TYPE=%s ../..' % variant)
-            x('make')
+            x('make%s' % make_flags)
             x('make test')
             if variant == 'Release':
                  x('make package')
