@@ -2,6 +2,7 @@
 #define _cmdline_h_e0e1bcc720d740f79112970fc6b98fc9
 
 #include <initializer_list>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
