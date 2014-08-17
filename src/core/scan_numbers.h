@@ -1,5 +1,5 @@
-#ifndef _scan_numbers_h_d93b806d9f6d425c967c1228eb430ef8
-#define _scan_numbers_h_d93b806d9f6d425c967c1228eb430ef8
+#ifndef intent_core_scan_numbers_h
+#define intent_core_scan_numbers_h
 
 #include <cstdint>
 

@@ -1,5 +1,5 @@
-#ifndef _thread_semantics_h_ccd186e2fcff4215a8da36fada237cdc
-#define _thread_semantics_h_ccd186e2fcff4215a8da36fada237cdc
+#ifndef intent_core_thread_semantics_h
+#define intent_core_thread_semantics_h
 
 /**
  * If a class or function is decorated with this symbol, it means that you can

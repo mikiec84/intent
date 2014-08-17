@@ -1,5 +1,5 @@
-#ifndef _escape_sequence_h_a2c4bf80275c4eebb036e7a63c2ed4ca
-#define _escape_sequence_h_a2c4bf80275c4eebb036e7a63c2ed4ca
+#ifndef intent_core_escape_sequence_h
+#define intent_core_escape_sequence_h
 
 #include "core/unicode.h"
 

@@ -1,5 +1,5 @@
-#ifndef _ioutil_h_cf9b63decce44726bcea23c4d5038f65
-#define _ioutil_h_cf9b63decce44726bcea23c4d5038f65
+#ifndef intent_core_ioutil_h
+#define intent_core_ioutil_h
 
 #include <boost/filesystem.hpp>
 #include <cstdio>

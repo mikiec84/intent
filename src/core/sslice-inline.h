@@ -1,5 +1,5 @@
-#ifndef _sslice_inline_h_0adec40c2b864af2ab1651428d80a55c
-#define _sslice_inline_h_0adec40c2b864af2ab1651428d80a55c
+#ifndef intent_core_sslice_inline_h
+#define intent_core_sslice_inline_h
 
 #include <algorithm>
 #include <cstring>

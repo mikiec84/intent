@@ -1,5 +1,5 @@
-#ifndef _pstr_h_70f7ab8f82804dbd841d7599d5e84008
-#define _pstr_h_70f7ab8f82804dbd841d7599d5e84008
+#ifndef intent_core_pstr_h
+#define intent_core_pstr_h
 
 #include <cstdlib>
 

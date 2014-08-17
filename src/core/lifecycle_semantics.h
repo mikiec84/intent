@@ -1,5 +1,5 @@
-#ifndef _lifecycle_semantics_h_56a51e57092041f9bc6766de1affb8c5
-#define _lifecycle_semantics_h_56a51e57092041f9bc6766de1affb8c5
+#ifndef intent_core_lifecycle_semantics_h
+#define intent_core_lifecycle_semantics_h
 
 /**
  * Document which phases of an object or program's lifecycle provide valid

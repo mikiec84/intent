@@ -1,5 +1,5 @@
-#ifndef _token_type_inline_h_c91db24c55bf4309ab2f258d899efd3f
-#define _token_type_inline_h_c91db24c55bf4309ab2f258d899efd3f
+#ifndef intent_lang_token_type_inline_h
+#define intent_lang_token_type_inline_h
 
 #include "lang/token_type.h"
 

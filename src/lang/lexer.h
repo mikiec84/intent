@@ -1,5 +1,5 @@
-#ifndef _lexer_h_5e2636d642be46bc91ebd85c04781b80
-#define _lexer_h_5e2636d642be46bc91ebd85c04781b80
+#ifndef intent_lang_lexer_h
+#define intent_lang_lexer_h
 
 #include <cstddef>
 #include <cstdint>

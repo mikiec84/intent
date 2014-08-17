@@ -1,5 +1,5 @@
-#ifndef _issue_h_4c59d3e33c734c299b7d6a1bc2d01cc6
-#define _issue_h_4c59d3e33c734c299b7d6a1bc2d01cc6
+#ifndef intent_lang_issue_h
+#define intent_lang_issue_h
 
 namespace intent {
 namespace lang {

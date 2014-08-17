@@ -1,5 +1,5 @@
-#ifndef _scope_guard_h_271b4719f97347828cb85c11be7915a2
-#define _scope_guard_h_271b4719f97347828cb85c11be7915a2
+#ifndef intent_core_scope_guard_h
+#define intent_core_scope_guard_h
 
 #include "stringize.h"
 

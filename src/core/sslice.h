@@ -1,5 +1,5 @@
-#ifndef _sslice_h_0345e71582f34fa59792443fba711afd
-#define _sslice_h_0345e71582f34fa59792443fba711afd
+#ifndef intent_core_sslice_h
+#define intent_core_sslice_h
 
 #include <cstdlib>
 #include <iosfwd>

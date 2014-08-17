@@ -1,5 +1,5 @@
-#ifndef _enum_operators_h_2bb13545d85545dda653e67c5d476ebb
-#define _enum_operators_h_2bb13545d85545dda653e67c5d476ebb
+#ifndef intent_core_enum_operators_h
+#define intent_core_enum_operators_h
 
 #include <type_traits>
 

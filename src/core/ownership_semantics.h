@@ -1,5 +1,5 @@
-#ifndef _ownership_semantics_h_5844a56be83344149d7edbd5038b5b20
-#define _ownership_semantics_h_5844a56be83344149d7edbd5038b5b20
+#ifndef intent_core_ownership_semantics_h
+#define intent_core_ownership_semantics_h
 
 /**
  * The responsibility of releasing resources is being passed across a function

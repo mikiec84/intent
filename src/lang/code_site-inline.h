@@ -1,5 +1,5 @@
-#ifndef _code_site_inline_h_968d0016b82e4fff8f6bb21e622c8197
-#define _code_site_inline_h_968d0016b82e4fff8f6bb21e622c8197
+#ifndef intent_lang_code_site_inline_h
+#define intent_lang_code_site_inline_h
 
 #include <cstring>
 

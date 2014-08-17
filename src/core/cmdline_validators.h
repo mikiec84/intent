@@ -1,5 +1,5 @@
-#ifndef _cmdline_validators_h_5e2edac6113440269b858db7aba99b81
-#define _cmdline_validators_h_5e2edac6113440269b858db7aba99b81
+#ifndef intent_core_cmdline_validators_h
+#define intent_core_cmdline_validators_h
 
 #include <boost/filesystem.hpp>
 #include <initializer_list>

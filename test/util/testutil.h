@@ -1,5 +1,5 @@
-#ifndef testutil_h_8c988b7147964fc189e02abc1b3219a5
-#define testutil_h_8c988b7147964fc189e02abc1b3219a5
+#ifndef intent_test_testutil_h
+#define intent_test_testutil_h
 
 #include <boost/filesystem.hpp>
 

@@ -1,5 +1,5 @@
-#ifndef _strutil_h_2ae84901285444e9a2d091accbbd2d7e
-#define _strutil_h_2ae84901285444e9a2d091accbbd2d7e
+#ifndef intent_core_strutil_h
+#define intent_core_strutil_h
 
 #include <string>
 #include <vector>

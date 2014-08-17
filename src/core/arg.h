@@ -1,5 +1,5 @@
-#ifndef _arg_h_6a7fc5c4e4ac4de6856e8cbc2769f04b
-#define _arg_h_6a7fc5c4e4ac4de6856e8cbc2769f04b
+#ifndef intent_core_arg_h
+#define intent_core_arg_h
 
 #include <cstdint>
 #include <string>

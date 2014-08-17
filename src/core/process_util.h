@@ -1,5 +1,5 @@
-#ifndef _process_util_h_e968e19ce6b24275a5ec2d975c887530
-#define _process_util_h_e968e19ce6b24275a5ec2d975c887530
+#ifndef intent_core_process_util_h
+#define intent_core_process_util_h
 
 #include <string>
 

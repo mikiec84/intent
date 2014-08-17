@@ -1,5 +1,5 @@
-#ifndef _stringize_h_3d000c67b6144caf9f65a43585ba2071
-#define _stringize_h_3d000c67b6144caf9f65a43585ba2071
+#ifndef intent_core_stringize_h
+#define intent_core_stringize_h
 
 // These macros provide a way to convert a numeric macro such as __LINE__
 // to a string at compile time. See http://j.mp/1kSzg2l and http://j.mp/1rcwHGg.

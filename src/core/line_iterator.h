@@ -1,5 +1,5 @@
-#ifndef _line_iterator_h_ade0a606459645039152b22d3c95e1e2
-#define _line_iterator_h_ade0a606459645039152b22d3c95e1e2
+#ifndef intent_core_line_iterator_h
+#define intent_core_line_iterator_h
 
 #include "core/sslice.h"
 

@@ -1,5 +1,5 @@
-#ifndef _sandbox_h_2364333f74694144a97e12a701cbb1b8
-#define _sandbox_h_2364333f74694144a97e12a701cbb1b8
+#ifndef intent_core_sandbox_h
+#define intent_core_sandbox_h
 
 #include <boost/filesystem.hpp>
 

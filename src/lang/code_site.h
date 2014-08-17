@@ -1,5 +1,5 @@
-#ifndef _code_site_h_e2e12222496d404491498772700655f4
-#define _code_site_h_e2e12222496d404491498772700655f4
+#ifndef intent_lang_code_site_h
+#define intent_lang_code_site_h
 
 #include <cstddef>
 

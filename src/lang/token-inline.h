@@ -1,5 +1,5 @@
-#ifndef _token_inline_h_76f2445c54594764807d34d85f7d53b7
-#define _token_inline_h_76f2445c54594764807d34d85f7d53b7
+#ifndef intent_lang_token_inline_h
+#define intent_lang_token_inline_h
 
 #include <cfloat> // FLT_MAX, FLT_MIN
 #include <cstdint> // INT32_MAX, etc

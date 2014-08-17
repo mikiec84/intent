@@ -1,5 +1,5 @@
-#ifndef _token_h_695ce797496541c9b74e67f9c5bfa6a1
-#define _token_h_695ce797496541c9b74e67f9c5bfa6a1
+#ifndef intent_lang_token_h
+#define intent_lang_token_h
 
 #include <cstdint>
 #include <memory>

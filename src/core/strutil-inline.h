@@ -1,5 +1,5 @@
-#ifndef _strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
-#define _strutil_inline_h_8cb04c776a874c52b121ffba3ba0348c
+#ifndef intent_core_strutil_inline_h
+#define intent_core_strutil_inline_h
 
 #include <cstring>
 

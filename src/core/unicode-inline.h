@@ -1,5 +1,5 @@
-#ifndef _unicode_inline_h_c3579b98cf454bf5a90ffa0c7394f6ec
-#define _unicode_inline_h_c3579b98cf454bf5a90ffa0c7394f6ec
+#ifndef intent_core_unicode_inline_h
+#define intent_core_unicode_inline_h
 
 #include "core/unicode.h"
 
