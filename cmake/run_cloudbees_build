@@ -7,7 +7,7 @@ def x(cmd):
     subprocess.check_call(cmd.split(' '))
 
 def install_required_tools():
-    x('sudo apt-get install -qq -y libpcre3-devel')
+    pass #x('sudo yum install -qq -y libpcre3-devel')
 
 if __name__ == '__main__':
     install_required_tools()
