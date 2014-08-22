@@ -72,17 +72,10 @@ char const * get_codepoint_from_utf8(char const * utf8, codepoint_t & cp)
     return utf8;
 }
 
-/**
- * Append the appropriate utf-8 byte sequence to represent a single cp
- * from unicode. Does not null-terminate.
- *
- * @param buf
- *     The buffer into which the sequence is written.
- * @param buf_length
- *     Number of bytes available in buf.
- * @return offset of first byte beyond written position. If write failed
- *     due to lack of space, return buf.
- */
+char const * next_utf8_char(char const * txt) {
+    return next_utf8_char_inline(txt);
+}
+
 bool add_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp)
 {
     if (buf == nullptr || buf_length < 1) {
@@ -142,18 +135,6 @@ size_t count_codepoints_in_utf8(char const * utf8, char const * end)
 const char * const NEED_1CHAR_ESCAPES = "\n\r\t\f\v\b\a";
 const char * const CHARS_FOR_1CHAR_ESCAPES = "nrtfvba";
 
-/**
- * In a string buffer, read an escape sequence, beginning at the char after
- * the backslash, and return the cp that it represents. Supports:
- *
- *   traditional C-style escape sequences (\r, \n, \t, \b, \f, \v, \a)
- *   2 hex chars, such as \xC7
- *   3 octal chars, such as \023
- *   ucs2 codepoints, such as \u2029
- *   ucs4 codepoints, such as \U0010AE4F
- *
- * If a sequence is invalid, cp is set to UNICODE_REPLACEMENT_CHAR.
- */
 char const * scan_unicode_escape_sequence(char const * seq, codepoint_t & cp)
 {
     if (seq == nullptr) return nullptr;

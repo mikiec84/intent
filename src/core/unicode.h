@@ -36,6 +36,24 @@ inline size_t length_of_codepoint(char const * txt);
 char const * get_codepoint_from_utf8(char const * txt, codepoint_t & cp);
 
 /**
+ * Advance to the beginning of the next logical character.
+ *
+ * Since this function is the analog of a simple increment on a char const * and
+ * will be used in very tight loops, this function does no error checking.
+ * @return offset of beginning of next logical utf8 character, or the null
+ *     terminator if txt is pointing to the final valid character when the
+ *     function is called. This lets you loop like this:
+ *         for (char const * p = input; *p; p = next_utf8_char(p))
+ */
+char const * next_utf8_char_inline(char const * txt);
+
+/**
+ * Same as next_utf8_char_inline(), except implemented as a true function. This
+ * allows it to be used as a function pointer in some algorithms.
+ */
+char const * next_utf8_char(char const * txt);
+
+/**
  * Append the appropriate utf-8 byte sequence to represent a single codepoint.
  * Does not null-terminate.
  *
@@ -49,7 +67,8 @@ char const * get_codepoint_from_utf8(char const * txt, codepoint_t & cp);
 bool add_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp);
 
 /**
- * Same as add_codepoint_to_utf8, but null-terminates (unless there's no room to do so).
+ * Same as add_codepoint_to_utf8, but null-terminates (unless there's no room
+ * to do so).
  */
 bool cat_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp);
 
@@ -101,7 +120,8 @@ char const * find_codepoint_in_utf8(char const * utf8, codepoint_t cp);
  * @param cp Codepoint to search for.
  * @return offset of cp in buffer, or nullptr on failure.
  */
-char const * find_codepoint_in_utf8(char const * utf8, char const * end, codepoint_t cp);
+char const * find_codepoint_in_utf8(char const * utf8, char const * end,
+        codepoint_t cp);
 
 }} // end namespace
 
