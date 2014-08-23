@@ -80,9 +80,6 @@ inline void insert_soft_wrap(string & wrapped, char const * wrap_before,
     while (*ptr == ' ' && ptr < input.end) {
         ++ptr;
     }
-    // At the top of the outer loop, we're going to increment. Back
-    // up one to counteract.
-    p = ptr - 1;
 }
 
 } // end anonymous namespace
@@ -105,12 +102,15 @@ string wrap_lines(sslice const & input, unsigned width,
     // increments by 1. The smallest value for this variable is 1, not 0...
     unsigned len_after_this_char = 1;
 
-    for (char const * p = input.begin; p < input.end; p = nxt(p)) {
-        auto remaining = input.end - p + (indent ? (indent - EIGHTY_SPACES) : 0);
+    for (char const * p = input.begin; p < input.end; ) {
+
+        auto remaining = input.end - p + (len_after_this_char - 1);
 
         // If we have less characters left than the wrap width, just append them.
         if (remaining < width) {
-            wrapped.append(p, remaining);
+            if (remaining) {
+                wrapped.append(p, remaining);
+            }
             break;
 
         // Otherwise we're going to have to look for places to wrap.
@@ -196,10 +196,10 @@ string wrap_lines(sslice const & input, unsigned width,
                         wrapped.append(p, ptr);
                     }
                     wrapped.append(line_delim, line_delim_len);
-                    ++ptr;
+                    //++ptr; // we'll increment once as we break inner loop
 
                     // Handle \r\n as if it were a single char.
-                    if (c == '\r' && p < input.end && *ptr == '\n') {
+                    if (c == '\r' && ptr + 1 < input.end && ptr[1] == '\n') {
                         ++ptr;
                     }
 
@@ -210,7 +210,6 @@ string wrap_lines(sslice const & input, unsigned width,
                     // a redundant soft wrap.
                     len_after_this_char = width;
                     soft_wrap = false;
-                    p = ptr - 1;
                     break;
 
                 default:
@@ -232,7 +231,6 @@ string wrap_lines(sslice const & input, unsigned width,
             // line contained escape sequences or multi-byte characters...
             if (ptr == input.end && len_after_this_char < width) {
                 wrapped.append(p, ptr);
-                p = ptr;
 
             // More likely, we should do the soft wrap...
             } else if (soft_wrap) {
@@ -242,8 +240,9 @@ string wrap_lines(sslice const & input, unsigned width,
 
             // Although we might have found a hard line break instead...
             } else {
-                len_after_this_char = 0;
+                len_after_this_char = 1;
             }
+            p = ptr;
         }
     }
     return wrapped;
