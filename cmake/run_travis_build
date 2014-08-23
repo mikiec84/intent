@@ -46,6 +46,7 @@ if __name__ == '__main__':
                 make_flags = ''
             x('cmake -DCMAKE_BUILD_TYPE=%s ../..' % variant)
             x('make%s' % make_flags)
+            x('test/core/intent-core-testrunner')
             x('make test')
             if variant == 'Release':
                  x('make package')
