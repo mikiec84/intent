@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "dbc.h"
 #include "sslice.h"
 #include "strutil.h"
@@ -7,6 +9,83 @@ using std::string;
 
 namespace intent {
 namespace core {
+
+static constexpr ptrdiff_t MAX_INDENT = 64;
+
+namespace {
+
+inline void find_best_hyphen_wrap(char const *& ptr, char const * end,
+        unsigned & len, unsigned width, char const *& wrap_before) {
+
+    // Hyphens are generally valid points to wrap, but unlike
+    // spaces, they don't get replaced, and the preferred
+    // place to wrap is *after* the hyphen, not before. We
+    // also have wrinkles with double hyphens (if present,
+    // don't wrap in middle) and with long runs of hyphens
+    // (wrap anywhere).
+    bool double_hyphen = (ptr < end - 1) && ptr[1] == '-';
+    bool many_hyphens = ptr[-1] == '-' || (
+            double_hyphen && (ptr < end - 2 && ptr[2] == '-'));
+
+    if (many_hyphens) {
+        // Find the last hyphen in the sequence that will fit on the current
+        // line.
+        while (ptr < end && len < width && *ptr == '-') {
+            ++ptr;
+            ++len;
+        }
+        wrap_before = ptr;
+    } else if (double_hyphen) {
+        // Can we fit both hyphens on this line?
+        if (len < width - 1) {
+            wrap_before = ptr = ptr + 2;
+        }
+        // We only assing wrap_before if we can fit both hyphens--but regardless,
+        // we advance by two places because we need to treat these hyphens as a
+        // single unit.
+        len += 2;
+    } else {
+        wrap_before = ++ptr;
+        ++len;
+    }
+}
+
+inline void insert_soft_wrap(string & wrapped, char const * wrap_before,
+        char const *&p, char const *&ptr, unsigned & len_after_this_char,
+        char const * line_delim, size_t line_delim_len, char const * indent,
+        sslice const & input) {
+
+    // If we didn't find anywhere at all that it was possible to
+    // wrap, just break at the final valid position. This is ugly,
+    // but it is a safety measure that guarantees we never exceed
+    // the specified line length.
+    if (!wrap_before) {
+        wrap_before = ptr;
+    }
+
+    wrapped.append(p, wrap_before - p);
+    wrapped.append(line_delim, line_delim_len);
+    if (indent) {
+        auto indent_width = indent - EIGHTY_SPACES;
+        wrapped.append(EIGHTY_SPACES, indent_width);
+        len_after_this_char = indent_width + 1;
+    } else {
+        len_after_this_char = 1;
+    }
+
+    // Skip over all spaces at the break point; they are not
+    // significant. We want to start the new line with the next
+    // visible char.
+    ptr = wrap_before;
+    while (*ptr == ' ' && ptr < input.end) {
+        ++ptr;
+    }
+    // At the top of the outer loop, we're going to increment. Back
+    // up one to counteract.
+    p = ptr - 1;
+}
+
+} // end anonymous namespace
 
 string wrap_lines(sslice const & input, unsigned width,
            wrap_lines_advance_func nxt, char const * line_delim) {
@@ -28,7 +107,7 @@ string wrap_lines(sslice const & input, unsigned width,
         auto remaining = input.end - p;
 
         // If we have less characters left than the wrap width, just append them.
-        if (remaining <= width) {
+        if (remaining < width) {
             wrapped.append(p, remaining);
             break;
 
@@ -69,12 +148,16 @@ string wrap_lines(sslice const & input, unsigned width,
             // wrap position gets chosen. In other words, a soft wrap at
             // position 80 is valid.
             //
-            // Whew! So the correct upper bound is width, not width - 1?
+            // Whew! So the correct upper bound is width, not width - 1. Sort of.
             //
-            // One more wrinkle: we are using 1-based indices here, because from
-            // the top of each iteration we are assuming that the line will
-            // include the current char. This means that to iterate 80 times, we
-            // must either use for(i=1; i < 81; ++i) or (for i=1; i <= 80; ++i).
+            // Next wrinkle: we are using 1-based indices here, because from the
+            // top of each iteration we are assuming that the line will include
+            // the current char. This means that to iterate 80 times, we must
+            // either use for(i=1; i < 81; ++i) or (for i=1; i <= 80; ++i).
+            //
+            // Last wrinkle: the final char we look at is special. If it's a
+            // space or hard break, fine. If not, then we have to back up one
+            // char because we advanced too far.
             for (ptr = p; len_after_this_char <= width && ptr < input.end;
                     ptr = nxt(ptr), ++len_after_this_char) {
 
@@ -88,35 +171,18 @@ string wrap_lines(sslice const & input, unsigned width,
                     break;
 
                 case '-':
-                    if (found_visible_char) {
-                        // Hyphens are generally valid points to wrap, but unlike
-                        // spaces, they don't get replaced, and the preferred
-                        // place to wrap is *after* the hyphen, not before. We
-                        // also have wrinkles with double hyphens (if present,
-                        // don't wrap in middle) and with long runs of hyphens
-                        // (wrap anywhere).
-                        bool double_hyphen = (ptr < input.end - 1) && ptr[1] == '-';
-                        bool many_hyphens = ptr[-1] == '-' || (
-                                    double_hyphen && (ptr < input.end - 2 && ptr[2] == '-'));
-                        if (many_hyphens) {
-                            wrap_before = ptr;
-                        } else if (double_hyphen) {
-                            // Can we fit both hyphens on this line?
-                            if (len_after_this_char < width - 1) {
-                                wrap_before = ptr = ptr + 2;
-                            }
-                            len_after_this_char += 2;
-                        } else {
-                            wrap_before = ++ptr;
-                            ++len_after_this_char;
-                        }
+                    if (len_after_this_char == width) {
+                        --ptr;
+                    } else if (found_visible_char) {
+                        find_best_hyphen_wrap(ptr, input.end, len_after_this_char,
+                                width, wrap_before);
                     } else {
                         // A hyphen that's the first visible char on a line isn't
                         // a valid place to break. Treat it like any other visible
                         // char.
                         found_visible_char = true;
                         if (ptr > p) {
-                            indent = EIGHTY_SPACES + (ptr - p);
+                            indent = EIGHTY_SPACES + std::min(MAX_INDENT, ptr - p);
                         }
                     }
                     break;
@@ -146,10 +212,12 @@ string wrap_lines(sslice const & input, unsigned width,
                     break;
 
                 default:
-                    if (!found_visible_char) {
+                    if (len_after_this_char == width) {
+                        --ptr;
+                    } else if (!found_visible_char) {
                         found_visible_char = true;
                         if (ptr > p) {
-                            indent = EIGHTY_SPACES + (ptr - p);
+                            indent = EIGHTY_SPACES + std::min(MAX_INDENT, ptr - p);
                         }
                     }
                     break;
@@ -166,35 +234,9 @@ string wrap_lines(sslice const & input, unsigned width,
             // It is also possible that we encountered a hard wrap, in which
             // case the soft wrapping is unnecessary.
             } else if (soft_wrap) {
-
-                // If we didn't find anywhere at all that it was possible to
-                // wrap, just break at the final valid position. This is ugly,
-                // but it is a safety measure that guarantees we never exceed
-                // the specified line length.
-                if (!wrap_before) {
-                    wrap_before = ptr;
-                }
-
-                wrapped.append(p, wrap_before - p);
-                wrapped.append(line_delim, line_delim_len);
-                if (indent) {
-                    auto indent_width = indent - EIGHTY_SPACES;
-                    wrapped.append(EIGHTY_SPACES, indent_width);
-                    len_after_this_char = indent_width + 1;
-                } else {
-                    len_after_this_char = 1;
-                }
-
-                // Skip over all spaces at the break point; they are not
-                // significant. We want to start the new line with the next
-                // visible char.
-                ptr = wrap_before;
-                while (*ptr == ' ' && ptr < input.end) {
-                    ++ptr;
-                }
-                // At the top of the outer loop, we're going to increment. Back
-                // up one to counteract.
-                p = ptr - 1;
+                insert_soft_wrap(wrapped, wrap_before, p, ptr,
+                        len_after_this_char, line_delim, line_delim_len, indent,
+                        input);
             }
         }
     }
