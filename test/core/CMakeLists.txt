@@ -18,6 +18,13 @@ if (BUILD_TESTRUNNERS)
 
     add_executable(${PROJECT_NAME} ${SRC_LIST})
 
+    # Suppress sanitizer warnings for a few places where we are deliberately
+    # doing funky stuff in tests.
+    if (${CMAKE_CXX_FLAGS} MATCHES "-fsanitize=")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize-blacklist=${CMAKE_CURRENT_BINARY_DIR}/sanitizer-blacklist.txt")
+        configure_file(${CMAKE_CURRENT_LIST_DIR}/sanitizer-blacklist.txt.in ${CMAKE_CURRENT_BINARY_DIR}/sanitizer-blacklist.txt @ONLY)
+    endif()
+
     include(../../cmake/boost.cmake)
 
     target_link_libraries(${PROJECT_NAME}

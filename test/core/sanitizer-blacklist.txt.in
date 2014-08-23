@@ -1,0 +1,2 @@
+#fun:.*enum_operators_test_bitwise_operators.*TestBody.*
+src:@CMAKE_CURRENT_SOURCE_DIR@/enum_operators_test.cpp
