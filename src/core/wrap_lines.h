@@ -14,7 +14,7 @@ typedef char const * (*wrap_lines_advance_func)(char const *);
 char const * next_utf8_char(char const * p);
 
 std::string wrap_lines(sslice const & input, unsigned width=80,
-    wrap_lines_advance_func nxt=next_utf8_char, char const * line_delim="\n");
+    char const * line_delim="\n", wrap_lines_advance_func nxt=next_utf8_char);
 
 }} // end namespace
 
