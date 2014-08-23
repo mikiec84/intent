@@ -104,10 +104,10 @@ string wrap_lines(sslice const & input, unsigned width,
 
     for (char const * p = input.begin; p < input.end; ) {
 
-        auto remaining = input.end - p + (len_after_this_char - 1);
+        auto remaining = input.end - p;
 
         // If we have less characters left than the wrap width, just append them.
-        if (remaining < width) {
+        if (remaining + (len_after_this_char - 1) < width) {
             if (remaining) {
                 wrapped.append(p, remaining);
             }
