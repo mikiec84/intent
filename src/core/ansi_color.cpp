@@ -13,22 +13,24 @@ static char const * ansi_color_esc_seqs[] {
     #include "ansi_color_tuples.h"
 };
 
-char const * get_ansi_color_name(ansi_color which) {
-    auto i = static_cast<unsigned>(which);
-    if (which <= ansi_color::white) {
-        return ansi_color_names[i];
+char const * get_ansi_color_name(unsigned which) {
+    if (which <= 15) {
+        return ansi_color_names[which];
     }
     return "";
 }
 
-char const * get_ansi_color_esc_seq(ansi_color which) {
-    auto i = static_cast<unsigned>(which);
-    if (which <= ansi_color::white) {
-        return ansi_color_esc_seqs[i];
+char const * get_ansi_color_esc_seq(unsigned which) {
+    if (which <= 15) {
+        return ansi_color_esc_seqs[which];
     }
     return "";
 }
 
+void print_in_color(char const * txt, int file_descriptor) {
+}
+
+std::string colorize(char const * txt);
 
 }} // end namespace
 
