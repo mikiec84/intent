@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 struct line_iterator {
     line_iterator() {}
@@ -20,6 +21,6 @@ private:
     char const * end;
 };
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

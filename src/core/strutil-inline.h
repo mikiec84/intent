@@ -7,6 +7,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 inline char const * find_char(char const * p, char c, char const * end) {
     if (p == nullptr) return nullptr;
@@ -82,6 +83,6 @@ inline char const * consume_line_break(char const * p, char const * end) {
     return p;
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

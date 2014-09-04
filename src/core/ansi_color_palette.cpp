@@ -10,8 +10,12 @@ using std::array;
 using std::tuple_size;
 using std::vector;
 
+using intent::core::text::is_null_or_empty;
+using intent::core::text::sslice;
+
 namespace intent {
 namespace core {
+namespace tty {
 
 static inline char next_name_char(char const * &p, char const * end) {
     while (p < end) {
@@ -300,6 +304,6 @@ unsigned ansi_color_palette::map_name(char const * name) const {
     return 0;
 }
 
-}} // end namespace
+}}} // end namespace
 
 

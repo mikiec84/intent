@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 struct sslice;
 
@@ -26,6 +27,6 @@ bool add_escape_sequence(char *& buf, size_t & buf_length, codepoint_t);
  */
 bool cat_escape_sequence(char *& buf, size_t & buf_length, codepoint_t);
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

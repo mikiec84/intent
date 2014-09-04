@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace tty {
 
 inline char const * get_ansi_color_name(ansi_color which) {
     return get_ansi_color_name(static_cast<unsigned>(which));
@@ -14,7 +15,7 @@ inline char const * get_ansi_color_esc_seq(ansi_color which) {
     return get_ansi_color_esc_seq(static_cast<unsigned>(which));
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry
 

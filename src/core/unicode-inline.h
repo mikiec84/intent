@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 inline bool is_utf8_trail_byte(uint8_t c) {
     // Top bit is set, but not next bit
@@ -32,6 +33,6 @@ inline char const * next_utf8_char_inline(char const * txt) {
     return txt;
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::tty;
 
 TEST(ansi_color_palette_test, easy_ctor) {
     ansi_color_palette p(

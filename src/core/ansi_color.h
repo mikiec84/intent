@@ -9,6 +9,7 @@
 
 namespace intent {
 namespace core {
+namespace tty {
 
 #define ANSI_ESCAPE_PREFIX "\x1B["
 #define ANSI_ESCAPE(x,y) ANSI_ESCAPE_PREFIX #x ";" #y "m"
@@ -19,7 +20,6 @@ enum class ansi_color: uint8_t {
     #define TUPLE(name, hi, lo) name,
     #include "ansi_color_tuples.h"
 };
-define_numeric_operators_for_enum(ansi_color);
 
 char const * get_ansi_color_name(ansi_color which);
 char const * get_ansi_color_esc_seq(ansi_color which);
@@ -40,7 +40,9 @@ public:
 void print_in_color(char const * txt, int file_descriptor=STDOUT_FILE_DESCRIPTOR);
 std::string colorize(char const * txt, ansi_palette const & default_palette);
 
-}} // end namespace
+}}} // end namespace
+
+define_numeric_operators_for_enum(intent::core::tty::ansi_color);
 
 #include "ansi_color-inline.h"
 

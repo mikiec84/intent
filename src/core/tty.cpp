@@ -6,6 +6,7 @@
 
 namespace intent {
 namespace core {
+namespace tty {
 
 uint16_t get_tty_column_count() {
     if (is_a_tty()) {
@@ -29,6 +30,6 @@ bool is_a_tty(int file_desc) {
     return isatty(file_desc) != 0;
 }
 
-}} // end namespace
+}}} // end namespace
 
 

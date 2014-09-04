@@ -6,6 +6,7 @@
 
 namespace intent {
 namespace core {
+namespace tty {
 
 /**
  * Palettes are a way to manage a combination of colors by logical rather than
@@ -49,13 +50,13 @@ public:
      *         error=10
      *         xref=7
      */
-    ansi_color_palette(sslice const & spec);
+    ansi_color_palette(intent::core::text::sslice const & spec);
     ~ansi_color_palette();
 
     unsigned map_name(char const * name) const;
 };
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry
 

@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::tty;
 
 TEST(ansi_color_test, names) {
     #define TUPLE(name, hi, lo) \

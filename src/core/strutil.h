@@ -6,6 +6,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 struct sslice;
 
@@ -72,7 +73,7 @@ std::vector<T> split(char const * p, char const * splitters);
 template <> std::vector<std::string> split(char const * p, char const * splitters);
 template <> std::vector<sslice> split(char const * p, char const * splitters);
 
-}} // end namespace
+}}} // end namespace
 
 #include "strutil-inline.h"
 

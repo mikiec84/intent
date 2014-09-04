@@ -7,6 +7,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 /**
  * A subset of a string that doesn't own the memory it refers to.
@@ -89,9 +90,9 @@ int strncmp(char const * a, sslice const & b, size_t size);
 int strncmp(sslice const & a, char const * b, size_t size);
 int strncmp(sslice const & a, sslice const & b, size_t size);
 
-}} // end namespace
+}}} // end namespace
 
-std::ostream & operator<<(std::ostream & out, const intent::core::sslice & slice);
+std::ostream & operator<<(std::ostream & out, const intent::core::text::sslice & slice);
 
 #include "core/sslice-inline.h"
 

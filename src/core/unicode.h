@@ -6,6 +6,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 typedef uint32_t codepoint_t;
 
@@ -123,7 +124,7 @@ char const * find_codepoint_in_utf8(char const * utf8, codepoint_t cp);
 char const * find_codepoint_in_utf8(char const * utf8, char const * end,
         codepoint_t cp);
 
-}} // end namespace
+}}} // end namespace
 
 #include "core/unicode-inline.h"
 

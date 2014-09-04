@@ -26,13 +26,13 @@ struct enum_has_numeric_operators {
 
 #define define_bitwise_operators_for_enum(e) \
     template <> \
-    struct intent::core::enum_has_bitwise_operators<e> { \
+    struct ::intent::core::enum_has_bitwise_operators<e> { \
         static constexpr bool value = true; \
     }
 
 #define define_numeric_operators_for_enum(e) \
     template <> \
-    struct intent::core::enum_has_numeric_operators<e> { \
+    struct ::intent::core::enum_has_numeric_operators<e> { \
         static constexpr bool value = true; \
     }
 

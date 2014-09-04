@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::tty;
 
 TEST(tty_test, sanity) {
     if (is_a_tty()) {

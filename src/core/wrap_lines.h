@@ -7,6 +7,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 struct sslice;
 
@@ -16,7 +17,7 @@ char const * next_utf8_char(char const * p);
 std::string wrap_lines(sslice const & input, unsigned width=80,
     char const * line_delim="\n", wrap_lines_advance_func nxt=next_utf8_char);
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry
 

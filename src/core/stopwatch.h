@@ -1,8 +1,9 @@
-#ifndef intent_core_nano_timer_h
-#define intent_core_nano_timer_h
+#ifndef intent_core_stopwatch_h
+#define intent_core_stopwatch_h
 
-#include <chrono>
 #include <cstdint>
+
+#include "chronox.h"
 
 namespace intent {
 namespace core {
@@ -10,24 +11,23 @@ namespace core {
 /**
  * A class that is helpful for profiling code.
  */
-template <typename CLOCK=std::chrono::steady_clock>
 struct stopwatch {
 
-    typedef typename CLOCK::duration duration;
+    typedef typename std::chrono::nanoseconds duration;
     typedef typename duration::rep rep;
     typedef typename duration::period period;
-    typedef typename CLOCK::time_point time_point;
+    typedef typename std::chrono::steady_clock::time_point time_point;
 
     uint64_t split_count;
     duration elapsed;
     time_point start_time;
 
-    enum class state_t : uint8_t {
-        stopped,
+    enum class state : uint8_t {
+        paused,
         running
-    } state;
+    } current_state;
 
-    stopwatch() : split_count(0), elapsed(0), state(state_t::stopped) {
+    stopwatch() : split_count(0), elapsed(0), current_state(state::paused) {
     }
 
     struct split {
@@ -37,18 +37,18 @@ struct stopwatch {
     };
 
     void start() {
-        if (state == state_t::stopped) {
-            start_time = CLOCK::now();
-            state = state_t::running;
+        if (current_state == state::paused) {
+            start_time = chronox::now();
+            current_state = state::running;
             ++split_count;
         }
     }
 
     duration stop() {
-        if (state == state_t::running) {
-            auto n = CLOCK::now() - start_time;
+        if (current_state == state::running) {
+            auto n = chronox::now() - start_time;
             elapsed += n;
-            state = state_t::stopped;
+            current_state = state::paused;
             return n;
         }
         return duration(0);

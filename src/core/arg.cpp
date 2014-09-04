@@ -9,6 +9,7 @@ using std::string;
 
 namespace intent {
 namespace core {
+namespace text {
 
 arg::~arg() {
     if (type == vt_allocated_str) {
@@ -130,4 +131,4 @@ string arg::to_string(char const * format) const {
     }
 }
 
-}} // end namespace
+}}} // end namespace

@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 TEST(unicode_test, is_utf8_lead_byte) {
     EXPECT_TRUE(is_utf8_lead_byte(static_cast<char>(0xc0)));

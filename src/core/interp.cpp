@@ -8,6 +8,7 @@ using std::string;
 
 namespace intent {
 namespace core {
+namespace text {
 
 string interp(char const * format) {
     return format;
@@ -133,4 +134,4 @@ std::string interp(char const * format, std::initializer_list<arg> args) {
     return txt;
 }
 
-}} // end namespace
+}}} // end namespace

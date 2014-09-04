@@ -1,4 +1,4 @@
-#include "core/sandbox.h"
+#include "core/space.h"
 
 using namespace boost::filesystem;
 

@@ -7,6 +7,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 /**
  * Interpolate args into a format string. This function is conceptually similar to
@@ -75,6 +76,6 @@ std::string interp(char const * format);
  */
 void interp_into(std::string &, char const * format, std::initializer_list<arg>);
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

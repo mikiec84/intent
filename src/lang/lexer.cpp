@@ -7,6 +7,8 @@
 #include "lang/lexer.h"
 
 using namespace intent::core;
+using namespace intent::core::text;
+
 using std::string;
 
 namespace intent {

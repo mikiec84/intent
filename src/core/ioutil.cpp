@@ -6,6 +6,7 @@ using boost::filesystem::unique_path;
 
 namespace intent {
 namespace core {
+namespace io {
 
 c_file::c_file(FILE * _f) : f(_f)
 {
@@ -27,12 +28,6 @@ c_file::operator FILE *() {
 
 c_file::operator bool() const {
     return f != nullptr;
-}
-
-int fclose(c_file & cf) {
-    int n = fclose(cf.f);
-    cf.f = nullptr;
-    return n;
 }
 
 file_delete_on_exit::file_delete_on_exit(path const & p) : fpath(p) {
@@ -89,4 +84,12 @@ easy_temp_c_file::easy_temp_c_file() :
     f = fopen(path.c_str(), "w");
 }
 
-}} // end namespace
+}}} // end namespace
+
+int fclose(intent::core::io::c_file & cf) {
+    int n = fclose(cf.f);
+    cf.f = nullptr;
+    return n;
+}
+
+

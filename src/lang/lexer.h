@@ -33,7 +33,7 @@ class lexer {
 public:
     lexer(char const * begin);
     lexer(char const * begin, char const * end);
-    lexer(intent::core::sslice const & txt);
+    lexer(intent::core::text::sslice const & txt);
 
     class iterator;
 
@@ -41,7 +41,7 @@ public:
     iterator end() const;
 
 private:
-    intent::core::sslice txt;
+    intent::core::text::sslice txt;
     token t;
     char const * line_begin;
     char const * p;

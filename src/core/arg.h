@@ -8,6 +8,7 @@ namespace boost { namespace filesystem { class path; }}
 
 namespace intent {
 namespace core {
+namespace text {
 
 struct sslice;
 
@@ -84,7 +85,7 @@ private:
     friend arg const & make_empty_arg();
 };
 
-}} // end namespace
+}}} // end namespace
 
 #include "core/arg-inline.h"
 

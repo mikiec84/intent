@@ -11,6 +11,7 @@
 
 using std::string;
 using namespace intent::core;
+using namespace intent::core::text;
 using namespace boost::filesystem;
 
 static void check_is_in_range(char const * value, numeric_range_info const & nri,

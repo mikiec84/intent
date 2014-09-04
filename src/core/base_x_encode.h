@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 /**
  * Represent an arbitrary, unsigned number in an arbitrary base.
@@ -59,6 +60,6 @@ bool base_x_encode(UNIT n, char * buf, size_t buf_count, char const * digit_inve
     return true;
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 TEST(sslice_test, size) {
 

@@ -8,6 +8,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 inline sslice::sslice() :
     begin(nullptr), end(nullptr) {
@@ -145,6 +146,6 @@ inline int strncmp(sslice const & a, sslice const & b, size_t size) {
     }
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

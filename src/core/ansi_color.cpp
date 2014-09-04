@@ -2,6 +2,7 @@
 
 namespace intent {
 namespace core {
+namespace tty {
 
 static char const * ansi_color_names[] = {
     #define TUPLE(name, hi, lo) #name,
@@ -32,6 +33,5 @@ void print_in_color(char const * txt, int file_descriptor) {
 
 std::string colorize(char const * txt);
 
-}} // end namespace
-
+}}} // end namespace
 

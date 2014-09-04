@@ -9,7 +9,6 @@
 #include "core/interp.h"
 #include "core/ioutil.h"
 #include "core/line_iterator.h"
-#include "core/sandbox.h"
 #include "core/strutil.h"
 #include "lang/lexer.h"
 #include "../util/testutil.h"
@@ -17,10 +16,14 @@
 
 using std::string;
 using std::vector;
+
 using boost::any_cast;
 using boost::lexical_cast;
 using namespace boost::filesystem;
+
 using namespace intent::core;
+using namespace intent::core::io;
+using namespace intent::core::text;
 using namespace intent::lang;
 
 #define LOG() fprintf(stderr, "%s, line %d\n", __FILE__, __LINE__)

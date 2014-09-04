@@ -30,6 +30,8 @@ using boost::filesystem::status_error;
 using boost::filesystem::symlink_file;
 using boost::filesystem::read_symlink;
 
+using intent::core::text::interp;
+
 namespace intent {
 namespace core {
 

@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 const char * const txt = "abcxyz";
 sslice const slc(txt + 1, txt + 4); // bcx

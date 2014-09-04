@@ -33,6 +33,7 @@ std::vector<T> split_impl(char const * txt, char const * splitters) {
 
 namespace intent {
 namespace core {
+namespace text {
 
 template <>
 std::vector<std::string> split(char const * p, char const * splitters) {
@@ -44,4 +45,4 @@ std::vector<sslice> split(char const * p, char const * splitters) {
     return split_impl<sslice>(p, splitters);
 }
 
-}} // end namespace
+}}} // end namespace

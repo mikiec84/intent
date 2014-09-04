@@ -3,6 +3,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 line_iterator::line_iterator(char const * begin, char const * _end) {
     if (begin) {
@@ -39,4 +40,4 @@ line_iterator & line_iterator::operator++() {
     return *this;
 }
 
-}} // end namespace
+}}} // end namespace

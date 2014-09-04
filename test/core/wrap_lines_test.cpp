@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 #define LONG_LINE \
 "The quick brown fox jumped over the lazy red dog--and boy, was he surprised when that happened!"

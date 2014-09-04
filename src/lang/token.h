@@ -18,7 +18,7 @@ class token {
 public:
     token();
     //token(token_type type, char const * begin, char const * end);
-    token(token_type type, intent::core::sslice const & slice);
+    token(token_type type, intent::core::text::sslice const & slice);
     ~token();
 
     token(token const & other);
@@ -29,7 +29,7 @@ public:
      */
     bool operator ==(token const & rhs) const;
 
-    intent::core::sslice substr;
+    intent::core::text::sslice substr;
     token_type type;
     boost::any value;
 };

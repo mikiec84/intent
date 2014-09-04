@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 #define check10(n) EXPECT_TRUE(base_x_encode(n, buf, sizeof(buf) - 1, "0123456789", 10)); EXPECT_STREQ(#n, buf)
 #define check16(n, hex) EXPECT_TRUE(base_x_encode(n, buf, sizeof(buf) - 1, "0123456789abcdef", 16)); EXPECT_STREQ(hex, buf)

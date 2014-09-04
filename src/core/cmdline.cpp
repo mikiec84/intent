@@ -10,6 +10,10 @@ using std::string;
 using std::stringstream;
 using std::vector;
 
+using intent::core::text::EIGHTY_SPACES;
+using intent::core::text::is_null_or_empty;
+using intent::core::text::split;
+
 namespace intent {
 namespace core {
 

@@ -5,6 +5,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 inline arg::arg(int64_t value) :
     type(vt_signed), i64(value) {
@@ -72,6 +73,6 @@ inline arg::arg(bool value) :
     type(vt_bool), boolean(value) {
 }
 
-}} // end namespace
+}}} // end namespace
 
 #endif // sentry

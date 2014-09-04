@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 using std::string;
 
 #define try_trim_ex(trimmer, cstr, expected, chars) \

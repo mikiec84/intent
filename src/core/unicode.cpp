@@ -10,6 +10,7 @@
 
 namespace intent {
 namespace core {
+namespace text {
 
 inline size_t length_of_codepoint_from_char(char ch) {
     unsigned c = static_cast<unsigned>(ch);
@@ -324,4 +325,4 @@ char const * find_codepoint_in_utf8(char const * utf8, char const * end, codepoi
     }
 }
 
-}} // end namespace
+}}} // end namespace

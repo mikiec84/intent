@@ -7,10 +7,8 @@
 
 using std::string;
 
-namespace intent {
-namespace core {
-
-static constexpr ptrdiff_t MAX_INDENT = 64;
+using intent::core::text::sslice;
+using intent::core::text::EIGHTY_SPACES;
 
 namespace {
 
@@ -83,6 +81,12 @@ inline void insert_soft_wrap(string & wrapped, char const * wrap_before,
 }
 
 } // end anonymous namespace
+
+namespace intent {
+namespace core {
+namespace text {
+
+static constexpr ptrdiff_t MAX_INDENT = 64;
 
 string wrap_lines(sslice const & input, unsigned width,
            char const * line_delim, wrap_lines_advance_func nxt) {
@@ -248,8 +252,6 @@ string wrap_lines(sslice const & input, unsigned width,
     return wrapped;
 }
 
-
-
-}} // end namespace
+}}} // end namespace
 
 

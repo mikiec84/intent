@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::text;
 
 TEST(interp_test, null_arg) {
     auto s = interp("hello, {1}.", {nullptr});
