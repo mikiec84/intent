@@ -3,9 +3,9 @@ import os, sys, subprocess, shutil
 import sanitizers
 
 def patch_gcc_46():
+    # see http://clang.llvm.org/libstdc++4.6-clang11.patch
     if os.geteuid() != 0:
-        print("Can't patch gcc 4.6 for c++11; not running as root.")
-        sys.exit(1)
+        print("May not be able to patch gcc 4.6 for c++11; not running as root.")
 
     fname = '/usr/include/c++/4.6/type_traits'
     bad_line = "{ typedef decltype(true ? declval<_Tp>() : declval<_Up>()) type; };"
