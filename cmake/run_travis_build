@@ -24,6 +24,8 @@ def install_required_tools():
         x('brew install graphviz')
 
 if __name__ == '__main__':
+    print(os.environ)
+    os.system('find /usr/lib -name "chrono" -type f')
     install_required_tools()
     non_build_variants = 'integer undefined unsigned-integer-overflow address'.split(' ')
     build_variants = ['Debug', 'Release', 'analyze'] + ['sanitize-' + s for s in sanitizers.detect() 
