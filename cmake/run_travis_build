@@ -2,6 +2,29 @@
 import os, sys, subprocess, shutil
 import sanitizers
 
+def patch_gcc_46():
+    if os.geteuid() != 0:
+        print("Can't patch gcc 4.6 for c++11; not running as root.")
+        sys.exit(1)
+
+    fname = '/usr/include/c++/4.6/type_traits'
+    bad_line = "{ typedef decltype(true ? declval<_Tp>() : declval<_Up>()) type; };"
+    good_line = "{ typedef typename decay<decltype(true ? declval<_Tp>() : declval<_Up>())>::type type; };"
+
+    print('Patching %s for c++11 compatibility...' % fname)
+    with open(fname, 'r') as f:
+        txt = f.read()
+    i = txt.find()
+    if i > -1:
+        txt = txt[0:i] + good_line + txt[i + len(bad_line):]
+        with open(fname + '.new', 'w') as f:
+            f.write(txt)
+        os.rename(fname, fname + '.bak')
+        os.rename(fname + '.new', fname)
+        print('Patch applied successfully.')
+    else:
+        print('Bad line not found; has it already been patched?')
+
 def x(cmd):
     print(cmd)
     subprocess.check_call(cmd.split(' '))
@@ -16,6 +39,9 @@ def install_required_tools():
         x('sudo apt-get install -qq -y libboost1.55-all-dev')
         x('sudo apt-get install -qq -y libpcre3-dev')
         x('sudo apt-get install -qq -y doxygen graphviz')
+        if os.path.isdir('/usr/include/c++/4.6'):
+            if not os.path.isdir('/usr/include/c++/4.8'):
+                patch_gcc_46()
     elif travis_os == 'osx':
         x('brew install cmake')
         x('brew install boost')
