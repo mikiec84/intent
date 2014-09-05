@@ -25,7 +25,7 @@ def install_required_tools():
 
 if __name__ == '__main__':
     print(os.environ)
-    os.system('echo finding && find /usr/lib -name "chrono" -type f')
+    os.system('echo finding && find /usr/include -name "chrono" -type f')
     sys.exit(0)
     install_required_tools()
     non_build_variants = 'integer undefined unsigned-integer-overflow address'.split(' ')
