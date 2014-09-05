@@ -173,6 +173,7 @@ xsv_reader & xsv_reader::operator =(xsv_reader && other) {
     return *this;
 }
 
+#if 0
 bool xsv_reader::next_record() {
     data->fields.clear();
 
@@ -197,7 +198,6 @@ bool xsv_reader::next_record() {
             }
             in_quote = !in_quote;
             break;
-#if 0
         case
         if (c == data->delim) {
             *write_ptr = 0;
@@ -223,11 +223,11 @@ bool xsv_reader::next_record() {
                 ++field_begin;
             }
             data->shift();
-#endif
         }
     }
     return false;
 }
+#endif
 
 xsv_reader::xsv_reader(c_file && file, char delim) {
 }

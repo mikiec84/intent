@@ -8,18 +8,19 @@ using intent::core::chronox::fake_clock;
 using namespace std::chrono;
 
 TEST(stopwatch_test, basic) {
+    fake_clock::session fake;
+
     stopwatch w;
-#if 0
     w.start();
     fake_clock::elapse(nanoseconds(500));
     w.stop();
-#endif
     for (int i = 0; i < 10; ++i) {
         stopwatch::split x(w);
         fake_clock::elapse(milliseconds(10));
     }
-    EXPECT_EQ(10u, w.split_count);
-    EXPECT_EQ(milliseconds(100), w.elapsed);
+    EXPECT_EQ(11u, w.split_count);
+    EXPECT_TRUE(milliseconds(100) < w.elapsed);
+    EXPECT_TRUE(milliseconds(101) > w.elapsed);
 }
 
 TEST(stopwatch_test, relative) {
