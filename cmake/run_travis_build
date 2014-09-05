@@ -14,7 +14,7 @@ def patch_gcc_46():
     print('Patching %s for c++11 compatibility...' % fname)
     with open(fname, 'r') as f:
         txt = f.read()
-    i = txt.find()
+    i = txt.find(bad_line)
     if i > -1:
         txt = txt[0:i] + good_line + txt[i + len(bad_line):]
         with open(fname + '.new', 'w') as f:
