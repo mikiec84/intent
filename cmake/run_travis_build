@@ -17,10 +17,16 @@ def patch_gcc_46():
     i = txt.find(bad_line)
     if i > -1:
         txt = txt[0:i] + good_line + txt[i + len(bad_line):]
-        with open(fname + '.new', 'w') as f:
+        with open('/tmp/type_traits.new', 'w') as f:
             f.write(txt)
-        os.rename(fname, fname + '.bak')
-        os.rename(fname + '.new', fname)
+        # We use sudo here because we might be running with sudo privs without
+        # being root.
+        cmd = 'sudo mv %s %s.bak ' \
+            + '&& sudo chown root:root /tmp/type_traits.new ' \
+            + '&& sudo chmod g-w,o-w /tmp/type_traits.new ' \
+            + '&& sudo mv /tmp/type_traits.new %s'
+        cmd = cmd % (fname, fname, fname)
+        os.system(cmd)
         print('Patch applied successfully.')
     else:
         print('Bad line not found; has it already been patched?')
