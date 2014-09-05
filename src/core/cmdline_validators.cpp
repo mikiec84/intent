@@ -166,8 +166,8 @@ string matches_filesys_info(cmdline_param const & param, char const * value,
         }
     }
     if (typ != directory_file) {
-        bool has_min_size = !std::isnan(fsinfo.min_size) > 0 && fsinfo.min_size > 0;
-        bool has_max_size = !std::isnan(fsinfo.min_size) > 0 && fsinfo.min_size < std::numeric_limits<double>::max();
+        bool has_min_size = !std::isnan(fsinfo.min_size) && fsinfo.min_size > 0;
+        bool has_max_size = !std::isnan(fsinfo.min_size) && fsinfo.min_size < std::numeric_limits<double>::max();
         if (exists && (has_min_size || has_max_size)) {
             auto sz = boost::filesystem::file_size(p);
             if (has_min_size && sz < fsinfo.min_size) {
