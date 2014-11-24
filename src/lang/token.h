@@ -5,7 +5,7 @@
 #include <memory>
 #include <boost/any.hpp>
 
-#include "core/sslice.h"
+#include "core/text/sslice.h"
 #include "lang/token_type.h"
 
 namespace intent {

@@ -1,5 +1,5 @@
-#include "core/stopwatch.h"
-#include "core/chronox.h"
+#include "core/time/stopwatch.h"
+#include "core/time/chronox.h"
 
 #include "gtest/gtest.h"
 

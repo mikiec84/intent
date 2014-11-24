@@ -4,13 +4,15 @@
 #include <typeinfo>
 #include <unistd.h>
 
-#include "core/countof.h"
-#include "core/escape_sequence.h"
-#include "core/interp.h"
-#include "core/ioutil.h"
-#include "core/line_iterator.h"
-#include "core/strutil.h"
+#include "core/util/countof.h"
+#include "core/text/escape_sequence.h"
+#include "core/text/interp.h"
+#include "core/io/ioutil.h"
+#include "core/text/line_iterator.h"
+#include "core/text/strutil.h"
+
 #include "lang/lexer.h"
+
 #include "../util/testutil.h"
 #include "gtest/gtest.h"
 

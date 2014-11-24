@@ -1,6 +1,6 @@
-#include "core/countof.h"
-#include "core/sslice.h"
-#include "core/strutil.h"
+#include "core/util/countof.h"
+#include "core/text/sslice.h"
+#include "core/text/strutil.h"
 
 #include "gtest/gtest.h"
 

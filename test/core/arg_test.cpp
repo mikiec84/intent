@@ -1,8 +1,8 @@
 #include <boost/filesystem.hpp>
 
-#include "core/arg.h"
-#include "core/countof.h"
-#include "core/sslice.h"
+#include "core/text/arg.h"
+#include "core/util/countof.h"
+#include "core/text/sslice.h"
 
 #include "gtest/gtest.h"
 

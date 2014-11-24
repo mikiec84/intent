@@ -1,9 +1,10 @@
 #include <cmath>
 #include <string>
 
-#include "core/scan_numbers.h"
-#include "core/strutil.h"
-#include "core/unicode.h"
+#include "core/text/scan_numbers.h"
+#include "core/text/strutil.h"
+#include "core/text/unicode.h"
+
 #include "lang/lexer.h"
 
 using namespace intent::core;

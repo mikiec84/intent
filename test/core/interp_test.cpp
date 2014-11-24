@@ -1,5 +1,5 @@
-#include "core/countof.h"
-#include "core/interp.h"
+#include "core/util/countof.h"
+#include "core/text/interp.h"
 
 #include "gtest/gtest.h"
 

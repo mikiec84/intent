@@ -5,9 +5,11 @@ project(i)
 include(../../cmake/common.cmake)
 
 find_package(PCRE REQUIRED)
+find_package(CARES REQUIRED)
 include_directories(
     ..
     ${PCRE_INCLUDE_DIRS}
+    ${CARES_INCLUDE_DIRS}
 )
 
 file(GLOB SRC_LIST "*.cpp")
@@ -22,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}
     intent-core
     ${Boost_LIBRARIES}
     ${PCRE_LIBRARIES}
+    ${CARES_LIBRARIES}
 )
 
 install(TARGETS

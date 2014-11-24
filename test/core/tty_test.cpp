@@ -1,8 +1,8 @@
-#include "core/tty.h"
+#include "core/cli/tty.h"
 
 #include "gtest/gtest.h"
 
-using namespace intent::core::tty;
+using namespace intent::core::cli;
 
 TEST(tty_test, sanity) {
     if (is_a_tty()) {

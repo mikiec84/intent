@@ -1,8 +1,8 @@
-#include "core/ansi_color_palette.h"
+#include "core/cli/ansi_color_palette.h"
 
 #include "gtest/gtest.h"
 
-using namespace intent::core::tty;
+using namespace intent::core::cli;
 
 TEST(ansi_color_palette_test, easy_ctor) {
     ansi_color_palette p(

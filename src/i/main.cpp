@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <exception>
 
-#include "core/cmdline.h"
+#include "core/cli/cmdline.h"
 
 //using namespace std;
 
@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
 
     try {
 
-        intent::core::cmdline cmdline;
+        intent::core::cli::cmdline cmdline;
         cmdline.set_args(argc, (char const **)argv);
         if (cmdline.help_needed()) {
             printf("%s", cmdline.get_help().c_str());

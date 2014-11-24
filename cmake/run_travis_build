@@ -44,7 +44,7 @@ def install_required_tools():
         x('sudo apt-get update -qq')
         x('sudo apt-get install -qq -y libboost1.55-all-dev')
         x('sudo apt-get install -qq -y libpcre3-dev')
-        x('sudo apt-get install -qq -y doxygen graphviz')
+        #x('sudo apt-get install -qq -y doxygen graphviz')
         if os.path.isdir('/usr/include/c++/4.6'):
             if not os.path.isdir('/usr/include/c++/4.8'):
                 patch_gcc_46()
@@ -81,6 +81,10 @@ if __name__ == '__main__':
             x('make test')
             if variant == 'Release':
                  x('make package')
-                 x('make doc')
+                 # Installing doxygen imposes a lot of overhead, so for now,
+                 # only do it on osx. (Since I am doing most of my dev work on
+                 # OSX, I value faster feedback from the linux builds...)
+                 if os.uname()[0] == 'Darwin':
+                     x('make doc')
         finally:
             os.chdir(old_cwd)

@@ -1,5 +1,7 @@
 #include <cstdio>
-#include "core/ioutil.h"
+
+#include "core/io/ioutil.h"
+
 #include "gtest/gtest.h"
 
 using namespace boost::filesystem;

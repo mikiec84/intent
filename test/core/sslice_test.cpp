@@ -1,4 +1,4 @@
-#include "core/sslice.h"
+#include "core/text/sslice.h"
 
 #include "gtest/gtest.h"
 

@@ -1,4 +1,4 @@
-#include "core/scope_guard.h"
+#include "core/util/scope_guard.h"
 
 #include "gtest/gtest.h"
 

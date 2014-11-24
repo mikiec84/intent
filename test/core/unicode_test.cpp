@@ -1,4 +1,4 @@
-#include "core/unicode.h"
+#include "core/text/unicode.h"
 
 #include "gtest/gtest.h"
 

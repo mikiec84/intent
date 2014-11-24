@@ -1,4 +1,4 @@
-#include "core/line_iterator.h"
+#include "core/text/line_iterator.h"
 #include "gtest/gtest.h"
 
 using namespace intent::core::text;

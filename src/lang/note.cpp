@@ -1,6 +1,6 @@
 #include <sstream>
 
-#include "core/strutil.h"
+#include "core/text/strutil.h"
 #include "lang/note.h"
 
 using namespace intent::core::text;

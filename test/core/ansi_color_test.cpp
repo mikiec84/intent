@@ -1,20 +1,20 @@
-#include "core/ansi_color.h"
-#include "core/tty.h"
+#include "core/cli/ansi_color.h"
+#include "core/cli/tty.h"
 
 #include "gtest/gtest.h"
 
-using namespace intent::core::tty;
+using namespace intent::core::cli;
 
 TEST(ansi_color_test, names) {
     #define TUPLE(name, hi, lo) \
         EXPECT_STREQ(#name, get_ansi_color_name(ansi_color::name));
-    #include "core/ansi_color_tuples.h"
+    #include "core/cli/ansi_color_tuples.h"
 }
 
 TEST(ansi_color_test, escape_sequences) {
     #define TUPLE(name, hi, lo) \
         EXPECT_STREQ("\x1B[" #hi ";" #lo "m", get_ansi_color_esc_seq(ansi_color::name));
-    #include "core/ansi_color_tuples.h"
+    #include "core/cli/ansi_color_tuples.h"
 }
 
 TEST(ansi_color_test, iteration) {

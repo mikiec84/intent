@@ -1,11 +1,11 @@
 #define CONTRACT_VIOLATION_ACTION(contract_type, expr) \
     report_violation(contract_type, expr, __FILE__, __LINE__, __FUNCTION__)
 
-#include "core/dbc.h"
+#include "core/util/dbc.h"
 
 #include "gtest/gtest.h"
 
-using namespace intent::core;
+using namespace intent::core::util;
 
 bool should_throw = true;
 unsigned violation_count = 0;

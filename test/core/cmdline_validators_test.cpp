@@ -1,16 +1,17 @@
 #include <pcrecpp.h>
 
-#include "core/cmdline.h"
-#include "core/cmdline_validators.h"
-#include "core/countof.h"
-#include "core/interp.h"
-#include "core/scope_guard.h"
+#include "core/cli/cmdline.h"
+#include "core/cli/cmdline_validators.h"
+#include "core/text/interp.h"
+#include "core/util/countof.h"
+#include "core/util/scope_guard.h"
+
 #include "../util/testutil.h"
 
 #include "gtest/gtest.h"
 
 using std::string;
-using namespace intent::core;
+using namespace intent::core::cli;
 using namespace intent::core::text;
 using namespace boost::filesystem;
 

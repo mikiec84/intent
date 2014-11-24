@@ -1,5 +1,5 @@
-#include "core/sslice.h"
-#include "core/wrap_lines.h"
+#include "core/text/sslice.h"
+#include "core/text/wrap_lines.h"
 
 #include "gtest/gtest.h"
 

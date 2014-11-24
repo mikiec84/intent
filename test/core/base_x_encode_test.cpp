@@ -1,4 +1,4 @@
-#include "core/base_x_encode.h"
+#include "core/text/base_x_encode.h"
 
 #include "gtest/gtest.h"
 

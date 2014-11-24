@@ -1,4 +1,4 @@
-#include "core/enum_operators.h"
+#include "core/util/enum_operators.h"
 
 #include "gtest/gtest.h"
 
