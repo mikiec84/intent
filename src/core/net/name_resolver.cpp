@@ -91,9 +91,9 @@ struct name_resolver::data_t {
         }
     }
 
-    ~data() {
+    ~data_t() {
         if (ok) {
-            ares_destroy_channel(channel);
+            //ares_destroy_channel(channel);
         }
     }
 };
@@ -106,6 +106,7 @@ name_resolver::~name_resolver() {
     delete data;
 }
 
+#if 0
 static void
 wait_ares(ares_channel channel)
 {
@@ -125,6 +126,7 @@ wait_ares(ares_channel channel)
         ares_process(channel, &read_fds, &write_fds);
     }
 }
+#endif
 
 struct lookup_request {
     hostent & host;
@@ -152,9 +154,9 @@ callback(void *arg, int status, int timeouts, hostent * host)
     }
 }
 
-bool name_resolver::get_host_by_name(const char *name, ip_address_types address_type, hostent &host) const {
+bool name_resolver::get_host_by_name(const char *name, ip_address_type address_type, hostent &host) const {
     if (data->ok && name && *name) {
-        Lookup_request req(host);
+        lookup_request req(host);
         ares_gethostbyname(data->channel, name, static_cast<int>(address_type), callback, &req);
 
     }
