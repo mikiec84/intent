@@ -23,15 +23,15 @@ char const * scan_phrase(char const * p, char const * end);
 const uint32_t NO_INDENT_YET = UINT32_MAX;
 const uint32_t EMPTY_INDENT_STACK = 0;
 
-lexer::lexer(char const * begin) : lexer(begin, begin ? strchr(begin, 0) : nullptr) {
+lexer::lexer(char const * begin, char const * end) : lexer(str_view(begin, end)) {
 }
 
-lexer::lexer(str_view const & txt) : lexer(txt.begin, txt.end()) {
+lexer::lexer(char const * begin, size_t length) : lexer(str_view(begin, length)) {
 }
 
-lexer::lexer(char const * begin, char const * end) :
-    txt(begin, end), line_begin(begin), p(begin), inconsistent_indent(nullptr),
-    line_number(0), total_indent_width(0),
+lexer::lexer(str_view const & _txt) :
+    txt(_txt), line_begin(_txt.begin), p(_txt.begin),
+    inconsistent_indent(nullptr), line_number(0), total_indent_width(0),
     indent_dedent_delta(0), last_stack_insert_idx(NO_INDENT_YET) {
 
     if (p) {

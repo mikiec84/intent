@@ -31,8 +31,8 @@ class token;
  */
 class lexer {
 public:
-    lexer(char const * begin);
     lexer(char const * begin, char const * end);
+    lexer(char const * begin, size_t length);
     lexer(intent::core::text::str_view const & txt);
 
     class iterator;

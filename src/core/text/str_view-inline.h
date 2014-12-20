@@ -16,13 +16,18 @@ inline strview<C>::strview() :
 }
 
 template <typename C>
-inline strview<C>::strview(C const * begin, C const * end) {
-    assign(begin, end);
+inline strview<C>::strview(C const * _begin, C const * _end) {
+    assign(_begin, _end);
 }
 
 template <typename C>
-inline strview<C>::strview(C const * begin) {
-    assign(begin);
+inline strview<C>::strview(C const * _begin, size_t _length) :
+    begin(_begin), length(_length) {
+}
+
+template <typename C>
+inline strview<C>::strview(C const * _begin) {
+    assign(_begin);
 }
 
 template <typename C>
