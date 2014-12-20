@@ -40,6 +40,7 @@ lexer::lexer(str_view const & _txt) :
         // indents and make sure advance() doesn't have to worry about them.
         // The beginning of the code is like any other line break, as far as
         // indenting is concerned, so we should do the same thing here.
+        t.substr.begin = p;
         t.substr.end_at(scan_beginning_of_line());
         advance();
     }
@@ -298,11 +299,11 @@ inline void lexer::scan_q() {
 
 bool lexer::advance() {
 
-    // Reset state so we report invalid, zero-width token unless/until
-    // we report otherwise.
+    // Reset state so we report invalid, zero-width token unless/until we
+    // discover something different.
     t.type = tt_none;
     t.value = 0;
-    t.substr.end_at(t.substr.begin);
+    t.substr.begin_at(t.substr.end());
     p = t.substr.begin;
 
     // Before we scan more text, emit any errors that we've already discovered.
@@ -331,9 +332,9 @@ bool lexer::advance() {
     }
 
     // If we've exhausted text, report that we can't advance anymore.
-    if (t.substr.is_empty()) return false;
-
     const auto end = txt.end();
+    if (t.substr.begin > end) return false;
+
     switch (*p) {
     case 0:
         return false;
