@@ -1,13 +1,13 @@
 #include <algorithm>
 
 #include "core/util/dbc.h"
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/text/strutil.h"
 #include "core/text/wrap_lines.h"
 
 using std::string;
 
-using intent::core::text::sslice;
+using intent::core::text::str_view;
 using intent::core::text::EIGHTY_SPACES;
 
 namespace {
@@ -51,7 +51,7 @@ inline void find_best_hyphen_wrap(char const *& ptr, char const * end,
 inline void insert_soft_wrap(string & wrapped, char const * wrap_before,
         char const *&p, char const *&ptr, unsigned & len_after_this_char,
         char const * line_delim, size_t line_delim_len, char const * indent,
-        sslice const & input) {
+        str_view const & input) {
 
     // If we didn't find anywhere at all that it was possible to
     // wrap, just break at the final valid position. This is ugly,
@@ -75,7 +75,8 @@ inline void insert_soft_wrap(string & wrapped, char const * wrap_before,
     // significant. We want to start the new line with the next
     // visible char.
     ptr = wrap_before;
-    while (*ptr == ' ' && ptr < input.end) {
+    auto end = input.end();
+    while (*ptr == ' ' && ptr < end) {
         ++ptr;
     }
 }
@@ -88,7 +89,7 @@ namespace text {
 
 static constexpr ptrdiff_t MAX_INDENT = 64;
 
-string wrap_lines(sslice const & input, unsigned width,
+string wrap_lines(str_view const & input, unsigned width,
            char const * line_delim, wrap_lines_advance_func nxt) {
 
     PRECONDITION(nxt != nullptr);
@@ -97,7 +98,7 @@ string wrap_lines(sslice const & input, unsigned width,
     char const * indent = nullptr;
 
     std::string wrapped;
-    wrapped.reserve(input.size());
+    wrapped.reserve(input.length);
     auto line_delim_len = strlen(line_delim);
 
     // As we walk through the text, we need to know what the length of the
@@ -106,9 +107,10 @@ string wrap_lines(sslice const & input, unsigned width,
     // increments by 1. The smallest value for this variable is 1, not 0...
     unsigned len_after_this_char = 1;
 
-    for (char const * p = input.begin; p < input.end; ) {
+    const auto end = input.end();
+    for (auto p = input.begin; p < end; ) {
 
-        auto remaining = input.end - p;
+        auto remaining = end - p;
 
         // If we have less characters left than the wrap width, just append them.
         if (remaining + (len_after_this_char - 1) < width) {
@@ -149,8 +151,8 @@ string wrap_lines(sslice const & input, unsigned width,
             // However, this is wrong because of another subtlety: on an 80-
             // column TTY, we must test the *80th* character to see if it's a
             // space, not just the 79th. We'll write a line break regardless,
-            // but if the 80th character is a space, it instead of any preceding
-            // wrap position gets chosen. In other words, a soft wrap at
+            // but if the 80th character is a space, it gets chosen instead of
+            // any preceding wrap position. In other words, a soft wrap at
             // position 80 is valid.
             //
             // Whew! So the correct upper bound is width, not width - 1. Sort of.
@@ -163,7 +165,8 @@ string wrap_lines(sslice const & input, unsigned width,
             // Last wrinkle: the final char we look at is special. If it's a
             // space or hard break, fine. If not, then we have to back up one
             // char because we advanced too far.
-            for (ptr = p; len_after_this_char <= width && ptr < input.end;
+
+            for (ptr = p; len_after_this_char <= width && ptr < end;
                     ptr = nxt(ptr), ++len_after_this_char) {
 
                 char c = *ptr;
@@ -179,7 +182,7 @@ string wrap_lines(sslice const & input, unsigned width,
                     if (len_after_this_char == width) {
                         --ptr;
                     } else if (found_visible_char) {
-                        find_best_hyphen_wrap(ptr, input.end, len_after_this_char,
+                        find_best_hyphen_wrap(ptr, end, len_after_this_char,
                                 width, wrap_before);
                     } else {
                         // A hyphen that's the first visible char on a line isn't
@@ -203,7 +206,7 @@ string wrap_lines(sslice const & input, unsigned width,
                     //++ptr; // we'll increment once as we break inner loop
 
                     // Handle \r\n as if it were a single char.
-                    if (c == '\r' && ptr + 1 < input.end && ptr[1] == '\n') {
+                    if (c == '\r' && ptr + 1 < end && ptr[1] == '\n') {
                         ++ptr;
                     }
 
@@ -233,7 +236,7 @@ string wrap_lines(sslice const & input, unsigned width,
             // takes to fill a line, even though we tested the remaining byte
             // count before calculating wrap points. This could happen if the
             // line contained escape sequences or multi-byte characters...
-            if (ptr == input.end && len_after_this_char < width) {
+            if (ptr == end && len_after_this_char < width) {
                 wrapped.append(p, ptr);
 
             // More likely, we should do the soft wrap...

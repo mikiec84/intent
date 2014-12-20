@@ -1,5 +1,5 @@
-#ifndef intent_core_chronox_h
-#define intent_core_chronox_h
+#ifndef intent_core_time_assignable_clock_h
+#define intent_core_time_assignable_clock_h
 
 #include <atomic>
 #include <chrono>
@@ -8,16 +8,16 @@
 
 namespace intent {
 namespace core {
-namespace chronox {
+namespace time {
 
 typedef std::chrono::steady_clock::time_point time_point;
 
 /**
  * A clock class that returns whatever time it is told. This is helpful for
- * manipulating behavior in artificial ways without waiting unnecessarily,
+ * manipulating behavior in artificial ways without waiting unnecessarily--
  * during testing, for example.
  */
-class fake_clock {
+class assignable_clock {
 public:
     typedef std::chrono::nanoseconds duration;
     typedef duration::rep rep;
@@ -49,7 +49,7 @@ public:
     static void deactivate(bool force = false);
 
     /**
-     * Activate fake_clock in ctor, deactivate in dtor.
+     * Activate assignable_clock in ctor, deactivate in dtor.
      */
     struct session {
         session();
@@ -59,28 +59,28 @@ public:
 };
 
 /**
- * Returns a fake timestamp when fake_clock is active, or returns
- * std::chrono::steady_clock::now() if fake_clock is inactive.
+ * Returns an arbitrary timestamp when assignable_clock is active, or returns
+ * std::chrono::steady_clock::now() if assignable_clock is inactive.
  */
 time_point now();
 
 /**
  * Behaves exactly like std::this_thread::sleep_for(), except that the interval
- * in question is simulate-able with fake_clock.
+ * in question is simulate-able with assignable_clock.
  */
 template <class R, class P>
 void sleep_for(std::chrono::duration<R,P> const & elapsed);
 
 /**
  * Behaves exactly like std::this_thread::sleep_until(), except that the interval
- * in question is simulate-able with fake_clock.
+ * in question is simulate-able with assignable_clock.
  */
 template <class C, class D>
 void sleep_until (std::chrono::time_point<C,D> const & absolute_time);
 
 }}} // end namespace
 
-#include "core/time/chronox-inline.h"
+#include "core/time/assignable_clock-inline.h"
 
 #endif // sentry
 

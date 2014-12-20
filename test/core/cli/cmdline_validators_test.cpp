@@ -6,7 +6,7 @@
 #include "core/util/countof.h"
 #include "core/util/scope_guard.h"
 
-#include "../util/testutil.h"
+#include "helpers/testutil.h"
 
 #include "gtest/gtest.h"
 

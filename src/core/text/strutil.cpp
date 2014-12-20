@@ -1,4 +1,4 @@
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/text/strutil.h"
 
 namespace {
@@ -41,8 +41,8 @@ std::vector<std::string> split(char const * p, char const * splitters) {
 }
 
 template <>
-std::vector<sslice> split(char const * p, char const * splitters) {
-    return split_impl<sslice>(p, splitters);
+std::vector<str_view> split(char const * p, char const * splitters) {
+    return split_impl<str_view>(p, splitters);
 }
 
 }}} // end namespace

@@ -1,5 +1,5 @@
 #include "core/util/countof.h"
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/text/strutil.h"
 
 #include "gtest/gtest.h"
@@ -40,7 +40,7 @@ TEST(strutil_test, split) {
         EXPECT_STREQ(y[i], x[i].c_str());
     }
 
-    auto z = split<sslice>(TXT, ", ");
+    auto z = split<str_view>(TXT, ", ");
     EXPECT_EQ(n, z.size());
     for (unsigned i = 0; i < n; ++i) {
         EXPECT_EQ(0, strcmp(y[i], z[i]));
@@ -49,5 +49,5 @@ TEST(strutil_test, split) {
 
 TEST(strutil_test, split_with_null_or_empty_input) {
     EXPECT_EQ(0U, split<string>("", "aeiou").size());
-    EXPECT_EQ(0U, split<sslice>(nullptr, "aeiou").size());
+    EXPECT_EQ(0U, split<str_view>(nullptr, "aeiou").size());
 }

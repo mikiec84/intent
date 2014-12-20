@@ -4,13 +4,13 @@
 #include <cstdint>
 #include <string>
 
+#include "core/text/str_view-fwd.h"
+
 namespace boost { namespace filesystem { class path; }}
 
 namespace intent {
 namespace core {
 namespace text {
-
-struct sslice;
 
 /**
  * An arg is a specialized type of variant--a lightweight wrapper around
@@ -40,7 +40,7 @@ struct arg {
     arg(std::string const & str);
     arg(char const * cstr);
     arg(boost::filesystem::path const & path);
-    arg(sslice const & str);
+    arg(str_view const & str);
     arg(bool);
 
     /**
@@ -63,7 +63,7 @@ struct arg {
         vt_str,
         vt_cstr,
         vt_path,
-        vt_sslice,
+        vt_str_view,
         vt_allocated_str,
         vt_bool
     };
@@ -75,7 +75,7 @@ struct arg {
         std::string const * str;
         char const * const cstr;
         boost::filesystem::path const * path;
-        sslice const * slice;
+        str_view const * slice;
         char * allocated_str;
         const bool boolean;
     };

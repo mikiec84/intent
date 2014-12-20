@@ -1,20 +1,19 @@
 #ifndef intent_core_escape_sequence_h
 #define intent_core_escape_sequence_h
 
+#include "core/text/str_view-fwd.h"
 #include "core/text/unicode.h"
 
 namespace intent {
 namespace core {
 namespace text {
 
-struct sslice;
-
-std::string expand_escape_sequences(sslice const &);
+std::string expand_escape_sequences(str_view const &);
 
 typedef bool (* should_escape_func)(codepoint_t);
 bool should_escape_in_utf8_string_literals(codepoint_t);
 
-std::string insert_escape_sequences(sslice const &, should_escape_func=should_escape_in_utf8_string_literals);
+std::string insert_escape_sequences(str_view const &, should_escape_func=should_escape_in_utf8_string_literals);
 
 /**
  * Append an escape sequence for a particular unicode codepoint.

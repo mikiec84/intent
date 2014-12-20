@@ -1,7 +1,7 @@
 #include <array>
 #include <vector>
 
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/text/strutil.h"
 #include "core/cli/ansi_color_palette.h"
 #include "core/util/dbc.h"
@@ -11,7 +11,7 @@ using std::tuple_size;
 using std::vector;
 
 using intent::core::text::is_null_or_empty;
-using intent::core::text::sslice;
+using intent::core::text::str_view;
 
 namespace intent {
 namespace core {
@@ -28,51 +28,60 @@ static inline char next_name_char(char const * &p, char const * end) {
     return 0;
 }
 
-static inline bool find_next_name(sslice & txt, sslice & name) {
-    name.begin = name.end = nullptr;
-    while (txt) {
-        char c = *txt.begin;
+static inline bool find_next_name(str_view & txt, str_view & name) {
+    name.make_null();
+    auto p = txt.begin;
+    auto end = txt.end();
+    while (p < end) {
+        char c = *p;
         if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'z')) {
-            name.begin = txt.begin;
+            name.begin = p;
+            txt.begin_at(p);
             break;
         } else {
-            ++txt.begin;
+            ++p;
         }
     }
     if (!name.begin) return false;
-    while (txt) {
-        char c = *txt.begin;
+    while (p < end) {
+        char c = *p;
         if (isalnum(c) || c == '.' || c == '-' || c == '_') {
-            ++txt.begin;
+            ++p;
         } else {
-            name.end = txt.begin;
+            name.end_at(p);
+            txt.begin_at(p);
             break;
         }
     }
     return true;
 }
 
-static inline bool find_next_value(sslice & txt, uint8_t & value) {
+static inline bool find_next_value(str_view & txt, uint8_t & value) {
     bool found_equal = false;
-    while (txt) {
-        auto c = *txt.begin++;
+    const auto end = txt.end();
+    char const * p = txt.begin;
+    while (p < end) {
+        auto c = *p++;
         switch (c) {
         case '=':
             if (found_equal) return false;
             found_equal = true;
+            txt.begin_at(p);
             break;
         case ' ':
+            txt.begin_at(p);
             break;
         default:
             if (!found_equal || c < '0' || c > '9') return false;
             value = (c - '0');
-            if (txt.begin < txt.end) {
-                c = *txt.begin;
+            if (p < end) {
+                c = *p;
                 if (c >= '0' && c <= '9') {
                     value *= 10 + (c - '0');
-                    ++txt.begin;
+                    ++p;
                 }
             }
+            txt.begin_at(p);
             return true;
         }
     }
@@ -82,9 +91,9 @@ static inline bool find_next_value(sslice & txt, uint8_t & value) {
 typedef std::array<char, 16> spec_entry_t;
 typedef std::array<spec_entry_t, 240> spec_entries_t;
 
-static inline void copy_name(sslice const & src, char * dest) {
+static inline void copy_name(str_view const & src, char * dest) {
     auto p = src.begin;
-    auto end = src.end;
+    auto end = src.end();
     char c = next_name_char(p, end);
     auto dest_end = dest + tuple_size<spec_entry_t>::value - 2;
     for (; c && dest < dest_end; c = next_name_char(p, end)) {
@@ -262,14 +271,14 @@ struct ansi_color_palette::data_t {
     }
 };
 
-ansi_color_palette::ansi_color_palette(sslice const & _spec) : data(new data_t) {
+ansi_color_palette::ansi_color_palette(str_view const & _spec) : data(new data_t) {
     PRECONDITION(_spec);
-    sslice spec(_spec);
+    str_view spec(_spec);
 
     spec_entries_t entries;
     size_t entry_count = 0;
 
-    sslice name;
+    str_view name;
     while (find_next_name(spec, name) && entry_count <= tuple_size<spec_entries_t>::value) {
         uint8_t value;
         PRECONDITION(find_next_value(spec, value));

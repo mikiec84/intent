@@ -65,8 +65,8 @@ inline arg::arg(boost::filesystem::path const & p) :
     type(vt_path), path(&p) {
 }
 
-inline arg::arg(sslice const & txt) :
-    type(vt_sslice), slice(&txt) {
+inline arg::arg(str_view const & txt) :
+    type(vt_str_view), slice(&txt) {
 }
 
 inline arg::arg(bool value) :

@@ -1,15 +1,15 @@
-#ifndef intent_core_stopwatch_h
-#define intent_core_stopwatch_h
+#ifndef intent_core_time_stopwatch_h
+#define intent_core_time_stopwatch_h
 
 #include <cstdint>
-
-#include "core/time/chronox.h"
+#include <chrono>
 
 namespace intent {
 namespace core {
+namespace time {
 
 /**
- * A class that is helpful for profiling code.
+ * A class that is helpful for profiling code or for timing external processes.
  */
 struct stopwatch {
 
@@ -18,45 +18,79 @@ struct stopwatch {
     typedef typename duration::period period;
     typedef typename std::chrono::steady_clock::time_point time_point;
 
+    /** How many times has the stopwatch been started? */
     uint64_t split_count;
+
+    /** What is the total elapsed time on this stopwatch? */
     duration elapsed;
+
+    /** When did the current split begin? */
     time_point start_time;
 
     enum class state : uint8_t {
+        /** There is no active split, and no time is elapsing. */
+        stopped,
+        /**
+         * A split is active, but it has been temporarily suspended. This can
+         * be useful if a code path needs to be timed, but some overhead in
+         * the middle needs to be subtracted.
+         */
         paused,
+        /** A split is active, and time is elapsing. */
         running
-    } current_state;
-
-    stopwatch() : split_count(0), elapsed(0), current_state(state::paused) {
-    }
-
-    struct split {
-        stopwatch & watch;
-        split(stopwatch & w) : watch(w) { watch.start(); }
-        ~split() { watch.stop(); }
     };
 
-    void start() {
-        if (current_state == state::paused) {
-            start_time = chronox::now();
-            current_state = state::running;
-            ++split_count;
-        }
-    }
+    state current_state;
 
-    duration stop() {
-        if (current_state == state::running) {
-            auto n = chronox::now() - start_time;
-            elapsed += n;
-            current_state = state::paused;
-            return n;
-        }
-        return duration(0);
-    }
+    /**
+     * Create a new stopwatch. Does not begin tracking elapsed time.
+     */
+    stopwatch();
+
+    /**
+     * Begin tracking elapsed time.
+     *
+     * Captures start_time and increments split_count.
+     * @pre state == stopped
+     */
+    void start();
+
+    /**
+     * Continue tracking elapsed time after a temporary suspension. Unlike {@link #start()},
+     * split_count is not incremented.
+     * @pre state == paused
+     */
+    void resume();
+
+    /**
+     * Temporarily suspend the tracking of elapsed time.
+     * @pre state == running
+     */
+    void pause();
+
+    /**
+     * Stop tracking time.
+     *
+     * @return how much time elapsed on the current split.
+     * @pre state == paused || state == running
+     */
+    duration stop();
+
+    /**
+     * Automatically start a stopwatch when a split is created, and stop it
+     * when it goes out of scope.
+     */
+    struct split {
+        stopwatch & watch;
+        split(stopwatch & w);
+        ~split();
+    };
 
 };
 
-}} // end namespace
+}}} // end namespace
+
+#include "core/time/stopwatch-inline.h"
 
 #endif // sentry
 

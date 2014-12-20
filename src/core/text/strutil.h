@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
+#include "core/text/str_view-fwd.h"
+
 namespace intent {
 namespace core {
 namespace text {
-
-struct sslice;
 
 char const * const ANY_WHITESPACE = " \t\r\n";
 char const * const LINE_WHITESPACE = " \t";
@@ -64,14 +64,14 @@ char const * scan_spaces_and_tabs(char const * p, char const * end);
 inline char const * consume_line_break(char const * p, char const * end);
 
 /**
- * Split a string into a vector of std::string or of sslice, depending on
+ * Split a string into a vector of std::string or of str_view, depending on
  * selected template.
  */
 template <typename T>
 std::vector<T> split(char const * p, char const * splitters);
 
 template <> std::vector<std::string> split(char const * p, char const * splitters);
-template <> std::vector<sslice> split(char const * p, char const * splitters);
+template <> std::vector<str_view> split(char const * p, char const * splitters);
 
 }}} // end namespace
 

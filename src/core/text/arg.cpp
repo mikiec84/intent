@@ -3,7 +3,7 @@
 #include <cstring>
 
 #include "core/text/arg.h"
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 
 using std::string;
 
@@ -72,15 +72,15 @@ int arg::snprintf(char * buf, size_t buflen, char const * format) const {
             return s->size();
         }
         return ::snprintf(buf, buflen, (format ? format : "%s"), s->c_str());
-    case vt_sslice:
+    case vt_str_view:
     {
-        size_t required_size = slice->size() + 1;
+        size_t required_size = slice->length + 1;
         // If we are just going to calculate a size instead of actually printing
         // something, don't bother calling snprintf(). This isn't just an optimization;
         // in one impl of snprintf, the observed behavior was that snprintf() took
-        // strlen() of the arg, which would be wrong for a non-null-terminated sslice.
+        // strlen() of the arg, which would be wrong for a non-null-terminated str_view.
         if (buflen < required_size) {
-            return slice->size();
+            return slice->length;
         }
         return ::snprintf(buf, required_size, (format ? format : "%s"),
                           (*slice ? slice->begin : ""));
@@ -100,8 +100,8 @@ string arg::to_string(char const * format) const {
         return "";
     case vt_str:
         return *str;
-    case vt_sslice:
-        return string(slice->begin, slice->end);
+    case vt_str_view:
+        return string(slice->begin, slice->length);
     case vt_path:
         return path->native();
     case vt_cstr:

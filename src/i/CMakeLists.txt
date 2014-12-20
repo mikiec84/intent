@@ -5,11 +5,9 @@ project(i)
 include(../../cmake/common.cmake)
 
 find_package(PCRE REQUIRED)
-find_package(CARES REQUIRED)
 include_directories(
     ..
     ${PCRE_INCLUDE_DIRS}
-    ${CARES_INCLUDE_DIRS}
 )
 
 file(GLOB SRC_LIST "*.cpp")

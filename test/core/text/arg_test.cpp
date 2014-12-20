@@ -2,14 +2,14 @@
 
 #include "core/text/arg.h"
 #include "core/util/countof.h"
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 
 #include "gtest/gtest.h"
 
 using namespace intent::core::text;
 
 const char * const txt = "abcxyz";
-sslice const slc(txt + 1, txt + 4); // bcx
+str_view const slc(txt + 1, txt + 4); // bcx
 boost::filesystem::path file("/root/subdir/x.txt");
 std::string str_arg("my string");
 

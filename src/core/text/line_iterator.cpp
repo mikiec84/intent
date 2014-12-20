@@ -11,9 +11,9 @@ line_iterator::line_iterator(char const * begin, char const * _end) {
         line.begin = begin;
         char const * p = find_any_char(begin, "\r\n", end);
         if (p != end) {
-            line.end = p;
+            line.end_at(p);
         } else {
-            line.end = end;
+            line.end_at(end);
         }
     } else {
         this->end = _end;
@@ -21,7 +21,7 @@ line_iterator::line_iterator(char const * begin, char const * _end) {
 }
 
 line_iterator & line_iterator::operator++() {
-    char const * p = line.end;
+    char const * p = line.end();
     if (p + 1 <= end) {
         if (p[0] == '\r') {
             if (p + 1 < end && p[1] == '\n') {
@@ -33,10 +33,10 @@ line_iterator & line_iterator::operator++() {
             ++p;
         }
         line.begin = p;
-        line.end = find_any_char(p, "\r\n", end);
+        line.end_at(find_any_char(p, "\r\n", end));
         return *this;
     }
-    line.begin = line.end = nullptr;
+    line.make_null();
     return *this;
 }
 

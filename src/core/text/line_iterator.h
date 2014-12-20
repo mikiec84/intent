@@ -1,7 +1,7 @@
 #ifndef intent_core_line_iterator_h
 #define intent_core_line_iterator_h
 
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 
 namespace intent {
 namespace core {
@@ -13,11 +13,11 @@ struct line_iterator {
     bool operator ==(line_iterator const & rhs) const { return line == rhs.line; }
     bool operator !=(line_iterator const & rhs) const { return !(*this == rhs); }
     operator bool() const { return line.operator bool(); }
-    sslice & operator *() { return line; }
-    sslice * operator ->() { return &line; }
+    str_view & operator *() { return line; }
+    str_view * operator ->() { return &line; }
     line_iterator & operator++();
 private:
-    sslice line;
+    str_view line;
     char const * end;
 };
 

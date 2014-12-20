@@ -5,7 +5,7 @@
 #include <memory>
 #include <boost/any.hpp>
 
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "lang/token_type.h"
 
 namespace intent {
@@ -18,7 +18,7 @@ class token {
 public:
     token();
     //token(token_type type, char const * begin, char const * end);
-    token(token_type type, intent::core::text::sslice const & slice);
+    token(token_type type, intent::core::text::str_view const & slice);
     ~token();
 
     token(token const & other);
@@ -29,7 +29,7 @@ public:
      */
     bool operator ==(token const & rhs) const;
 
-    intent::core::text::sslice substr;
+    intent::core::text::str_view substr;
     token_type type;
     boost::any value;
 };

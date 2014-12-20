@@ -13,7 +13,7 @@
 
 #include "lang/lexer.h"
 
-#include "../util/testutil.h"
+#include "helpers/testutil.h"
 #include "gtest/gtest.h"
 
 using std::string;
@@ -279,10 +279,11 @@ void verify_lex(path const & i, path const & csv, string & errors) {
             lexer::iterator lit = lex.begin();
             line_iterator it(csv_txt.c_str());
             while (it && lit) {
-                char const * p = find_char(it->begin, ',', it->end);
-                if (p != it->end) {
-                    sslice expected_token_type_name(it->begin, p);
-                    sslice expected_value(p + 1, it->end);
+                const auto end = it->end();
+                char const * p = find_char(it->begin, ',', end);
+                if (p != end) {
+                    str_view expected_token_type_name(it->begin, p);
+                    str_view expected_value(p + 1, end);
                     char const * actual_token_type_name = get_token_type_name(lit->type);
                     if (strcmp(expected_token_type_name, actual_token_type_name) != 0) {
                         complain(i, n, interp("expected token to be of type {1}, not {2}",

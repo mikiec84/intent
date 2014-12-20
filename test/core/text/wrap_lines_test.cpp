@@ -1,4 +1,4 @@
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/text/wrap_lines.h"
 
 #include "gtest/gtest.h"

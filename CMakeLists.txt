@@ -7,13 +7,13 @@ if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 endif ()
 
 # Include our own custom "find" modules.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 # Prefer static linking. We do this because it simplifies distribution, and it
 # makes our binaries less dependent and less likely to be influenced by what's
 # installed on target systems. The extra cost in file size does not seem like
 # a significant drawback.
-if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows"))
+if (NOT (${CMAKE_SYSTEM_NAME} STREQUAL "Windows" ))
     if (NOT ${CMAKE_BUILD_TYPE} MATCHES "sanitize-(memory|thread)")
         set(CMAKE_FIND_LIBRARY_SUFFIXES ".a" ${CMAKE_FIND_LIBRARY_SUFFIXES})
         list(REMOVE_DUPLICATES CMAKE_FIND_LIBRARY_SUFFIXES)

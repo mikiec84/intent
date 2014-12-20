@@ -26,7 +26,7 @@ const uint32_t EMPTY_INDENT_STACK = 0;
 lexer::lexer(char const * begin) : lexer(begin, begin ? strchr(begin, 0) : nullptr) {
 }
 
-lexer::lexer(sslice const & txt) : lexer(txt.begin, txt.end) {
+lexer::lexer(str_view const & txt) : lexer(txt.begin, txt.end()) {
 }
 
 lexer::lexer(char const * begin, char const * end) :
@@ -40,7 +40,7 @@ lexer::lexer(char const * begin, char const * end) :
         // indents and make sure advance() doesn't have to worry about them.
         // The beginning of the code is like any other line break, as far as
         // indenting is concerned, so we should do the same thing here.
-        t.substr.end = scan_beginning_of_line();
+        t.substr.end_at(scan_beginning_of_line());
         advance();
     }
 }
@@ -76,17 +76,18 @@ void lexer::push_indent(uint32_t new_indent_width) {
  *     and indents have been updated appropriately.
  */
 char const * lexer::scan_beginning_of_line() {
-    while (p < txt.end) {
+    const auto end = txt.end();
+    while (p < end) {
         ++line_number;
         line_begin = p;
-        char const * end_of_indent = scan_spaces_and_tabs(p, txt.end);
-        if (end_of_indent == txt.end) {
-            return txt.end;
+        char const * end_of_indent = scan_spaces_and_tabs(p, end);
+        if (end_of_indent == end) {
+            return end;
         }
         p = end_of_indent;
         char c = *p;
         if (is_line_break(c)) {
-            p = consume_line_break(p, txt.end);
+            p = consume_line_break(p, end);
         } else {
             // Found a line that's not empty. Look at its indent.
             uint32_t indent_width = get_indent_width(line_begin, end_of_indent,
@@ -122,10 +123,11 @@ uint32_t lexer::pop_indent() {
 }
 
 inline void lexer::scan_lt() {
-    if (p + 1 < txt.end) {
+    const auto end = txt.end();
+    if (p + 1 < end) {
         switch (p[1]) {
         case '<':
-            if (p + 2 < txt.end && p[2] == '=') {
+            if (p + 2 < end && p[2] == '=') {
                 p += 3;
                 t.type = tt_operator_lshift_equals;
             } else {
@@ -134,8 +136,8 @@ inline void lexer::scan_lt() {
             }
             return;
         case '=':
-            if (p + 2 < txt.end && p[2] == '>') {
-                if (p + 3 < txt.end && p[3] == '?') {
+            if (p + 2 < end && p[2] == '>') {
+                if (p + 3 < end && p[3] == '?') {
                     t.type = tt_operator_spaceshipq;
                     p += 4;
                 } else {
@@ -156,10 +158,11 @@ inline void lexer::scan_lt() {
 }
 
 inline void lexer::scan_gt() {
-    if (p + 1 < txt.end) {
+    const auto end = txt.end();
+    if (p + 1 < end) {
         switch (p[1]) {
         case '>':
-            if (p + 2 < txt.end && p[2] == '=') {
+            if (p + 2 < end && p[2] == '=') {
                 p += 3;
                 t.type = tt_operator_rshift_equals;
             } else {
@@ -177,11 +180,12 @@ inline void lexer::scan_gt() {
     }
     ++p;
     t.type = tt_operator_greater;
-    t.substr.end = p;
+    t.substr.end_at(p);
 }
 
 inline void lexer::scan_minus() {
-    if (p + 1 < txt.end) {
+    const auto end = txt.end();
+    if (p + 1 < end) {
         switch (p[1]) {
         case '>':
             p += 2;
@@ -197,7 +201,7 @@ inline void lexer::scan_minus() {
             return;
         default:
             if (isdigit(p[1])) {
-                get_number_token(p, txt.end, t);
+                get_number_token(p, end, t);
                 return;
             }
             break;
@@ -205,11 +209,12 @@ inline void lexer::scan_minus() {
     }
     ++p;
     t.type = tt_operator_minus;
-    t.substr.end = p;
+    t.substr.end_at(p);
 }
 
 inline void lexer::scan_plus() {
-    if (p + 1 < txt.end) {
+    const auto end = txt.end();
+    if (p + 1 < end) {
         switch (p[1]) {
         case '=':
             p += 2;
@@ -221,7 +226,7 @@ inline void lexer::scan_plus() {
             return;
         default:
             if (isdigit(p[1])) {
-                get_number_token(p, txt.end, t);
+                get_number_token(p, end, t);
                 return;
             }
             break;
@@ -229,11 +234,11 @@ inline void lexer::scan_plus() {
     }
     ++p;
     t.type = tt_operator_plus;
-    t.substr.end = p;
+    t.substr.end_at(p);
 }
 
 inline void lexer::scan_operator(char first) {
-    char second = p + 1 < txt.end ? p[1] : 0;
+    char second = p + 1 < txt.end() ? p[1] : 0;
     switch (first) {
     case ':':
         switch (second) {
@@ -252,18 +257,19 @@ inline void lexer::scan_operator(char first) {
         p += 1;
         break;
     }
-    t.substr.end = p;
+    t.substr.end_at(p);
 }
 
 inline void lexer::scan_q() {
-    if (p + 1 < txt.end) {
+    const auto end = txt.end();
+    if (p + 1 < end) {
         switch (p[1]) {
         case '.':
             p += 2;
             t.type = tt_operator_safe_dot;
             return;
         case '[':
-            if (p + 2 > txt.end && p[2] == '?') {
+            if (p + 2 > end && p[2] == '?') {
                 t.type = tt_operator_safe_subscript_safe_empty;
                 p += 3;
                 return;
@@ -276,7 +282,7 @@ inline void lexer::scan_q() {
             p += 2;
             return;
         case '<':
-            if (p + 3 > txt.end && p[2] == '=' && p[3] == '>') {
+            if (p + 3 > end && p[2] == '=' && p[3] == '>') {
                 t.type = tt_operator_qspaceship;
                 p += 4;
                 return;
@@ -296,7 +302,8 @@ bool lexer::advance() {
     // we report otherwise.
     t.type = tt_none;
     t.value = 0;
-    p = t.substr.begin = t.substr.end;
+    t.substr.end_at(t.substr.begin);
+    p = t.substr.begin;
 
     // Before we scan more text, emit any errors that we've already discovered.
     if (pending_error) {
@@ -324,20 +331,21 @@ bool lexer::advance() {
     }
 
     // If we've exhausted text, report that we can't advance anymore.
-    if (t.substr.begin >= txt.end) return false;
+    if (t.substr.is_empty()) return false;
 
+    const auto end = txt.end();
     switch (*p) {
     case 0:
         return false;
     case '\r':
-        if (p + 1 < txt.end && p[1] == '\n') ++p;
+        if (p + 1 < end && p[1] == '\n') ++p;
         // fall through; don't break
     case '\n':
-        if (++p < txt.end) {
+        if (++p < end) {
             // Find something besides new lines to look at.
-            t.substr.end = scan_beginning_of_line();
+            t.substr.end_at(scan_beginning_of_line());
         } else {
-            t.substr.end = txt.end;
+            t.substr.end_at(txt.end());
             // Force final dedents.
             indent_dedent_delta = -1 * static_cast<int>(total_indent_width);
         }
@@ -350,7 +358,7 @@ bool lexer::advance() {
         return advance();
     case '\t':
     case ' ':
-        t.substr.end = scan_spaces_and_tabs(p + 1, txt.end);
+        t.substr.end_at(scan_spaces_and_tabs(p + 1, end));
         return advance();
     case '<':
         scan_lt();
@@ -362,7 +370,7 @@ bool lexer::advance() {
         scan_q();
         break;
     case '[':
-        if (p + 1 < txt.end && p[1] == '?') {
+        if (p + 1 < end && p[1] == '?') {
             p += 2;
             t.type = tt_operator_safe_empty;
         } else {
@@ -388,7 +396,7 @@ bool lexer::advance() {
         if (t.type == tt_none) {
             t.type = tt_doc_comment;
         }
-        t.substr.end = get_comment_token();
+        t.substr.end_at(get_comment_token());
         break;
     case '"':
         get_quoted_string_token();
@@ -408,10 +416,10 @@ bool lexer::advance() {
             if (isalpha(c)) {
                 get_phrase_token();
             } else if (isdigit(c)) {
-                get_number_token(p, txt.end, t);
+                get_number_token(p, end, t);
             } else {
                 t.type = tt_error;
-                t.substr.end = p + 1;
+                t.substr.end_at(p + 1);
             }
         }
         break;
@@ -426,12 +434,13 @@ bool lexer::advance() {
 bool lexer::get_phrase_token() {
     string value;
     t.type = isupper(*p) ? tt_verb_phrase : tt_noun_phrase;
-    for (; p != txt.end; ++p) {
+    const auto end = txt.end();
+    for (; p != end; ++p) {
         char c = *p;
         if (isalnum(c) || c == '\'' || c == ' ') {
             value += c;
         } else if (is_line_break(c)) {
-            if (next_line_continues(consume_line_break(p, txt.end))) {
+            if (next_line_continues(consume_line_break(p, end))) {
                 value += ' ';
             }
             break;
@@ -439,7 +448,7 @@ bool lexer::get_phrase_token() {
             break;
         }
     }
-    t.substr.end = p;
+    t.substr.end_at(p);
     t.value = value;
     return true;
 }
@@ -454,7 +463,7 @@ bool lexer::next_line_continues(char const * beginning_of_next_line) {
     if (last_line_num + 1 != line_number || last_indent != total_indent_width) {
         return false;
     }
-    if (next + 3 >= txt.end || strncmp(next, "...", 3) != 0) {
+    if (next + 3 >= txt.end() || strncmp(next, "...", 3) != 0) {
         return false;
     }
     p = next + 3;
@@ -463,10 +472,11 @@ bool lexer::next_line_continues(char const * beginning_of_next_line) {
 
 char const * lexer::get_comment_token() {
     string value;
+    const auto end = txt.end();
     while (true) {
         ++p;
-        auto end_of_line = scan_rest_of_line(p, txt.end);
-        auto after_spaces = scan_spaces_and_tabs(p, txt.end);
+        auto end_of_line = scan_rest_of_line(p, end);
+        auto after_spaces = scan_spaces_and_tabs(p, end);
 //        if (after_spaces > p) {
 //            if (*p == ' ' && p)
 //        }
@@ -505,7 +515,8 @@ inline char const * scan_rest_of_line(char const * p, char const * end) {
  */
 char const * lexer::scan_quoted_string() {
     string value;
-    while (p < txt.end) {
+    const auto end = txt.end();
+    while (p < end){
         bool handled = false;
         char c = *p;
         if (c == '"') {
@@ -515,7 +526,7 @@ char const * lexer::scan_quoted_string() {
             codepoint_t cp;
             // TODO: tweak scan_unicode_escape_sequence() so it honors end.
             char const * seq_end = scan_unicode_escape_sequence(p + 1, cp);
-            if (cp != UNICODE_REPLACEMENT_CHAR && seq_end > p && seq_end <= txt.end) {
+            if (cp != UNICODE_REPLACEMENT_CHAR && seq_end > p && seq_end <= end) {
                 handled = true;
                 char buf[16];
                 size_t buf_length = sizeof(buf);
@@ -526,7 +537,7 @@ char const * lexer::scan_quoted_string() {
                 p = seq_end;
             }
         } else if (is_line_break(c)) {
-            if (next_line_continues(consume_line_break(p, txt.end))) {
+            if (next_line_continues(consume_line_break(p, end))) {
                 c = ' ';
             } else {
                 push_error(ii_unterminated_string_literal);
@@ -550,7 +561,7 @@ char const * lexer::scan_quoted_string() {
 bool lexer::get_quoted_string_token() {
     t.type = tt_quoted_string;
     ++p;
-    t.substr.end = scan_quoted_string();
+    t.substr.end_at(scan_quoted_string());
     return true;
 }
 
@@ -586,13 +597,13 @@ bool get_number_token(char const * p, char const * end, token & t) {
                 c = p[1];
                 token_type tt = tt_none;
                 if (c == 'x' || c == 'X') {
-                    t.substr.end = scan_hex_digits(p + 2, end, whole_number);
+                    t.substr.end_at(scan_hex_digits(p + 2, end, whole_number));
                     tt = tt_hex_number;
                 } else if (c == 'b' || c == 'B') {
-                    t.substr.end = scan_binary_digits(p + 2, end, whole_number);
+                    t.substr.end_at(scan_binary_digits(p + 2, end, whole_number));
                     tt = tt_binary_number;
                 } else if (c >= '0' && c <= '7') {
-                    t.substr.end = scan_octal_digits(p + 2, end, whole_number);
+                    t.substr.end_at(scan_octal_digits(p + 2, end, whole_number));
                     tt = tt_octal_number;
                 }
                 if (tt != tt_none) {
@@ -638,7 +649,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
         }
     }
 
-    t.substr.end = p;
+    t.substr.end_at(p);
     if (floating_point) {
         t.type = tt_floating_point_number;
         t.value = value;

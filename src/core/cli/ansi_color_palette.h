@@ -1,7 +1,7 @@
 #ifndef intent_core_ansi_color_palette_h
 #define intent_core_ansi_color_palette_h
 
-#include "core/text/sslice.h"
+#include "core/text/str_view.h"
 #include "core/util/thread_semantics.h"
 
 namespace intent {
@@ -50,7 +50,7 @@ public:
      *         error=10
      *         xref=7
      */
-    ansi_color_palette(intent::core::text::sslice const & spec);
+    ansi_color_palette(intent::core::text::str_view const & spec);
     ~ansi_color_palette();
 
     unsigned map_name(char const * name) const;

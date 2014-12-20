@@ -9,13 +9,11 @@ file(GLOB_RECURSE SRC_LIST "*.cpp")
 if (BUILD_TESTRUNNERS)
 
     find_package(PCRE REQUIRED)
-    find_package(CARES REQUIRED)
 
     include_directories(
         ../../src
         ${gtest_SOURCE_DIR}/include
         ${PCRE_INCLUDE_DIRS}
-        ${CARES_INCLUDE_DIRS}
     )
 
     add_executable(${PROJECT_NAME} ${SRC_LIST})
@@ -36,7 +34,6 @@ if (BUILD_TESTRUNNERS)
         gtest_main
         ${Boost_LIBRARIES}
         ${PCRE_LIBRARIES}
-        ${CARES_LIBRARIES}
     )
     add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
 else()
