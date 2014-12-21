@@ -10,6 +10,7 @@ namespace text {
 struct line_iterator {
     line_iterator() {}
     line_iterator(char const * begin, char const * end=nullptr);
+    line_iterator(str_view const & txt);
     bool operator ==(line_iterator const & rhs) const { return line == rhs.line; }
     bool operator !=(line_iterator const & rhs) const { return !(*this == rhs); }
     operator bool() const { return line.operator bool(); }

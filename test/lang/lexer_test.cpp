@@ -28,9 +28,6 @@ using namespace intent::core::io;
 using namespace intent::core::text;
 using namespace intent::lang;
 
-#define LOG() fprintf(stderr, "%s, line %d\n", __FILE__, __LINE__)
-#define LOG1(x) fprintf(stderr, "%s, line %d: %s\n", __FILE__, __LINE__, x)
-
 #define EXPECT_TOKEN_TYPE(ex, actual, i) \
     if (ex != actual) FAIL() << "Expected token[" << i << "] type to be " << get_token_type_name(ex) \
                << " instead of " << get_token_type_name(actual) << "."
@@ -109,27 +106,64 @@ TEST(lexer_test, indent_and_dedent) {
     }
 }
 
-// This used to hang because noun phrases didn't advance and got in an endless loop.
-// It also used to fail because the ':' operator wasn't handled. So, even though
-// it's a ridiculously simple test, it's a good canary-in-the-coal-mine.
-TEST(lexer_test, simple) {
-    char const * txt = "x: 3";
+void check_tokens(char const * txt, std::initializer_list<token_type> tokens) {
     lexer lex(txt);
     lexer::iterator lit = lex.begin();
-    unsigned i = 0;
-    for (int j = 0; j < 10; ++i, ++j) {
-        token_type tt = tt_noun_phrase;
-        switch (i) {
-        case 1: tt = tt_operator_define; break;
-        case 2: tt = tt_decimal_number; break;
-        }
-        EXPECT_TOKEN_TYPE(tt, lit->type, i);
+    unsigned i;
+    auto t = tokens.begin();
+    for (i = 0; i < 100u; ++i) {
+        EXPECT_TOKEN_TYPE(*t, lit->type, i);
         ++lit;
         if (!lit) {
             break;
         }
+        ++t;
+        if (!t) {
+            break;
+        }
     }
-    EXPECT_EQ(2U, i);
+    EXPECT_EQ(tokens.size(), i + 1);
+}
+
+void check_tokens_with_and_without_whitespace(char const * txt, std::initializer_list<token_type> tokens) {
+    check_tokens(txt, tokens);
+    string without_whitespace;
+    for (; *txt; ++txt) {
+        auto c = *txt;
+        if (c != ' ' && c != '\t') {
+            without_whitespace += c;
+        }
+    }
+    if (strlen(txt) > without_whitespace.size()) {
+        check_tokens(without_whitespace.c_str(), tokens);
+    }
+}
+
+// This used to hang because noun phrases didn't advance and got in an endless loop.
+// It also used to fail because the ':' operator wasn't handled. So, even though
+// it's a ridiculously simple test, it's a good canary-in-the-coal-mine.
+TEST(lexer_test, simple_def) {
+    check_tokens_with_and_without_whitespace("x: 3", {tt_noun_phrase, tt_operator_define, tt_decimal_number});
+}
+
+TEST(lexer_test, DISABLED_hyphenated_noun) {
+    check_tokens("left-handed batter: 2.4", {tt_noun_phrase, tt_operator_define, tt_floating_point_number});
+}
+
+TEST(lexer_test, greater) {
+    check_tokens_with_and_without_whitespace("a > b", {tt_noun_phrase, tt_operator_greater, tt_noun_phrase});
+}
+
+TEST(lexer_test, less) {
+    check_tokens_with_and_without_whitespace("a < b", {tt_noun_phrase, tt_operator_less, tt_noun_phrase});
+}
+
+TEST(lexer_test, greater_equal) {
+    check_tokens_with_and_without_whitespace("a >= b", {tt_noun_phrase, tt_operator_greater_equal, tt_noun_phrase});
+}
+
+TEST(lexer_test, less_equal) {
+    check_tokens_with_and_without_whitespace("a <= b", {tt_noun_phrase, tt_operator_less_equal, tt_noun_phrase});
 }
 
 TEST(lexer_test, quoted_string) {
@@ -206,19 +240,23 @@ TEST(lexer_test, DISABLED_malformed_numbers) {
 
 void complain(path const & p, unsigned n, string const & msg, string & errors) {
     if (!errors.empty()) {
-        errors += '\n';
+        errors += "\n\n";
     }
-    errors += interp("    {1}, token {2}: {3}.", {p.filename().c_str(), n, msg});
+    errors += interp("{1}, token {2}: {3}.", {p.filename().c_str(), n, msg});
 }
 
 static string get_any_as_string(boost::any const & value) {
-    if (value.empty()) return "<empty>";
-    auto & tid = typeid(value.type());
+    if (value.empty()) {
+        return "";
+    }
+    auto & tid = value.type();
     try {
+
         #define TRY(typ) \
         if (tid == typeid(typ)) { \
             return lexical_cast<string>(any_cast<typ>(value)); \
         }
+
         TRY(std::string)
         else TRY(int64_t)
         else TRY(double)
@@ -227,13 +265,18 @@ static string get_any_as_string(boost::any const & value) {
     return "<unrepresentable value>";
 }
 
+// Track all errors found during a given comparison. If any, emit the errors
+// and save the full output of the lexer to a file for human post-mortem.
 struct token_dumper {
+
     path const & i;
     string & errors;
     size_t initial_error_size;
+
     token_dumper(path const & i, string & errors): i(i), errors(errors),
         initial_error_size(errors.size()) {
     }
+
     ~token_dumper() {
         if (errors.size() > initial_error_size) {
             path final_path;
@@ -253,45 +296,65 @@ struct token_dumper {
                     }
                 }
             }
-            path x_path = temp_directory_path() / i.filename() / ".tmp";
+            path x_path = temp_directory_path();
+            x_path /= path(i.filename().string() + ".lex");
             if (exists(x_path)) {
                 try {
                     boost::filesystem::remove(x_path);
-                    boost::filesystem::rename(final_path, x_path);
-                    final_path = x_path;
                 } catch (...) {
                 }
             }
-            errors += interp("        -- lexed output written to {1}.", {final_path});
+            if (!exists(x_path)) {
+                boost::filesystem::rename(final_path, x_path);
+                final_path = x_path;
+            }
+            if (initial_error_size == 0) {
+                errors = interp("For human post-mortem, lexer output has been saved in this temp folder:\n  {1}\n\n",
+                    {final_path.parent_path().c_str()}) + errors;
+            }
+            errors += interp("\n  -- see lexer output in <temp>/{1}.", {
+                    final_path.filename()});
         }
     }
 };
 
 void verify_lex(path const & i, path const & csv, string & errors) {
-    LOG1(i.c_str());
     string i_txt = read_text_file(i);
     if (i_txt.size() > 0) {
+
+        // Dump all lexed tokens to a file, and emit all errors together, if
+        // anything doesn't look correct in the current analysis. (This object
+        // does its work by examining the errors that have accumulated by the
+        // end of its lifetime.)
         token_dumper td(i, errors);
+
         string csv_txt = read_text_file(csv);
         if (csv_txt.size() > 0) {
+
             unsigned n = 1;
-            lexer lex(i_txt.c_str());
-            lexer::iterator lit = lex.begin();
-            line_iterator it(csv_txt.c_str());
-            while (it && lit) {
-                const auto end = it->end();
-                char const * p = find_char(it->begin, ',', end);
+            lexer lex(i_txt);
+            lexer::iterator lex_it = lex.begin();
+            line_iterator csv_it(csv_txt);
+
+            while (csv_it && lex_it) {
+
+                const auto end = csv_it->end();
+                char const * p = find_char(csv_it->begin, ',', end);
                 if (p != end) {
-                    str_view expected_token_type_name(it->begin, p);
-                    str_view expected_value(p + 1, end);
-                    char const * actual_token_type_name = get_token_type_name(lit->type);
+
+                    str_view expected_token_type_name(csv_it->begin, p);
+                    char const * actual_token_type_name = get_token_type_name(lex_it->type);
+
                     if (strcmp(expected_token_type_name, actual_token_type_name) != 0) {
                         complain(i, n, interp("expected token to be of type {1}, not {2}",
                                               {expected_token_type_name,
                                               actual_token_type_name} ), errors);
                         break;
                     }
-                    string actual_value = get_any_as_string(lit->value);
+
+                    str_view expected_value(p + 1, end);
+                    string actual_value = get_any_as_string(lex_it->value);
+
                     if (strcmp(expected_value, actual_value.c_str()) != 0) {
                         complain(i, n, interp("expected token to have value \"{1}\", not \"{2}\"",
                                               {expected_value,
@@ -303,14 +366,15 @@ void verify_lex(path const & i, path const & csv, string & errors) {
                     break;
                 }
                 ++n;
-                ++it;
-                ++lit;
+                ++csv_it;
+                ++lex_it;
             }
+
             if (errors.empty()) {
-                if (it) {
+                if (csv_it) {
                     complain(i, n, interp("ran out of tokens before {1} ended",
                         {csv.filename().c_str()}), errors);
-                } else if (lit) {
+                } else if (lex_it) {
                     complain(i, n, interp("kept generating tokens though {1} ended",
                         {csv.filename().c_str()}), errors);
                 }
@@ -338,8 +402,7 @@ TEST(lexer_test, DISABLED_samples) {
             }
         }
     }
-    LOG();
     if (!errors.empty()) {
-        ADD_FAILURE() << interp("Not all samples in {1} lexed correctly.\n{2}", {data_folder, errors});
+        FAIL() << interp("\nNot all samples in {1} lexed correctly.\n\n{2}", {data_folder, errors});
     }
 }

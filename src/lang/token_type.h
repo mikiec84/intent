@@ -9,7 +9,7 @@ namespace lang {
  * according to its associativity. For example x = y = z = 17 is treated as
  * x = (y = (z = 17)), leaving all three variables with the value 17, since
  * the = operator has right-to-left associativity (and an assignment statement
- * evaluates to the value on the right hand side). On the other hand,
+ * evaluates to the value on the right-hand side). On the other hand,
  * 72 / 2 / 3 is treated as (72 / 2) / 3 since the / operator has left-to-
  * right associativity.
  */

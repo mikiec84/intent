@@ -5,6 +5,9 @@ namespace intent {
 namespace core {
 namespace text {
 
+line_iterator::line_iterator(str_view const & txt): line_iterator(txt.begin, txt.end()) {
+}
+
 line_iterator::line_iterator(char const * begin, char const * _end) {
     if (begin) {
         end = (_end == nullptr) ? strchr(begin, 0) : _end;

@@ -135,7 +135,7 @@ inline void lexer::scan_lt() {
                 p += 2;
                 t.type = tt_operator_lshift;
             }
-            return;
+            break;
         case '=':
             if (p + 2 < end && p[2] == '>') {
                 if (p + 3 < end && p[3] == '?') {
@@ -145,17 +145,18 @@ inline void lexer::scan_lt() {
                     t.type = tt_operator_spaceship;
                     p += 3;
                 }
-                return;
+            } else {
+                p += 2;
+                t.type = tt_operator_less_equal;
             }
-            p += 2;
-            t.type = tt_operator_less_equal;
-            return;
+            break;
         default:
+            ++p;
+            t.type = tt_operator_less;
             break;
         }
     }
-    ++p;
-    t.type = tt_operator_less;
+    t.substr.end_at(p);
 }
 
 inline void lexer::scan_gt() {
@@ -170,17 +171,17 @@ inline void lexer::scan_gt() {
                 p += 2;
                 t.type = tt_operator_rshift;
             }
-            return;
+            break;
         case '=':
             p += 2;
             t.type = tt_operator_greater_equal;
-            return;
+            break;
         default:
+            ++p;
+            t.type = tt_operator_greater;
             break;
         }
     }
-    ++p;
-    t.type = tt_operator_greater;
     t.substr.end_at(p);
 }
 
@@ -302,7 +303,7 @@ bool lexer::advance() {
     // Reset state so we report invalid, zero-width token unless/until we
     // discover something different.
     t.type = tt_none;
-    t.value = 0;
+    t.value = boost::any();
     t.substr.begin_at(t.substr.end());
     p = t.substr.begin;
 
@@ -478,9 +479,6 @@ char const * lexer::get_comment_token() {
         ++p;
         auto end_of_line = scan_rest_of_line(p, end);
         auto after_spaces = scan_spaces_and_tabs(p, end);
-//        if (after_spaces > p) {
-//            if (*p == ' ' && p)
-//        }
         if (after_spaces < end_of_line) {
             auto rtrim_result = rtrim(after_spaces, end_of_line);
             if (!value.empty()) {
