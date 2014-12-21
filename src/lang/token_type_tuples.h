@@ -47,8 +47,8 @@ TUPLE( 0x00002403, duration, "5h3m2s", "" )
 
 // comments
 TUPLE( 0x00004000, comment_mask, "", "" )
-TUPLE( 0x00004001, private_comment, "#", "" )
-TUPLE( 0x00004002, doc_comment, "|", "" )
+TUPLE( 0x00004001, comment, "#", "" )
+TUPLE( 0x00004002, doc_comment, "###", "" )
 TUPLE( 0x00004003, heredoc, "", "" )
 TUPLE( 0x00004004, explanation, "", "" )
 

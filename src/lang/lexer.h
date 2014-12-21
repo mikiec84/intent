@@ -76,6 +76,7 @@ private:
     void scan_percent();
     void scan_backslash();
     bool scan_quote();
+    void scan_hash();
 
     void consume(unsigned char_count, token_type tt);
     char const * get_comment_token();

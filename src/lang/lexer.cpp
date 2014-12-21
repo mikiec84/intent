@@ -203,6 +203,9 @@ inline void lexer::scan_minus() {
     const auto end = txt.end();
     if (p + 1 < end) {
         switch (p[1]) {
+        case '-':
+            consume(2, tt_operator_decrement);
+            return;
         case '>':
             consume(2, tt_operator_cast);
             return;
@@ -227,6 +230,9 @@ inline void lexer::scan_plus() {
     const auto end = txt.end();
     if (p + 1 < end) {
         switch (p[1]) {
+        case '+':
+            consume(2, tt_operator_increment);
+            return;
         case '=':
             consume(2, tt_operator_plus_equals);
             return;
@@ -341,11 +347,28 @@ inline void lexer::scan_bang() {
         case '=':
             consume(2, tt_operator_not_equal);
             return;
+        case '-':
+            if (p + 2 < end && p[2] == '[') {
+                consume(3, tt_operator_not_in);
+                return;
+            }
+            break;
         default:
             break;
         }
     }
     consume(1, tt_operator_bool_not);
+}
+
+inline void lexer::scan_hash() {
+    const auto end = txt.end();
+    if (p + 2 < end && p[1] == '#' && p[2] == '#') {
+        p += 2;
+        t.type = tt_doc_comment;
+    } else {
+        t.type = tt_comment;
+    }
+    t.substr.end_at(get_comment_token());
 }
 
 inline void lexer::scan_pipe() {
@@ -554,14 +577,8 @@ bool lexer::advance() {
     case '^':
         scan_caret();
         break;
-    case ';':
-        t.type = tt_private_comment;
-        // Do not break
     case '#':
-        if (t.type == tt_none) {
-            t.type = tt_doc_comment;
-        }
-        t.substr.end_at(get_comment_token());
+        scan_hash();
         break;
     case '"':
     case '\'':

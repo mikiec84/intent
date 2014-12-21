@@ -1,4 +1,4 @@
-| A +shadowed property is one that has a public getter and (optional) setter,
+### A +shadowed property is one that has a public getter and (optional) setter,
 ... but that is backed by some kind of internal storage.
 shadowed: mark
 

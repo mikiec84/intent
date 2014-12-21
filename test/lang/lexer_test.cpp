@@ -68,31 +68,30 @@ TEST(lexer_test, backtick_string_literal) {
     test_unterminated_string_literal('`');
 }
 
-void test_wrapped_comment(char comment_char) {
+void test_wrapped_comment(token_type comment_type) {
     string comment = "  # this is a comment\n"
                      "  ... that spans multiple\n"
                      "  ... lines.\n"
                      "  x = 3";
-    comment[2] = comment_char;
+    if (comment_type == tt_doc_comment) {
+        comment[0] = comment[1] = '#';
+        comment = "  " + comment;
+    }
     lexer lex(comment);
     auto it = lex.begin();
     ASSERT_EQ(tt_indent, it->type);
     ++it;
-    if (comment_char == '#') {
-        ASSERT_EQ(tt_doc_comment, it->type);
-    } else {
-        ASSERT_EQ(tt_private_comment, it->type);
-    }
+    ASSERT_EQ(comment_type, it->type);
     string const & v = any_cast<string const &>(it->value);
     ASSERT_STREQ("this is a comment that spans multiple lines.", v.c_str());
 }
 
-TEST(lexer_test, wrapped_public_comment) {
-    test_wrapped_comment('#');
+TEST(lexer_test, wrapped_doc_comment) {
+    test_wrapped_comment(tt_doc_comment);
 }
 
 TEST(lexer_test, wrapped_private_comment) {
-    test_wrapped_comment(';');
+    test_wrapped_comment(tt_comment);
 }
 
 TEST(lexer_test, indent_and_dedent) {
@@ -228,6 +227,14 @@ TEST(lexer_test, plus) {
 
 TEST(lexer_test, minus) {
     check_operator_between("-", tt_operator_minus);
+}
+
+TEST(lexer_test, increment) {
+    check_operator_between("++", tt_operator_increment);
+}
+
+TEST(lexer_test, decrement) {
+    check_operator_between("--", tt_operator_decrement);
 }
 
 TEST(lexer_test, cast) {
@@ -372,6 +379,10 @@ TEST(lexer_test, comma) {
 
 TEST(lexer_test, in) {
     check_operator_between("-[", tt_operator_in);
+}
+
+TEST(lexer_test, not_in) {
+    check_operator_between("!-[", tt_operator_not_in);
 }
 
 TEST(lexer_test, instance_of) {
