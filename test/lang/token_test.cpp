@@ -46,7 +46,7 @@ TEST(token_test, is_date_literal) {
 }
 
 TEST(token_test, is_operator) {
-    prove_correct(is_operator, tt_operator_mask, tt_operator_rshift_equals);
+    prove_correct(is_operator, tt_operator_mask, tt_operator_comma);
 }
 
 TEST(token_test, get_token_type_from_name) {

@@ -57,18 +57,32 @@ private:
 
     void push_error(issue_id);
     bool advance();
+
     void scan_lt();
     void scan_gt();
-    void scan_q();
+    void scan_question();
     void scan_minus();
     void scan_plus();
-    void scan_operator(char first);
+    void scan_dot();
+    void scan_brace();
+    void scan_colon();
+    void scan_star();
+    void scan_slash();
+    void scan_amper();
+    void scan_equals();
+    void scan_bang();
+    void scan_pipe();
+    void scan_caret();
+    void scan_percent();
+    void scan_backslash();
+    bool scan_quote();
+
+    void consume(unsigned char_count, token_type tt);
     char const * get_comment_token();
     char get_indent_char() const;
     bool get_phrase_token();
-    bool get_quoted_string_token();
     bool next_line_continues(char const * beginning_of_next_line);
-    char const * scan_quoted_string();
+    char const * get_string_literal(char c);
     char const * scan_beginning_of_line();
     void push_indent(uint32_t new_indent_width);
     uint32_t pop_indent();

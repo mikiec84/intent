@@ -129,34 +129,36 @@ inline void lexer::scan_lt() {
         switch (p[1]) {
         case '<':
             if (p + 2 < end && p[2] == '=') {
-                p += 3;
-                t.type = tt_operator_lshift_equals;
+                consume(3, tt_operator_lshift_equals);
             } else {
-                p += 2;
-                t.type = tt_operator_lshift;
+                consume(2, tt_operator_lshift);
             }
-            break;
+            return;
         case '=':
             if (p + 2 < end && p[2] == '>') {
                 if (p + 3 < end && p[3] == '?') {
-                    t.type = tt_operator_spaceshipq;
-                    p += 4;
+                    consume(4, tt_operator_spaceshipq);
                 } else {
-                    t.type = tt_operator_spaceship;
-                    p += 3;
+                    consume(3, tt_operator_spaceship);
                 }
             } else {
-                p += 2;
-                t.type = tt_operator_less_equal;
+                consume(2, tt_operator_less_equal);
             }
-            break;
+            return;
         default:
-            ++p;
-            t.type = tt_operator_less;
             break;
         }
     }
-    t.substr.end_at(p);
+    consume(1, tt_operator_less);
+}
+
+inline void lexer::scan_brace() {
+    const auto end = txt.end();
+    if (p + 1 < end && p[1] == '?') {
+        consume(2, tt_operator_safe_empty);
+    } else {
+        consume(1, tt_operator_brace);
+    }
 }
 
 inline void lexer::scan_gt() {
@@ -164,25 +166,37 @@ inline void lexer::scan_gt() {
     if (p + 1 < end) {
         switch (p[1]) {
         case '>':
-            if (p + 2 < end && p[2] == '=') {
-                p += 3;
-                t.type = tt_operator_rshift_equals;
-            } else {
-                p += 2;
-                t.type = tt_operator_rshift;
+            if (p + 2 < end) {
+                if (p[2] == '=') {
+                    consume(3, tt_operator_rshift_equals);
+                    return;
+                } else if (p[2] == '>') {
+                    consume(3, tt_operator_unsigned_rshift);
+                    return;
+                }
             }
-            break;
+            consume(2, tt_operator_rshift);
+            return;
         case '=':
-            p += 2;
-            t.type = tt_operator_greater_equal;
-            break;
+            consume(2, tt_operator_greater_equal);
+            return;
         default:
-            ++p;
-            t.type = tt_operator_greater;
             break;
         }
     }
-    t.substr.end_at(p);
+    consume(1, tt_operator_greater);
+}
+
+inline void lexer::scan_dot() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        auto c = p[1];
+        if (isdigit(c)) {
+            get_number_token(p, end, t);
+            return;
+        }
+    }
+    consume(1, tt_operator_dot);
 }
 
 inline void lexer::scan_minus() {
@@ -190,16 +204,13 @@ inline void lexer::scan_minus() {
     if (p + 1 < end) {
         switch (p[1]) {
         case '>':
-            p += 2;
-            t.type = tt_operator_cast;
+            consume(2, tt_operator_cast);
             return;
         case '=':
-            p += 2;
-            t.type = tt_operator_minus_equals;
+            consume(2, tt_operator_minus_equals);
             return;
-        case '?':
-            p += 2;
-            t.type = tt_operator_implied_negative_mark;
+        case '[':
+            consume(2, tt_operator_in);
             return;
         default:
             if (isdigit(p[1])) {
@@ -209,9 +220,7 @@ inline void lexer::scan_minus() {
             break;
         }
     }
-    ++p;
-    t.type = tt_operator_minus;
-    t.substr.end_at(p);
+    consume(1, tt_operator_minus);
 }
 
 inline void lexer::scan_plus() {
@@ -219,12 +228,7 @@ inline void lexer::scan_plus() {
     if (p + 1 < end) {
         switch (p[1]) {
         case '=':
-            p += 2;
-            t.type = tt_operator_plus_equals;
-            return;
-        case '?':
-            p += 2;
-            t.type = tt_operator_implied_positive_mark;
+            consume(2, tt_operator_plus_equals);
             return;
         default:
             if (isdigit(p[1])) {
@@ -234,59 +238,188 @@ inline void lexer::scan_plus() {
             break;
         }
     }
-    ++p;
-    t.type = tt_operator_plus;
-    t.substr.end_at(p);
+    consume(1, tt_operator_plus);
 }
 
-inline void lexer::scan_operator(char first) {
-    char second = p + 1 < txt.end() ? p[1] : 0;
-    switch (first) {
-    case ':':
-        switch (second) {
+inline void lexer::scan_colon() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
         case '=':
-            t.type = tt_operator_gets;
-            p += 2;
-            break;
+            consume(2, tt_operator_gets);
+            return;
+        case ':':
+            consume(2, tt_operator_instance_of);
+            return;
         default:
-            t.type = tt_operator_define;
-            p += 1;
             break;
         }
-        break;
-    default:
-        t.type = tt_error;
-        p += 1;
-        break;
     }
-    t.substr.end_at(p);
+    consume(1, tt_operator_colon);
 }
 
-inline void lexer::scan_q() {
+inline void lexer::scan_star() {
     const auto end = txt.end();
     if (p + 1 < end) {
         switch (p[1]) {
         case '.':
-            p += 2;
-            t.type = tt_operator_safe_dot;
+            consume(2, tt_operator_spread);
+            return;
+        case '=':
+            consume(2, tt_operator_times_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_star);
+}
+
+inline void lexer::scan_slash() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '=':
+            consume(2, tt_operator_divide_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_slash);
+}
+
+inline void lexer::scan_backslash() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '-':
+            consume(2, tt_operator_negative_mark);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_mark);
+}
+
+inline void lexer::scan_amper() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '&':
+            consume(2, tt_operator_bool_and);
+            return;
+        case '=':
+            consume(2, tt_operator_bit_and_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_bit_and);
+}
+
+inline void lexer::scan_equals() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '=':
+            consume(2, tt_operator_bool_equal);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_assign_equals);
+}
+
+inline void lexer::scan_bang() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '=':
+            consume(2, tt_operator_not_equal);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_bool_not);
+}
+
+inline void lexer::scan_pipe() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '|':
+            consume(2, tt_operator_bool_or);
+            return;
+        case '=':
+            consume(2, tt_operator_bit_or_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_bit_or);
+}
+
+inline void lexer::scan_caret() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '=':
+            consume(2, tt_operator_bit_xor_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_bit_xor);
+}
+
+inline void lexer::scan_percent() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '=':
+            consume(2, tt_operator_mod_equals);
+            return;
+        default:
+            break;
+        }
+    }
+    consume(1, tt_operator_mod);
+}
+
+inline void lexer::scan_question() {
+    const auto end = txt.end();
+    if (p + 1 < end) {
+        switch (p[1]) {
+        case '.':
+            consume(2, tt_operator_safe_dot);
             return;
         case '[':
-            if (p + 2 > end && p[2] == '?') {
-                t.type = tt_operator_safe_subscript_safe_empty;
-                p += 3;
-                return;
+            if (p + 2 < end && p[2] == '?') {
+                consume(3, tt_operator_safe_subscript_safe_empty);
+            } else {
+                consume(2, tt_operator_safe_subscript);
             }
-            t.type = tt_operator_safe_subscript;
-            p += 2;
+            return;
+        case '\\':
+            if (p + 2 < end && p[2] == '-') {
+                consume(3, tt_operator_tentative_negative_mark);
+            } else {
+                consume(2, tt_operator_tentative_mark);
+            }
             return;
         case ':':
-            t.type = tt_operator_elvis;
-            p += 2;
+            consume(2, tt_operator_elvis);
             return;
         case '<':
-            if (p + 3 > end && p[2] == '=' && p[3] == '>') {
-                t.type = tt_operator_qspaceship;
-                p += 4;
+            if (p + 3 < end && p[2] == '=' && p[3] == '>') {
+                consume(4, tt_operator_qspaceship);
                 return;
             }
             break;
@@ -294,8 +427,13 @@ inline void lexer::scan_q() {
             break;
         }
     }
-    ++p;
-    t.type = tt_operator_greater;
+    consume(1, tt_operator_ternary);
+}
+
+inline void lexer::consume(unsigned char_count, token_type tt) {
+    p += char_count;
+    t.type = tt;
+    t.substr.end_at(p);
 }
 
 bool lexer::advance() {
@@ -369,39 +507,66 @@ bool lexer::advance() {
         scan_gt();
         break;
     case '?':
-        scan_q();
+        scan_question();
+        break;
+    case '\\':
+        scan_backslash();
+        break;
+    case '.':
+        scan_dot();
+        break;
+    case '=':
+        scan_equals();
+        break;
+    case '~':
+        consume(1, tt_operator_bit_not);
         break;
     case '[':
-        if (p + 1 < end && p[1] == '?') {
-            p += 2;
-            t.type = tt_operator_safe_empty;
-        } else {
-            ++p;
-            t.type = tt_operator_subscript;
-        }
+        scan_brace();
         break;
     case ']':
-        ++p;
-        t.type = tt_operator_subscript_end;
+        consume(1, tt_operator_close_brace);
+        break;
     case '(':
-        t.type = tt_operator_group;
-        ++p;
-        return true;
+        consume(1, tt_operator_paren);
+        break;
     case ')':
-        t.type = tt_operator_ungroup;
-        ++p;
-        return true;
-    case '#':
+        consume(1, tt_operator_close_paren);
+        break;
+    case '/':
+        scan_slash();
+        break;
+    case '%':
+        scan_percent();
+        break;
+    case '*':
+        scan_star();
+        break;
+    case '&':
+        scan_amper();
+        break;
+    case '!':
+        scan_bang();
+        break;
+    case '|':
+        scan_pipe();
+        break;
+    case '^':
+        scan_caret();
+        break;
+    case ';':
         t.type = tt_private_comment;
         // Do not break
-    case '|':
+    case '#':
         if (t.type == tt_none) {
             t.type = tt_doc_comment;
         }
         t.substr.end_at(get_comment_token());
         break;
     case '"':
-        get_quoted_string_token();
+    case '\'':
+    case '`':
+        scan_quote();
         break;
     case '-':
         scan_minus();
@@ -410,7 +575,10 @@ bool lexer::advance() {
         scan_plus();
         break;
     case ':':
-        scan_operator(*p);
+        scan_colon();
+        break;
+    case ',':
+        consume(1, tt_operator_comma);
         break;
     default:
         {
@@ -435,7 +603,7 @@ bool lexer::advance() {
  */
 bool lexer::get_phrase_token() {
     string value;
-    t.type = isupper(*p) ? tt_verb_phrase : tt_noun_phrase;
+    t.type = isupper(*p) ? tt_verb : tt_noun;
     const auto end = txt.end();
     for (; p != end; ++p) {
         char c = *p;
@@ -512,13 +680,13 @@ inline char const * scan_rest_of_line(char const * p, char const * end) {
  *     breaks without seeing a continuation.
  * @post t.value contains the normalized content of quoted str
  */
-char const * lexer::scan_quoted_string() {
+char const * lexer::get_string_literal(char ch) {
     string value;
     const auto end = txt.end();
     while (p < end){
         bool handled = false;
         char c = *p;
-        if (c == '"') {
+        if (c == ch) {
             ++p;
             break;
         } else if (c == '\\') {
@@ -557,10 +725,10 @@ char const * lexer::scan_quoted_string() {
  * @post p points to first char after terminating quote
  * @return true if able to get quoted string
  */
-bool lexer::get_quoted_string_token() {
+bool lexer::scan_quote() {
     t.type = tt_quoted_string;
-    ++p;
-    t.substr.end_at(scan_quoted_string());
+    const auto c = *p++;
+    t.substr.end_at(get_string_literal(c));
     return true;
 }
 
@@ -588,6 +756,12 @@ bool get_number_token(char const * p, char const * end, token & t) {
         c = *++p;
     }
 
+    // There are several ways that we can discover that we're dealing with
+    // a floating point number. The most common is to see a decimal point in
+    // a string like "3.14". But we can also see a number that *starts* with a
+    // decimal point, or we can see a number with no decimal point but an
+    // exponent. Start out assuming no floating point unless we see decimal
+    // point...
     bool floating_point = (c == '.');
 
     if (!floating_point) {
@@ -617,7 +791,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
 
     double significand, value;
 
-    if (!floating_point && p < end && *p == '.') {
+    if (floating_point || (t.type == tt_none && p < end && *p == '.')) {
         floating_point = true;
         p = scan_decimal_digits_post_radix(++p, end, significand);
     } else {

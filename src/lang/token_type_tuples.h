@@ -9,8 +9,8 @@ TUPLE( 0x00000002, indent, "\t", "increase nesting" )
 TUPLE( 0x00000003, dedent, "\x08", "decrease nesting" )
 TUPLE( 0x00000004, line_break, "\n", "separate one line from another" )
 TUPLE( 0x00000005, soft_break, "... ", "continue current statement on new line" )
-TUPLE( 0x00000006, noun_phrase, "foo", "" )
-TUPLE( 0x00000007, verb_phrase, "Do something", "" )
+TUPLE( 0x00000006, noun, "foo", "" )
+TUPLE( 0x00000007, verb, "Do something", "" )
 
 // keywords
 TUPLE( 0x00001000, keyword_mask, "", "" )

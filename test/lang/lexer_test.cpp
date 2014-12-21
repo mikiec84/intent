@@ -32,9 +32,10 @@ using namespace intent::lang;
     if (ex != actual) FAIL() << "Expected token[" << i << "] type to be " << get_token_type_name(ex) \
                << " instead of " << get_token_type_name(actual) << "."
 
-TEST(lexer_test, unterminated_string_literal) {
-    lexer lex("\"abc\n"
-              "xyz");
+void test_unterminated_string_literal(char delim) {
+    string literal("-abc\nxyz");
+    literal[0] = delim;
+    lexer lex(literal);
     auto it = lex.begin();
     ASSERT_EQ(tt_quoted_string, it->type);
     string v = any_cast<string>(it->value);
@@ -50,23 +51,48 @@ TEST(lexer_test, unterminated_string_literal) {
     ASSERT_STREQ(expected.c_str(), v.c_str());
     // Now prove that we resume in the correct state
     ++it;
-    ASSERT_EQ(tt_noun_phrase, it->type);
+    ASSERT_EQ(tt_noun, it->type);
     v = any_cast<string>(it->value);
     ASSERT_STREQ("xyz", v.c_str());
 }
 
-TEST(lexer_test, wrapped_comment) {
-    lexer lex("  | this is a comment\n"
-              "  ... that spans multiple\n"
-              "  ... lines.\n"
-              "  x = 3"
-                );
+TEST(lexer_test, double_quote_string_literal) {
+    test_unterminated_string_literal('"');
+}
+
+TEST(lexer_test, single_quote_string_literal) {
+    test_unterminated_string_literal('\'');
+}
+
+TEST(lexer_test, backtick_string_literal) {
+    test_unterminated_string_literal('`');
+}
+
+void test_wrapped_comment(char comment_char) {
+    string comment = "  # this is a comment\n"
+                     "  ... that spans multiple\n"
+                     "  ... lines.\n"
+                     "  x = 3";
+    comment[2] = comment_char;
+    lexer lex(comment);
     auto it = lex.begin();
     ASSERT_EQ(tt_indent, it->type);
     ++it;
-    ASSERT_EQ(tt_doc_comment, it->type);
+    if (comment_char == '#') {
+        ASSERT_EQ(tt_doc_comment, it->type);
+    } else {
+        ASSERT_EQ(tt_private_comment, it->type);
+    }
     string const & v = any_cast<string const &>(it->value);
     ASSERT_STREQ("this is a comment that spans multiple lines.", v.c_str());
+}
+
+TEST(lexer_test, wrapped_public_comment) {
+    test_wrapped_comment('#');
+}
+
+TEST(lexer_test, wrapped_private_comment) {
+    test_wrapped_comment(';');
 }
 
 TEST(lexer_test, indent_and_dedent) {
@@ -139,31 +165,257 @@ void check_tokens_with_and_without_whitespace(char const * txt, std::initializer
     }
 }
 
+void check_operator_between(char const * op, token_type tt) {
+    string expr("a ");
+    expr += op;
+    expr += " b";
+    check_tokens_with_and_without_whitespace(expr.c_str(), {tt_noun, tt, tt_noun});
+    // Truncate so no characters follow operator. Should still be recognized.
+    expr = expr.substr(0, expr.size() - 2);
+    check_tokens(expr.c_str(), {tt_noun, tt});
+}
+
 // This used to hang because noun phrases didn't advance and got in an endless loop.
 // It also used to fail because the ':' operator wasn't handled. So, even though
 // it's a ridiculously simple test, it's a good canary-in-the-coal-mine.
 TEST(lexer_test, simple_def) {
-    check_tokens_with_and_without_whitespace("x: 3", {tt_noun_phrase, tt_operator_define, tt_decimal_number});
+    check_tokens_with_and_without_whitespace("x: 3", {tt_noun, tt_operator_colon, tt_decimal_number});
+}
+
+TEST(lexer_test, floating_point_with_initial_dot) {
+    check_tokens_with_and_without_whitespace("x: .3", {tt_noun, tt_operator_colon, tt_floating_point_number});
 }
 
 TEST(lexer_test, DISABLED_hyphenated_noun) {
-    check_tokens("left-handed batter: 2.4", {tt_noun_phrase, tt_operator_define, tt_floating_point_number});
+    check_tokens("left-handed batter: 2.4", {tt_noun, tt_operator_colon, tt_floating_point_number});
+}
+
+TEST(lexer_test, colon) {
+    check_operator_between(":", tt_operator_colon);
+}
+
+TEST(lexer_test, gets) {
+    check_operator_between(":=", tt_operator_gets);
+}
+
+TEST(lexer_test, ternary) {
+    check_operator_between("?", tt_operator_ternary);
+}
+
+TEST(lexer_test, elvis) {
+    check_operator_between("?:", tt_operator_elvis);
 }
 
 TEST(lexer_test, greater) {
-    check_tokens_with_and_without_whitespace("a > b", {tt_noun_phrase, tt_operator_greater, tt_noun_phrase});
+    check_operator_between(">", tt_operator_greater);
 }
 
 TEST(lexer_test, less) {
-    check_tokens_with_and_without_whitespace("a < b", {tt_noun_phrase, tt_operator_less, tt_noun_phrase});
+    check_operator_between("<", tt_operator_less);
 }
 
 TEST(lexer_test, greater_equal) {
-    check_tokens_with_and_without_whitespace("a >= b", {tt_noun_phrase, tt_operator_greater_equal, tt_noun_phrase});
+    check_operator_between(">=", tt_operator_greater_equal);
 }
 
 TEST(lexer_test, less_equal) {
-    check_tokens_with_and_without_whitespace("a <= b", {tt_noun_phrase, tt_operator_less_equal, tt_noun_phrase});
+    check_operator_between("<=", tt_operator_less_equal);
+}
+
+TEST(lexer_test, plus) {
+    check_operator_between("+", tt_operator_plus);
+}
+
+TEST(lexer_test, minus) {
+    check_operator_between("-", tt_operator_minus);
+}
+
+TEST(lexer_test, cast) {
+    check_operator_between("->", tt_operator_cast);
+}
+
+TEST(lexer_test, plus_equals) {
+    check_operator_between("+=", tt_operator_plus_equals);
+}
+
+TEST(lexer_test, minus_equals) {
+    check_operator_between("-=", tt_operator_minus_equals);
+}
+
+TEST(lexer_test, times_equals) {
+    check_operator_between("*=", tt_operator_times_equals);
+}
+
+TEST(lexer_test, divide_equals) {
+    check_operator_between("/=", tt_operator_divide_equals);
+}
+
+TEST(lexer_test, bool_and) {
+    check_operator_between("&&", tt_operator_bool_and);
+}
+
+TEST(lexer_test, bit_and) {
+    check_operator_between("&", tt_operator_bit_and);
+}
+
+TEST(lexer_test, bit_and_equals) {
+    check_operator_between("&=", tt_operator_bit_and_equals);
+}
+
+TEST(lexer_test, open_paren) {
+    check_operator_between("(", tt_operator_paren);
+}
+
+TEST(lexer_test, close_paren) {
+    check_operator_between(")", tt_operator_close_paren);
+}
+
+TEST(lexer_test, mark) {
+    check_operator_between("\\", tt_operator_mark);
+}
+
+TEST(lexer_test, negative_mark) {
+    check_operator_between("\\-", tt_operator_negative_mark);
+}
+
+TEST(lexer_test, implied_tentative_mark) {
+    check_operator_between("?\\", tt_operator_tentative_mark);
+}
+
+TEST(lexer_test, implied_tentative_negative_mark) {
+    check_operator_between("?\\-", tt_operator_tentative_negative_mark);
+}
+
+TEST(lexer_test, lshift) {
+    check_operator_between("<<", tt_operator_lshift);
+}
+
+TEST(lexer_test, rshift) {
+    check_operator_between(">>", tt_operator_rshift);
+}
+
+TEST(lexer_test, unsigned_rshift) {
+    check_operator_between(">>>", tt_operator_unsigned_rshift);
+}
+
+TEST(lexer_test, lshift_equals) {
+    check_operator_between("<<=", tt_operator_lshift_equals);
+}
+
+TEST(lexer_test, rshift_equals) {
+    check_operator_between(">>=", tt_operator_rshift_equals);
+}
+
+TEST(lexer_test, assign_equals) {
+    check_operator_between("=", tt_operator_assign_equals);
+}
+
+TEST(lexer_test, bool_equal) {
+    check_operator_between("==", tt_operator_bool_equal);
+}
+
+TEST(lexer_test, bool_not) {
+    check_operator_between("!", tt_operator_bool_not);
+}
+
+TEST(lexer_test, not_equal) {
+    check_operator_between("!=", tt_operator_not_equal);
+}
+
+TEST(lexer_test, dot) {
+    check_operator_between(".", tt_operator_dot);
+}
+
+TEST(lexer_test, safe_dot) {
+    check_operator_between("?.", tt_operator_safe_dot);
+}
+
+TEST(lexer_test, brace) {
+    check_operator_between("[", tt_operator_brace);
+}
+
+TEST(lexer_test, close_brace) {
+    check_operator_between("]", tt_operator_close_brace);
+}
+
+TEST(lexer_test, safe_subscript) {
+    check_operator_between("?[", tt_operator_safe_subscript);
+}
+
+TEST(lexer_test, safe_empty) {
+    check_operator_between("[?", tt_operator_safe_empty);
+}
+
+TEST(lexer_test, safe_subscript_safe_empty) {
+    check_operator_between("?[?", tt_operator_safe_subscript_safe_empty);
+}
+
+TEST(lexer_test, spread) {
+    check_operator_between("*.", tt_operator_spread);
+}
+
+TEST(lexer_test, spaceship) {
+    check_operator_between("<=>", tt_operator_spaceship);
+}
+
+TEST(lexer_test, qspaceship) {
+    check_operator_between("?<=>", tt_operator_qspaceship);
+}
+
+TEST(lexer_test, spaceshipq) {
+    check_operator_between("<=>?", tt_operator_spaceshipq);
+}
+
+TEST(lexer_test, comma) {
+    check_operator_between(",", tt_operator_comma);
+}
+
+TEST(lexer_test, in) {
+    check_operator_between("-[", tt_operator_in);
+}
+
+TEST(lexer_test, instance_of) {
+    check_operator_between("::", tt_operator_instance_of);
+}
+
+TEST(lexer_test, bit_not) {
+    check_operator_between("~", tt_operator_bit_not);
+}
+
+TEST(lexer_test, star) {
+    check_operator_between("*", tt_operator_star);
+}
+
+TEST(lexer_test, slash) {
+    check_operator_between("/", tt_operator_slash);
+}
+
+TEST(lexer_test, mod) {
+    check_operator_between("%", tt_operator_mod);
+}
+
+TEST(lexer_test, mod_equals) {
+    check_operator_between("%=", tt_operator_mod_equals);
+}
+
+TEST(lexer_test, bit_xor) {
+    check_operator_between("^", tt_operator_bit_xor);
+}
+
+TEST(lexer_test, bit_xor_equals) {
+    check_operator_between("^=", tt_operator_bit_xor_equals);
+}
+
+TEST(lexer_test, bit_or) {
+    check_operator_between("|", tt_operator_bit_or);
+}
+
+TEST(lexer_test, bool_or) {
+    check_operator_between("||", tt_operator_bool_or);
+}
+
+TEST(lexer_test, bit_or_equals) {
+    check_operator_between("|=", tt_operator_bit_or_equals);
 }
 
 TEST(lexer_test, quoted_string) {
