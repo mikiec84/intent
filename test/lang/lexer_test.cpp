@@ -2,6 +2,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <typeinfo>
+#include <unordered_map>
 #include <unistd.h>
 
 #include "core/util/countof.h"
@@ -92,6 +93,39 @@ TEST(lexer_test, wrapped_doc_comment) {
 
 TEST(lexer_test, wrapped_private_comment) {
     test_wrapped_comment(tt_comment);
+}
+
+TEST(lexer_test, all_operators_are_tested) {
+    std::unordered_map<int, bool> found;
+    auto tc = ::testing::UnitTest::GetInstance()->current_test_case();
+    for (int i = tc->total_test_count() - 1; i >= 0; --i) {
+        auto info = tc->GetTestInfo(i);
+        auto test_name = info->name();
+        if (strstr(test_name, "DISABLED") == nullptr) {
+            string operator_name = "tt_operator_";
+            operator_name += test_name;
+            auto tt = get_token_type_from_name(operator_name.c_str());
+            if (is_operator(tt)) {
+                found[tt] = true;
+            }
+        }
+    }
+    string not_found;
+    #define TUPLE(number, precedence, associativity, name, example, comment) \
+    { \
+        int tt = 0x8000 | number; \
+        auto it = found.find(tt); \
+        if (it == found.end()) { \
+            if (!not_found.empty()) not_found += ", "; \
+            not_found += get_token_type_name(static_cast<token_type>(tt)); \
+        } \
+    }
+    #include "lang/operator_tuples.h"
+    if (!not_found.empty()) {
+        ADD_FAILURE() << "Based on the names of unit tests in the " << tc->name()
+                      << " test case,\nthe following operators don't seem to be tested:\n  "
+                      << not_found << ".";
+    }
 }
 
 TEST(lexer_test, indent_and_dedent) {
@@ -237,10 +271,6 @@ TEST(lexer_test, decrement) {
     check_operator_between("--", tt_operator_decrement);
 }
 
-TEST(lexer_test, cast) {
-    check_operator_between("->", tt_operator_cast);
-}
-
 TEST(lexer_test, plus_equals) {
     check_operator_between("+=", tt_operator_plus_equals);
 }
@@ -269,7 +299,7 @@ TEST(lexer_test, bit_and_equals) {
     check_operator_between("&=", tt_operator_bit_and_equals);
 }
 
-TEST(lexer_test, open_paren) {
+TEST(lexer_test, paren) {
     check_operator_between("(", tt_operator_paren);
 }
 
@@ -285,11 +315,11 @@ TEST(lexer_test, negative_mark) {
     check_operator_between("\\-", tt_operator_negative_mark);
 }
 
-TEST(lexer_test, implied_tentative_mark) {
+TEST(lexer_test, tentative_mark) {
     check_operator_between("?\\", tt_operator_tentative_mark);
 }
 
-TEST(lexer_test, implied_tentative_negative_mark) {
+TEST(lexer_test, tentative_negative_mark) {
     check_operator_between("?\\-", tt_operator_tentative_negative_mark);
 }
 

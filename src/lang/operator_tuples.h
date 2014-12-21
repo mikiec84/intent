@@ -26,7 +26,7 @@ TUPLE( 0x0203, 2, right_to_left, tentative_mark, "?\\", "implied positive mark" 
 TUPLE( 0x0204, 2, right_to_left, tentative_negative_mark, "?\\-", "implied negative mark" )
 TUPLE( 0x0210, 2, right_to_left, bit_not, "~", "bitwise not" )
 TUPLE( 0x0211, 2, right_to_left, bool_not, "!", "logical not" )
-TUPLE( 0x0301, 3, right_to_left, cast, "->", "cast" )
+//TUPLE( 0x0301, 3, right_to_left, cast, "->", "cast" )
 TUPLE( 0x0401, 4, left_to_right, star, "*", "multiply" )
 TUPLE( 0x0402, 4, left_to_right, slash, "/", "divide" )
 TUPLE( 0x0403, 4, left_to_right, mod, "%", "remainder" )

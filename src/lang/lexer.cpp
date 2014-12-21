@@ -206,9 +206,6 @@ inline void lexer::scan_minus() {
         case '-':
             consume(2, tt_operator_decrement);
             return;
-        case '>':
-            consume(2, tt_operator_cast);
-            return;
         case '=':
             consume(2, tt_operator_minus_equals);
             return;
