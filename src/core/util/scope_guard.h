@@ -1,7 +1,7 @@
 #ifndef intent_core_scope_guard_h
 #define intent_core_scope_guard_h
 
-#include "core/util/stringize.h"
+#include "core/util/advanced_macros.h"
 
 // This code was written a couple of times from scratch, but was not working
 // quite right. Eventually I found and studied the implementation of scope_guard

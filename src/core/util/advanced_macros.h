@@ -40,10 +40,24 @@ Some things to know about macros:
  *
  * The stringize_value_of() macro expands its arg *before* it calls stringize(),
  * so it yields the string representation of the *value* of its arg, instead of
- * the string representation of the *name* of its arg.
+ * the string representation of the *name* of its arg. So if you call it with
+ * MY_FIELD_WIDTH, you'll get "17".
  */
 #define stringize(x) #x
-#define stringize_value_of(x) stringize(x) // use this for #defines that are numbers
+#define stringize_value_of(x) stringize(x) // use this to stringize __LINE__ or other numeric macro expressions
+
+/**
+ * These macros provide a way to convert two tokens into a single token. The
+ * first is straightforward: glue_tokens(a, b) --> ab.
+ *
+ * The second, however, is non-obvious. It allows you to use a macro like
+ * __LINE__ or __COUNTER__ to create a unique token based on a line number or
+ * a macro invocation count, because the args to the macro are expanded into
+ * their values, and then glued.
+ */
+#define glue_tokens(a, b) a ## b
+#define glue_token_values(a, b) glue_tokens(a, b)
+
 
 // IMPL DETAIL: accept any number of args >= 51, but expand to just the 51st one.
 #define _get_51st_arg( \

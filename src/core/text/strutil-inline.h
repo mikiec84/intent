@@ -20,6 +20,10 @@ inline char const * find_char(char const * p, char c, char const * end) {
     return end;
 }
 
+inline char const * find_char(char const * p, char c, str_range range) {
+    return find_char(p + range.begin, c, p + range.end);
+}
+
 inline char const * find_any_char(char const * p, char const * any, char const * end) {
     if (p == nullptr) return nullptr;
     if (end < p) return p;
@@ -29,6 +33,10 @@ inline char const * find_any_char(char const * p, char const * any, char const *
         }
     }
     return end;
+}
+
+inline char const * find_any_char(char const * p, char const * any, str_range range) {
+    return find_any_char(p + range.begin, any, p + range.end);
 }
 
 inline char const * ltrim(char const * begin, char const * end, char const * chars) {

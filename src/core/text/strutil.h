@@ -5,14 +5,17 @@
 #include <vector>
 
 #include "core/text/str_view-fwd.h"
+#include "core/util/range.h"
 
 namespace intent {
 namespace core {
 namespace text {
 
-char const * const ANY_WHITESPACE = " \t\r\n";
-char const * const LINE_WHITESPACE = " \t";
-char const * const EIGHTY_SPACES =
+typedef core::util::range<uint32_t> str_range;
+
+constexpr char const * const ANY_WHITESPACE = " \t\r\n";
+constexpr char const * const LINE_WHITESPACE = " \t";
+constexpr char const * const EIGHTY_SPACES =
         "          ""          ""          ""          "
         "          ""          ""          ""          ";
 
@@ -22,9 +25,19 @@ char const * const EIGHTY_SPACES =
 char const * find_char(char const * p, char c, char const * end);
 
 /**
+ * Like strchr, but uses a range rather than null terminator.
+ */
+char const * find_char(char const * p, char c, str_range range);
+
+/**
  * Like strpbrk, but uses end rather than null terminator as end point.
  */
 char const * find_any_char(char const * p, char const * any, char const * end);
+
+/**
+ * Like strpbrk, but uses range rather than null terminator.
+ */
+char const * find_any_char(char const * p, char const * any, str_range range);
 
 /**
  * Find first char at or after begin that is not trimmable. If all chars are

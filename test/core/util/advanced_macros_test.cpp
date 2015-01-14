@@ -1,15 +1,33 @@
 #include "core/util/advanced_macros.h"
-#include "core/util/stringize.h"
+//#include "core/util/stringize.h"
 
 #include "gtest/gtest.h"
 
 TEST(advanced_macros_test, stringize) {
-    ASSERT_STREQ("advanced_macros_test", STRINGIZE(advanced_macros_test));
+    ASSERT_STREQ("advanced_macros_test", stringize(advanced_macros_test));
 
     #define A_NUMERIC_VALUE 17
     ASSERT_STREQ("17", stringize(17));
     ASSERT_STREQ("A_NUMERIC_VALUE", stringize(A_NUMERIC_VALUE));
     ASSERT_STREQ("17", stringize_value_of(A_NUMERIC_VALUE));
+}
+
+TEST(advanced_macros_test, glued_tokens) {
+    int glue_tokens(a, b);
+    // This line will only compile if we glued correctly; otherwise, ab will
+    // be undefined.
+    ab = 1;
+
+    // Just declaring these variables would be fine, but the compiler complains
+    // about unused variables if I don't do something else with them...
+    int x = ab ? ab + 1 : 0;
+    int glue_token_values(x, __LINE__) = x ? 2 : 0;
+    // This line will only compile if we glued correctly; otherwise, it will
+    // be a duplicate decl.
+    int glue_token_values(x, __LINE__) = 3;
+    if (x24 == 0 || x27 == 0) {
+        FAIL() << "didn't expect to get here";
+    }
 }
 
 TEST(advanced_macros_test, count_varargs) {

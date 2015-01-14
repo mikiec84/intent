@@ -64,6 +64,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer")
 # In release mode, still generate a map file; go for moderate optimization.
 set(CMAKE_CXX_FLAGS_RELEASE "-g -O3 ${CMAKE_CXX_FLAGS_RELEASE}")
 
+# In debug mode, make sure that DEBUG is defined.
+set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
+
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug|sanitize-.*")
     set(SFLAGS "")
     foreach(sanitizer ${DEBUG_SANITIZERS})
