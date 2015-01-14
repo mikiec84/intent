@@ -54,7 +54,7 @@ inline arg::arg(double value) :
 }
 
 inline arg::arg(std::string const & value) :
-    type(vt_str), str(&value) {
+    type(vt_string), str(&value) {
 }
 
 inline arg::arg(char const * value) :
@@ -71,6 +71,32 @@ inline arg::arg(str_view const & txt) :
 
 inline arg::arg(bool value) :
     type(vt_bool), boolean(value) {
+}
+
+inline arg::arg(arg const & other) :
+    type(other.type), cstr(other.cstr) {
+}
+
+inline arg & arg::operator =(arg const & rhs) {
+    type = rhs.type;
+    cstr = rhs.cstr;
+    return *this;
+}
+
+inline arg::arg(arg && other) :
+    type(other.type), cstr(other.cstr) {
+}
+
+inline arg & arg::operator =(arg && rhs) {
+    type = rhs.type;
+    cstr = rhs.cstr;
+    return *this;
+}
+
+inline arg::~arg() {
+}
+
+inline arg::arg() : type(vt_empty), cstr(nullptr) {
 }
 
 }}} // end namespace

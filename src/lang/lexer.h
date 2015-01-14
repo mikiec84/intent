@@ -35,6 +35,7 @@ public:
     lexer(char const * begin, size_t length);
     lexer(intent::core::text::str_view const & txt);
 
+    /** Behaves like a pointer to a token. */
     class iterator;
 
     iterator begin();
@@ -75,7 +76,7 @@ private:
     void scan_caret();
     void scan_percent();
     void scan_backslash();
-    bool scan_quote();
+    void scan_quote();
     void scan_hash();
 
     void consume(unsigned char_count, token_type tt);

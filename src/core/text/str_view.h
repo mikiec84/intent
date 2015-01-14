@@ -34,7 +34,7 @@ struct strview {
      * Create a strview from a C string and a size.
      */
     strview(C const * cstr, size_t len);
-    
+
     /**
      * Create a strview from a std::string.
      */
@@ -111,7 +111,7 @@ struct strview {
     // must be stored as well. Initially we stored end and computed len; it
     // it seemed simpler to have a pair of the same datatype. However, later
     // experience shows that len is the better choice to store, because:
-    //   1) if the strview is relocated, only one member must be adjusted;
+    //   1) if the string is relocated, only one member must be adjusted;
     //   2) It may be possible to compress len in some situations, allocating
     //      less memory for massive arrays of strview.
     size_t length;

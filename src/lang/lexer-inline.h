@@ -6,6 +6,9 @@
 namespace intent {
 namespace lang {
 
+/**
+ * Behaves like a pointer to a token.
+ */
 class lexer::iterator: public std::iterator<std::input_iterator_tag, token> {
 public:
     iterator() : lex(nullptr) {}

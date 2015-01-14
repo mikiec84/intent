@@ -461,7 +461,7 @@ bool lexer::advance() {
     // Reset state so we report invalid, zero-width token unless/until we
     // discover something different.
     t.type = tt_none;
-    t.value = boost::any();
+    t.value = arg::empty;
     t.substr.begin_at(t.substr.end());
     p = t.substr.begin;
 
@@ -739,11 +739,10 @@ char const * lexer::get_string_literal(char ch) {
  * @post p points to first char after terminating quote
  * @return true if able to get quoted string
  */
-bool lexer::scan_quote() {
+void lexer::scan_quote() {
     t.type = tt_quoted_string;
     const auto c = *p++;
     t.substr.end_at(get_string_literal(c));
-    return true;
 }
 
 void set_possibly_signed_value(token & t, bool negative, uint64_t n) {

@@ -59,7 +59,7 @@ char const * scan_arg(char const * p, char const * end, string & txt,
                         value_to_compare = static_cast<int>(a.dbl); break;
                     case arg::vt_date:
                         value_to_compare = 0; break;
-                    case arg::vt_str:
+                    case arg::vt_string:
                         value_to_compare = a.str->empty() ? 0 : 1; break;
                     case arg::vt_cstr:
                         value_to_compare = a.cstr && a.cstr[0] ? 1 : 0; break;

@@ -15,33 +15,43 @@ namespace text {
 /**
  * An arg is a specialized type of variant--a lightweight wrapper around
  * any argument passed to interp() or similar functions that need variadic
- * behavior plus type safety, without using C++ 11's arglist.
+ * behavior plus type safety.
  *
- * Unlike boost::any or lexical_cast, this class is only guaranteed to behave
- * properly as long as its lifetime is less than the lifetime of the item it
- * wraps. In exchange for this guarantee, arg is faster and simpler to use--
+ * Unlike other variant types, this class doesn't "own" anything; if it receives
+ * any non-POD value, it stores a pointer to it. Thus it only behaves properly
+ * as long as its lifetime is less than the lifetime of the item it wraps. In
+ * exchange for this guarantee, arg is lighter, faster, and simpler to use--
  * you basically pretend it doesn't exist, and it's transparent and nearly
  * free.
  */
 struct arg {
-    arg(int64_t value);
-    arg(uint64_t value);
-    arg(int32_t value);
-    arg(uint32_t value);
-    arg(int16_t value);
-    arg(uint16_t value);
-    arg(int8_t value);
-    arg(uint8_t value);
+    arg(int64_t);
+    arg(uint64_t);
+    arg(int32_t);
+    arg(uint32_t);
+    arg(int16_t);
+    arg(uint16_t);
+    arg(int8_t);
+    arg(uint8_t);
 #ifdef DARWIN
-    arg(long value);
-    arg(unsigned long value);
+    arg(long);
+    arg(unsigned long);
 #endif
-    arg(double value);
-    arg(std::string const & str);
-    arg(char const * cstr);
-    arg(boost::filesystem::path const & path);
-    arg(str_view const & str);
+    arg(double);
+    arg(std::string const &);
+    arg(char const *);
+    arg(boost::filesystem::path const &);
+    arg(str_view const &);
     arg(bool);
+
+    // Support copy and move semantics. These are generally unnecessary, since
+    // args are designed to be short-lived objects created just in time--but
+    // allow transitive assignment (e.g., as a member of a struct).
+    arg(arg const &);
+    arg & operator =(arg const &);
+
+    arg(arg &&);
+    arg & operator =(arg &&);
 
     /**
      * Write at most buflen bytes to buf, always finishing with trailing null.
@@ -50,9 +60,18 @@ struct arg {
      *     number >= buflen represents an overflow.
      */
     int snprintf(char * buf, size_t buflen, char const * format = nullptr) const;
+
     std::string to_string(char const * format = nullptr) const;
 
+    /**
+     * A canonical empty arg, useful as a constant.
+     */
     static arg const & empty;
+
+    /**
+     * Construct an empty arg.
+     */
+    arg();
 
     enum value_type {
         vt_empty,
@@ -60,28 +79,28 @@ struct arg {
         vt_unsigned,
         vt_float,
         vt_date,
-        vt_str,
+        vt_string,
         vt_cstr,
         vt_path,
         vt_str_view,
-        vt_allocated_str,
         vt_bool
     };
-    const value_type type;
+    value_type type;
+
     union {
-        const int64_t i64;
-        const uint64_t u64;
-        const double dbl;
+        int64_t i64;
+        uint64_t u64;
+        double dbl;
         std::string const * str;
-        char const * const cstr;
+        char const * cstr;
         boost::filesystem::path const * path;
         str_view const * slice;
-        char * allocated_str;
-        const bool boolean;
+        bool boolean;
     };
+
     ~arg();
+
 private:
-    arg();
     friend arg const & make_empty_arg();
 };
 

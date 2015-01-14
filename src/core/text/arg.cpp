@@ -11,15 +11,6 @@ namespace intent {
 namespace core {
 namespace text {
 
-arg::~arg() {
-    if (type == vt_allocated_str) {
-        delete[] allocated_str;
-    }
-}
-
-arg::arg() : type(vt_empty) {
-}
-
 arg const & make_empty_arg() {
     static arg the_empty_arg;
     return the_empty_arg;
@@ -57,7 +48,7 @@ int arg::snprintf(char * buf, size_t buflen, char const * format) const {
     case vt_path:
         s = &path->native();
         // DO NOT BREAK
-    case vt_str:
+    case vt_string:
         if (s == nullptr) {
             s = str;
         }
@@ -86,7 +77,6 @@ int arg::snprintf(char * buf, size_t buflen, char const * format) const {
                           (*slice ? slice->begin : ""));
     }
     case vt_cstr:
-    case vt_allocated_str:
         return ::snprintf(buf, buflen, (format ? format : "%s"), (cstr ? cstr : "(null)"));
     default:
         return 0;
@@ -98,14 +88,13 @@ string arg::to_string(char const * format) const {
     switch (type) {
     case vt_empty:
         return "";
-    case vt_str:
+    case vt_string:
         return *str;
     case vt_str_view:
         return string(slice->begin, slice->length);
     case vt_path:
         return path->native();
     case vt_cstr:
-    case vt_allocated_str:
         return cstr ? cstr : "(null)";
     case vt_bool:
         return boolean ? "true" : "false";

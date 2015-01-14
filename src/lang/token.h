@@ -3,8 +3,8 @@
 
 #include <cstdint>
 #include <memory>
-#include <boost/any.hpp>
 
+#include "core/text/arg.h"
 #include "core/text/str_view.h"
 #include "lang/token_type.h"
 
@@ -17,7 +17,6 @@ namespace lang {
 class token {
 public:
     token();
-    //token(token_type type, char const * begin, char const * end);
     token(token_type type, intent::core::text::str_view const & slice);
     ~token();
 
@@ -31,7 +30,7 @@ public:
 
     intent::core::text::str_view substr;
     token_type type;
-    boost::any value;
+    intent::core::text::arg value;
 };
 
 }} // end namespace
