@@ -2,6 +2,7 @@
 #define intent_core_text_trie_h
 
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <vector>
 

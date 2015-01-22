@@ -2,6 +2,7 @@
 #include <inttypes.h>
 
 #include <algorithm>
+#include <cstring>
 #include <random>
 
 #include "core/time/stopwatch.h"

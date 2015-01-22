@@ -1,6 +1,8 @@
 #ifndef intent_core_text_trie_inline_h
 #define intent_core_text_trie_inline_h
 
+#include <cstring>
+
 #include "core/text/trie.h"
 
 namespace intent {

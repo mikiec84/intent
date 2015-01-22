@@ -9,6 +9,7 @@ file(GLOB_RECURSE SRC_LIST "*.cpp")
 if (BUILD_TESTRUNNERS)
 
     find_package(PCRE REQUIRED)
+    find_package(CURL REQUIRED)
 
     include_directories(
         ../../src
@@ -34,6 +35,15 @@ if (BUILD_TESTRUNNERS)
         gtest_main
         ${Boost_LIBRARIES}
         ${PCRE_LIBRARIES}
+        # The items after curl are required by it. See http://packages.ubuntu.com/source/precise/curl
+        # Package names on ubuntu: libidn11-dev, zlib1g-dev, libcurl4-openssl-dev,
+        # libgcrypt11-dev, libkrb5-dev, libldap2-dev
+        curl.so # <-- this forces us to link dynamically, making dependencies go away at compile time
+        # I would prefer to link statically, using CURL_STATICLIB. That makes the build env
+        # trickier but the deployment/installation easier. Here's what I'd need for a full
+        # set of features in curl (the .a forces static link on linux but is wrong on windows, and
+        # may be wrong in a given OS instance, depending on what's installed...)
+        #idn.a z.a ssl.a crypto.a crypt.a ssh.a krb5 gssapi_krb5 rtmp.a ldap
     )
     add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
 else()

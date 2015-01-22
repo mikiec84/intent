@@ -5,6 +5,8 @@ project(i)
 include(../../cmake/common.cmake)
 
 find_package(PCRE REQUIRED)
+find_package(CURL REQUIRED)
+
 include_directories(
     ..
     ${PCRE_INCLUDE_DIRS}
@@ -22,7 +24,7 @@ target_link_libraries(${PROJECT_NAME}
     intent-core
     ${Boost_LIBRARIES}
     ${PCRE_LIBRARIES}
-    ${CARES_LIBRARIES}
+    ${CURL_LIBRARIES}
 )
 
 install(TARGETS

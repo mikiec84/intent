@@ -6,6 +6,9 @@ include(../../cmake/common.cmake)
 
 include_directories(..)
 
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+
 file(GLOB_RECURSE SRC_LIST "*.cpp")
 file(GLOB_RECURSE HEADERS "*.h")
 list(APPEND SRC_LIST ${HEADERS})
