@@ -14,6 +14,7 @@ file(GLOB_RECURSE HEADERS "*.h")
 list(APPEND SRC_LIST ${HEADERS})
 
 include(../../cmake/boost.cmake)
+include(../../cmake/asio.cmake)
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST})
 

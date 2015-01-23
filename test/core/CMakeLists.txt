@@ -38,7 +38,8 @@ if (BUILD_TESTRUNNERS)
         # The items after curl are required by it. See http://packages.ubuntu.com/source/precise/curl
         # Package names on ubuntu: libidn11-dev, zlib1g-dev, libcurl4-openssl-dev,
         # libgcrypt11-dev, libkrb5-dev, libldap2-dev
-        curl.so # <-- this forces us to link dynamically, making dependencies go away at compile time
+        curl
+#        curl.so # <-- this forces us to link dynamically, making dependencies go away at compile time
         # I would prefer to link statically, using CURL_STATICLIB. That makes the build env
         # trickier but the deployment/installation easier. Here's what I'd need for a full
         # set of features in curl (the .a forces static link on linux but is wrong on windows, and
