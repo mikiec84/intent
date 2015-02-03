@@ -1,4 +1,3 @@
-#include <map>
 #include <thread>
 
 #include <asio.hpp>
@@ -21,6 +20,7 @@ using namespace std::placeholders;
 namespace intent {
 namespace core {
 namespace net {
+namespace curl {
 
 
 typedef asio::ip::tcp::socket asio_socket_t;
@@ -32,7 +32,7 @@ static void mcode_or_die(const char *where, CURLMcode code);
 
 
 struct libcurl_callbacks {
-    typedef curl_channel::impl_t chimpl_t;
+    typedef channel::impl_t chimpl_t;
 
     static int on_change_timeout(CURLM * multi, long timeout_ms, void * _chimpl);
     static curl_socket_t on_open_socket(void * _chimpl, curlsocktype purpose, curl_sockaddr *address);
@@ -70,7 +70,7 @@ CURLM * wrapped_curl_multi_init(long flags = CURL_GLOBAL_ALL) {
 }
 
 
-struct curl_channel::impl_t {
+struct channel::impl_t {
 
     CURLM * multi;
     int still_running;
@@ -109,11 +109,11 @@ struct curl_channel::impl_t {
 };
 
 
-curl_channel::curl_channel(): impl(new impl_t()) {
+channel::channel(): impl(new impl_t()) {
 }
 
 
-curl_channel::~curl_channel() {
+channel::~channel() {
     if (!impl->io_service.stopped()) {
         impl->io_service.stop();
     }
@@ -123,7 +123,13 @@ curl_channel::~curl_channel() {
 }
 
 
-void curl_channel::open() {
+channel & channel::get_default() {
+    static channel the_channel;
+    return the_channel;
+}
+
+
+void channel::open() {
     auto & svc = impl->io_service;
     if (svc.stopped()) {
 
@@ -132,18 +138,18 @@ void curl_channel::open() {
 }
 
 
-struct curl_session::impl_t {
+struct session::impl_t {
 
-    curl_channel & channel;
+    channel & channel;
     CURL *easy;
     char *url;
     char error[CURL_ERROR_SIZE];
-    curl_session::receive_callback receive_func;
-    curl_session::progress_callback progress_func;
+    session::receive_callback receive_func;
+    session::progress_callback progress_func;
 
-    impl_t(curl_channel & channel,
-            curl_session::receive_callback receive_func,
-            curl_session::progress_callback progress_func):
+    impl_t(channel & channel,
+            session::receive_callback receive_func,
+            session::progress_callback progress_func):
         channel(channel),
         easy(curl_easy_init()),
         url(nullptr),
@@ -181,12 +187,12 @@ struct curl_session::impl_t {
 };
 
 
-curl_session::curl_session(curl_channel & channel, receive_callback rcb, progress_callback pcb) :
+session::session(channel & channel, receive_callback rcb, progress_callback pcb) :
     impl(new impl_t(channel, rcb, pcb)) {
 }
 
 
-void curl_session::set_url(char const * url) {
+void session::set_url(char const * url) {
     assert(impl->url == nullptr);
     impl->channel.open();
     impl->url = strdup(url);
@@ -226,12 +232,12 @@ int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _
 
 
 /* Check for completed transfers, and remove their easy handles */
-void curl_channel::impl_t::check_multi_info() {
+void channel::impl_t::check_multi_info() {
 
     char *eff_url;
     CURLMsg *msg;
     int msgs_left;
-    curl_session::impl_t * simpl;
+    session::impl_t * simpl;
     CURL *easy;
     CURLcode res;
 
@@ -255,7 +261,7 @@ void curl_channel::impl_t::check_multi_info() {
 
 
 /* Called by asio when there is an action on a socket */
-void curl_channel::impl_t::on_socket_event(asio_socket_t *tcp_socket,
+void channel::impl_t::on_socket_event(asio_socket_t *tcp_socket,
                      int action)
 {
     fprintf(stdout, "\nevent_cb: action=%d", action);
@@ -275,7 +281,7 @@ void curl_channel::impl_t::on_socket_event(asio_socket_t *tcp_socket,
 
 
 /* Called by asio when our timeout expires */
-void curl_channel::impl_t::on_timeout(error_code const & error)
+void channel::impl_t::on_timeout(error_code const & error)
 {
     if (!error) {
         fprintf(stdout, "\ntimer_cb: ");
@@ -290,7 +296,7 @@ void curl_channel::impl_t::on_timeout(error_code const & error)
 
 
 /* Clean up any data */
-void curl_channel::impl_t::remove_socket(int *f) {
+void channel::impl_t::remove_socket(int *f) {
     fprintf(stdout, "\nremsock: ");
 
     if (f) {
@@ -299,7 +305,7 @@ void curl_channel::impl_t::remove_socket(int *f) {
 }
 
 
-void curl_channel::impl_t::change_socket_action(int *fdp, curl_socket_t sock, CURL * easy, int act)
+void channel::impl_t::change_socket_action(int *fdp, curl_socket_t sock, CURL * easy, int act)
 {
     fprintf(stdout, "\nsetsock: socket=%d, act=%d, fdp=%p", sock, act, fdp);
 
@@ -337,7 +343,7 @@ void curl_channel::impl_t::change_socket_action(int *fdp, curl_socket_t sock, CU
 }
 
 
-void curl_channel::impl_t::add_socket(curl_socket_t sock, CURL * easy, int action)
+void channel::impl_t::add_socket(curl_socket_t sock, CURL * easy, int action)
 {
     /* fdp is used to store current action */
     int *fdp = (int *) calloc(sizeof(int), 1);
@@ -383,7 +389,7 @@ size_t libcurl_callbacks::on_receive_data(void * data, size_t size_per_record, s
 {
     size_t bytes_handled = 0;
     if (_session) {
-        auto & session = reinterpret_cast<curl_session &>(*_session);
+        auto & session = reinterpret_cast<session &>(*_session);
         auto func = session.impl->receive_func;
         if (func) {
             bytes_handled = func(session, data, size_per_record * num_records);
@@ -399,7 +405,7 @@ int libcurl_callbacks::on_progress(void * _session, uint64_t expected_receive_to
 {
     int err = 0;
     if (_session) {
-        auto & session = reinterpret_cast<curl_session &>(*_session);
+        auto & session = reinterpret_cast<session &>(*_session);
         auto func = session.impl->progress_func;
         if (func) {
             err = func(session, expected_receive_total, received_so_far,
@@ -510,4 +516,4 @@ static void mcode_or_die(const char *where, CURLMcode code)
 }
 
 
-}}} // end namespace
+}}}} // end namespace
