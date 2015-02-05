@@ -7,7 +7,7 @@ if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
 endif ()
 
 # Include our own custom "find" modules.
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/modules/")
 
 # Prefer static linking. We do this because it simplifies distribution, and it
 # makes our binaries less dependent and less likely to be influenced by what's

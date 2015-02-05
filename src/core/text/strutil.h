@@ -16,8 +16,8 @@ typedef core::util::range<uint32_t> str_range;
 constexpr char const * const ANY_WHITESPACE = " \t\r\n";
 constexpr char const * const LINE_WHITESPACE = " \t";
 constexpr char const * const EIGHTY_SPACES =
-        "          ""          ""          ""          "
-        "          ""          ""          ""          ";
+		"          ""          ""          ""          "
+		"          ""          ""          ""          ";
 
 /**
  * Like strchr, but uses end rather than null terminator as end point.
@@ -44,7 +44,7 @@ char const * find_any_char(char const * p, char const * any, str_range range);
  * trimmable, return end.
  */
 char const * ltrim(char const * begin, char const * end, char const *
-    trimmable = ANY_WHITESPACE);
+	trimmable = ANY_WHITESPACE);
 
 /**
  * Scan string from end to begin; find first char that is trimmable. This
@@ -57,7 +57,7 @@ char const * ltrim(char const * begin, char const * end, char const *
  *   char const * new_end = rtrim(p, end); // will point to p + 5, where space is
  */
 char const * rtrim(char const * begin, char const * end, char const *
-    trimmable = ANY_WHITESPACE);
+	trimmable = ANY_WHITESPACE);
 
 bool is_null_or_empty(char const * p);
 
@@ -74,7 +74,7 @@ char const * scan_spaces_and_tabs(char const * p, char const * end);
  *     or to \n (not preceded by \r).
  * @return pointer to first char after line break
  */
-inline char const * consume_line_break(char const * p, char const * end);
+char const * consume_line_break(char const * p, char const * end);
 
 /**
  * Split a string into a vector of std::string or of str_view, depending on
@@ -85,6 +85,35 @@ std::vector<T> split(char const * p, char const * splitters);
 
 template <> std::vector<std::string> split(char const * p, char const * splitters);
 template <> std::vector<str_view> split(char const * p, char const * splitters);
+
+
+/**
+ * Similar to strlwr(); converts bytes in the range A-Z to bytes in the range
+ * a-z. Not locale- or codepage-aware; however, any codepage that maps 7-bit
+ * values the same way as ASCII can be safely passed to this function; no 8-bit
+ * bytes will be altered.
+ */
+char * ascii_to_lower_case(char * p);
+char * ascii_to_lower_case(char * p, char const * end);
+
+
+/**
+ * Similar to strlwr(); converts bytes in the range a-z to bytes in the range
+ * A-Z. Not locale- or codepage-aware; however, any codepage that maps 7-bit
+ * values the same way as ASCII can be safely passed to this function; no 8-bit
+ * bytes will be altered.
+ */
+char * ascii_to_upper_case(char * p);
+char * ascii_to_upper_case(char * p, char const * end);
+
+
+/**
+ * Similar to strcasecmp() or stricmp(); compares strings in a case-insensitive
+ * way, using only ASCII assumptions that A-Z and a-z are equivalent. Not locale-
+ * or codepage-aware.
+ */
+int compare_str_ascii_case_insensitive(char * p);
+
 
 }}} // end namespace
 
