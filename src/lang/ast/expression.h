@@ -2,29 +2,36 @@
 #define intent_lang_expression_h
 
 #include "lang/token.h"
+#include "lang/ast/node.h"
 
 namespace intent {
 namespace lang {
+namespace ast {
 
 /**
  * An expression is anything that evaluates to a value.
  */
-struct expression
-{
+class expression: public node {
+public:
+    expression(node * parent);
     virtual ~expression();
     virtual token const & first_token() const;
     virtual token const & last_token() const;
 };
 
-struct literal_expression: public expression {
+class literal_expression: public expression {
+public:
+    literal_expression(node * parent);
     token content;
-    literal_expression(token const & t) : content(t) {}
+    literal_expression(token const & t);
     virtual ~literal_expression() {}
 };
 
-struct grouped_expression: public expression {
+class grouped_expression: public expression {
+public:
+    grouped_expression(node * parent);
     expression const & inner;
-    grouped_expression(expression const & e) : inner(e) {}
+    grouped_expression(expression const & e) ;
     virtual ~grouped_expression() {}
 };
 
@@ -51,6 +58,7 @@ struct ternary_expression: public expression {
 
 #endif
 
-}} // end namespace
 
-#endif // SYNTAX_ERROR_H
+}}} // end namespace
+
+#endif

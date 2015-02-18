@@ -28,7 +28,7 @@ public:
      */
     bool operator ==(token const & rhs) const;
 
-    intent::core::text::str_view substr;
+    core::text::str_view substr;
     token_type type;
     intent::core::text::arg value;
 };

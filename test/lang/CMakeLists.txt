@@ -4,7 +4,7 @@ project(intent-lang-testrunner)
 
 include(../../cmake/common.cmake)
 
-file(GLOB SRC_LIST "*.cpp")
+file(GLOB_RECURSE SRC_LIST "*.cpp")
 
 if (BUILD_TESTRUNNERS)
     include_directories(
