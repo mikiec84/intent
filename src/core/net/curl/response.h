@@ -20,39 +20,39 @@ namespace curl {
  * Encapsulate a single response from a remote endpoint.
  */
 class response {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend struct libcurl_callbacks;
-	friend class session;
+    friend struct libcurl_callbacks;
+    friend class session;
 
-	response(request &&, receive_callback = nullptr, progress_callback = nullptr);
+    response(request &&, receive_callback = nullptr, progress_callback = nullptr);
 
-	static size_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
+    static uint64_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
 
-	static int update_progress_in_response(response &, uint64_t expected_receive_total,
-			uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
+    static int update_progress_in_response(response &, uint64_t expected_receive_total,
+            uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
 
 public:
 
-	// Requests are usually created by calling relevant methods such as "get" or
-	// "post", on a session. The move ctor only exists to allow return-by-value.
+    // Requests are usually created by calling relevant methods such as "get" or
+    // "post", on a session. The move ctor only exists to allow return-by-value.
 
-	response(response &&);
-	~response();
+    response(response &&);
+    ~response();
 
-	session & get_session();
-	session const & get_session() const;
+    session & get_session();
+    session const & get_session() const;
 
-	channel & get_channel();
-	channel const & get_channel() const;
+    channel & get_channel();
+    channel const & get_channel() const;
 
-	void get_url(char const * url);
+    void get_url(char const * url);
 
-	uint32_t get_id() const;
+    uint32_t get_id() const;
 
-	headers const & get_headers() const;
-	headers & get_headers();
+    headers const & get_headers() const;
+    headers & get_headers();
 };
 
 
