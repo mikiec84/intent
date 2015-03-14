@@ -1,5 +1,5 @@
-#ifndef intent_core_ansi_color_h
-#define intent_core_ansi_color_h
+#ifndef _67523e5cc9f111e49ec43c15c2ddfeb4
+#define _67523e5cc9f111e49ec43c15c2ddfeb4
 
 #include <cstdint>
 #include <string>

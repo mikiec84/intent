@@ -1,5 +1,5 @@
-#ifndef intent_lang_ast_block_h
-#define intent_lang_ast_block_h
+#ifndef _675428d1c9f111e493633c15c2ddfeb4
+#define _675428d1c9f111e493633c15c2ddfeb4
 
 #include "lang/ast/node.h"
 

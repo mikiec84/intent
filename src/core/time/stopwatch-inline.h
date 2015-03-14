@@ -1,5 +1,5 @@
-#ifndef intent_core_time_stopwatch_inline_h
-#define intent_core_time_stopwatch_inline_h
+#ifndef _6753a833c9f111e499ad3c15c2ddfeb4
+#define _6753a833c9f111e499ad3c15c2ddfeb4
 
 #include "core/time/stopwatch.h"
 #include "core/time/assignable_clock.h"

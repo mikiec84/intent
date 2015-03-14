@@ -1,5 +1,5 @@
-#ifndef CURL_MULTI_H
-#define CURL_MULTI_H
+#ifndef _675289c0c9f111e489063c15c2ddfeb4
+#define _675289c0c9f111e489063c15c2ddfeb4
 
 #include "core/net/curl/.private/libcurl.h"
 

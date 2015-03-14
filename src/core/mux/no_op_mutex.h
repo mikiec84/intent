@@ -1,5 +1,5 @@
-#ifndef intent_core_mux_locking_strategy_h
-#define intent_core_mux_locking_strategy_h
+#ifndef _67528114c9f111e4a66b3c15c2ddfeb4
+#define _67528114c9f111e4a66b3c15c2ddfeb4
 
 namespace intent {
 namespace core {

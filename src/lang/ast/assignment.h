@@ -1,5 +1,5 @@
-#ifndef intent_lang_ast_assignment_h
-#define intent_lang_ast_assignment_h
+#ifndef _6754222ec9f111e4a9423c15c2ddfeb4
+#define _6754222ec9f111e4a9423c15c2ddfeb4
 
 #include "lang/ast/expression.h"
 #include "lang/ast/block.h"

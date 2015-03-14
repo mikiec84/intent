@@ -1,5 +1,5 @@
-#ifndef intent_lang_ast_definition_h
-#define intent_lang_ast_definition_h
+#ifndef _67543ccac9f111e4b6d03c15c2ddfeb4
+#define _67543ccac9f111e4b6d03c15c2ddfeb4
 
 #include "lang/ast/statement.h"
 

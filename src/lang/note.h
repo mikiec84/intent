@@ -1,5 +1,5 @@
-#ifndef intent_lang_note_h
-#define intent_lang_note_h
+#ifndef _6754846ec9f111e4a39e3c15c2ddfeb4
+#define _6754846ec9f111e4a39e3c15c2ddfeb4
 
 #include <string>
 

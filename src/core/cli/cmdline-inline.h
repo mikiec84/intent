@@ -1,5 +1,5 @@
-#ifndef intent_core_cmdline_inline_h
-#define intent_core_cmdline_inline_h
+#ifndef _675249a6c9f111e49b5f3c15c2ddfeb4
+#define _675249a6c9f111e49b5f3c15c2ddfeb4
 
 #include "core/cli/cmdline.h"
 

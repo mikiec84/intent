@@ -1,5 +1,5 @@
-#ifndef intent_lang_ast_node_h
-#define intent_lang_ast_node_h
+#ifndef _67545668c9f111e4a1333c15c2ddfeb4
+#define _67545668c9f111e4a1333c15c2ddfeb4
 
 #include <memory>
 

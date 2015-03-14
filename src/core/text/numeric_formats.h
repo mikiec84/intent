@@ -1,5 +1,5 @@
-#ifndef intent_core_numeric_formats_h
-#define intent_core_numeric_formats_h
+#ifndef _67534d9cc9f111e49b8c3c15c2ddfeb4
+#define _67534d9cc9f111e49b8c3c15c2ddfeb4
 
 #include <string>
 #include "core/util/enum_operators.h"

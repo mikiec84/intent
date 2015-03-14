@@ -1,5 +1,5 @@
-#ifndef intent_core_assignable_clock_inline_h
-#define intent_core_assignable_clock_inline_h
+#ifndef _67539e5cc9f111e495513c15c2ddfeb4
+#define _67539e5cc9f111e495513c15c2ddfeb4
 
 #include "core/time/assignable_clock.h"
 

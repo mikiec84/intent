@@ -1,5 +1,5 @@
-#ifndef intent_core_ansi_color_palette_h
-#define intent_core_ansi_color_palette_h
+#ifndef _675242e3c9f111e4b6823c15c2ddfeb4
+#define _675242e3c9f111e4b6823c15c2ddfeb4
 
 #include "core/text/str_view.h"
 #include "core/util/thread_semantics.h"

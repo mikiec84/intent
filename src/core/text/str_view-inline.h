@@ -1,5 +1,5 @@
-#ifndef intent_core_str_view_inline_h
-#define intent_core_str_view_inline_h
+#ifndef _67536afac9f111e48b1a3c15c2ddfeb4
+#define _67536afac9f111e48b1a3c15c2ddfeb4
 
 #include <algorithm>
 #include <cstring>

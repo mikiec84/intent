@@ -1,5 +1,5 @@
-#ifndef intent_core_line_iterator_h
-#define intent_core_line_iterator_h
+#ifndef _67534959c9f111e487ba3c15c2ddfeb4
+#define _67534959c9f111e487ba3c15c2ddfeb4
 
 #include "core/text/str_view.h"
 

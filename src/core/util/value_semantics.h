@@ -1,5 +1,5 @@
-#ifndef intent_core_value_semantics_h
-#define intent_core_value_semantics_h
+#ifndef _67541b63c9f111e4ba783c15c2ddfeb4
+#define _67541b63c9f111e4ba783c15c2ddfeb4
 
 #define COPYABLE(x) \
     x(x const & other); \

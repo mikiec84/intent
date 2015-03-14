@@ -1,5 +1,5 @@
-#ifndef intent_core_arg_inline_h
-#define intent_core_arg_inline_h
+#ifndef _67533263c9f111e4b64f3c15c2ddfeb4
+#define _67533263c9f111e4b64f3c15c2ddfeb4
 
 #include "core/text/arg.h"
 

@@ -1,5 +1,5 @@
-#ifndef intent_core_text_trie_inline_h
-#define intent_core_text_trie_inline_h
+#ifndef _67538582c9f111e4bdb43c15c2ddfeb4
+#define _67538582c9f111e4bdb43c15c2ddfeb4
 
 #include <cstring>
 

@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_private_response_impl_h
-#define intent_core_net_curl_private_response_impl_h
+#ifndef _6752af87c9f111e4b03d3c15c2ddfeb4
+#define _6752af87c9f111e4b03d3c15c2ddfeb4
 
 #include "core/net/curl/request.h"
 #include "core/net/curl/response.h"

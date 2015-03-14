@@ -1,5 +1,5 @@
-#ifndef intent_core_enum_operators_h
-#define intent_core_enum_operators_h
+#ifndef _6753da14c9f111e48f303c15c2ddfeb4
+#define _6753da14c9f111e48f303c15c2ddfeb4
 
 #include <type_traits>
 

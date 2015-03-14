@@ -1,5 +1,5 @@
-#ifndef intent_lang_token_type_h
-#define intent_lang_token_type_h
+#ifndef _6754a5a1c9f111e4acc83c15c2ddfeb4
+#define _6754a5a1c9f111e4acc83c15c2ddfeb4
 
 namespace intent {
 namespace lang {

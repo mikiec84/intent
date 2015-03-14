@@ -1,3 +1,4 @@
+#include "lang/lexer.h"
 #include "lang/parser.h"
 
 using namespace intent::core::text;
@@ -11,6 +12,9 @@ namespace lang {
 
 struct parser::impl_t {
     lexer lex;
+
+    impl_t(str_view const & txt) : lex(txt) {
+    }
 };
 
 
@@ -22,11 +26,14 @@ parser::parser(char const * begin, size_t length) : parser(str_view(begin, lengt
 }
 
 
-parser::parser(str_view const & _txt) :
-    txt(_txt), line_begin(_txt.begin), p(_txt.begin),
-    inconsistent_indent(nullptr), line_number(0), total_indent_width(0),
-    indent_dedent_delta(0), last_stack_insert_idx(NO_INDENT_YET) {
+parser::parser(str_view const & txt) :
+    impl(new impl_t(txt)) {
+}
 
+
+parser::~parser() {
+    delete impl;
+}
 
 
 } // end namespace lang

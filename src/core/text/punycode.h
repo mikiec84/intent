@@ -1,5 +1,5 @@
-#ifndef intent_core_text_punycode_h
-#define intent_core_text_punycode_h
+#ifndef _67535440c9f111e4a2d13c15c2ddfeb4
+#define _67535440c9f111e4a2d13c15c2ddfeb4
 
 // This code is based on the sample C implementation of punycode in RFC 3492.
 

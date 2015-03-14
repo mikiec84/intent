@@ -2,6 +2,5 @@ calculated: mark
     implies:
         - type == str
     forces:
-        - marks.append(-multiline)
-    make: ctor +copyargs
-        
+        - marks.append(-<multiline)
+    make: ctor +<copyargs

@@ -1,5 +1,5 @@
-#ifndef intent_core_base_x_encode_h
-#define intent_core_base_x_encode_h
+#ifndef _67533b05c9f111e480dd3c15c2ddfeb4
+#define _67533b05c9f111e480dd3c15c2ddfeb4
 
 #include <cstddef>
 
