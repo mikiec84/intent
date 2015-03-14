@@ -11,7 +11,7 @@ enum issue_id {
     ii_none = 0,
     #define TUPLE(number, name, msg) \
         ii_##name = number,
-    #include "lang/issue_tuples.h"
+    #include "lang/issue.tuples"
 };
 
 size_t get_issue_count();

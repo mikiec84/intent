@@ -10,6 +10,7 @@ include(../../cmake/boost.cmake)
 
 file(GLOB_RECURSE SRC_LIST "*.cpp")
 file(GLOB_RECURSE HEADERS "*.h")
+file(GLOB_RECURSE HEADERS "*.tuples")
 list(APPEND SRC_LIST ${HEADERS})
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST})

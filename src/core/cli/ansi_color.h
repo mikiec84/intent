@@ -18,7 +18,7 @@ static constexpr char * RESET_COLOR = ANSI_ESCAPE_PREFIX "0m";
 
 enum class ansi_color: uint8_t {
     #define TUPLE(name, hi, lo) name,
-    #include "core/cli/ansi_color_tuples.h"
+    #include "core/cli/ansi_color.tuples"
 };
 
 char const * get_ansi_color_name(ansi_color which);

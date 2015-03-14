@@ -16,7 +16,7 @@ issue_info const issue_infos[] = {
 
     #define TUPLE( number, name, msg ) \
         { ii_##name, "ii_" #name, msg },
-    #include "lang/issue_tuples.h"
+    #include "lang/issue.tuples"
 };
 
 const size_t issue_infos_count = sizeof(issue_infos) / sizeof(issue_info);

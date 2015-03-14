@@ -25,11 +25,11 @@ enum token_type {
 
     #define TUPLE(number, name, example, comment) \
         tt_##name = number,
-    #include "lang/token_type_tuples.h"
+    #include "lang/token_type.tuples"
 
     #define TUPLE(number, precedence, associativity, name, example, comment) \
         tt_operator_##name = 0x8000 | number,
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 };
 
 bool is_comment(token_type);

@@ -121,7 +121,7 @@ TEST(lexer_test, all_operators_are_tested) {
             not_found += get_token_type_name(static_cast<token_type>(tt)); \
         } \
     }
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
     if (!not_found.empty()) {
         ADD_FAILURE() << "Based on the names of unit tests in the " << tc->name()
                       << " test case,\nthe following operators don't seem to be tested:\n  "
