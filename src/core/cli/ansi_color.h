@@ -1,5 +1,5 @@
-#ifndef _67523e5cc9f111e49ec43c15c2ddfeb4
-#define _67523e5cc9f111e49ec43c15c2ddfeb4
+#ifndef _01260d52d6ea49119d956e2de8cd698c
+#define _01260d52d6ea49119d956e2de8cd698c
 
 #include <cstdint>
 #include <string>

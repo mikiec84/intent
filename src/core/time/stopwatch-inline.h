@@ -1,5 +1,5 @@
-#ifndef _6753a833c9f111e499ad3c15c2ddfeb4
-#define _6753a833c9f111e499ad3c15c2ddfeb4
+#ifndef _04d4ebadcb714a948158fcae4cd25463
+#define _04d4ebadcb714a948158fcae4cd25463
 
 #include "core/time/stopwatch.h"
 #include "core/time/assignable_clock.h"

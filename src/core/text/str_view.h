@@ -1,5 +1,5 @@
-#ifndef _675373eec9f111e4b6ba3c15c2ddfeb4
-#define _675373eec9f111e4b6ba3c15c2ddfeb4
+#ifndef _b740fd84ca6c4d6598d0cdd86fca006b
+#define _b740fd84ca6c4d6598d0cdd86fca006b
 
 #include <cstdlib>
 #include <iosfwd>

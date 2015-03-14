@@ -1,5 +1,5 @@
-#ifndef _675118a6c9f111e4a8f03c15c2ddfeb4
-#define _675118a6c9f111e4a8f03c15c2ddfeb4
+#ifndef _042cdb2f3d9d4e868504aa58470b1aeb
+#define _042cdb2f3d9d4e868504aa58470b1aeb
 
 #include "core/cli/ansi_color.h"
 
