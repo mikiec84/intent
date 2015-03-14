@@ -1,5 +1,8 @@
-assignment: class
+
+vehicle: class
     properties:
-        - associated batch id: str
-        - commands: list of str
-    make: ctor +copyargs
+        - make: +< name
+        - model: +< name
+        - year: int +< range[1890..)
+        - commands: list//str
+    make: ctor +< copyargs
