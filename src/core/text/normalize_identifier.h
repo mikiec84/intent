@@ -19,6 +19,8 @@ enum class identifier_style: uint8_t {
     camel,
     /** TitleCase names: "UseFirstDNSSetting" or "UseFirstDnsSetting" */
     title,
+    /** underscore-separated and capitalized names: "Use_First_Dns_Setting" */
+    title_under,
     /** Like camelCase, but acronyms end with alternate case: useFirstDNSsetting */
     alt_camel,
     /** Like TitleCase, but acronyms end with alternate case: UseFirstDNSsetting */
