@@ -1,8 +1,8 @@
 # An anonymous, infinite loop.
 loop:
-    # "proceed" is analogous to the "pass" keyword in python; essentially it
+    # "pass" is analogous to the "pass" keyword in python; essentially it
     ... is a no-op or placeholder.
-    proceed
+    pass
 
 # An infinite loop named "forever".
 loop forever:
@@ -16,16 +16,16 @@ loop as long as it takes:
 
 # Loop over a numeric range that starts with zero, visiting every value once.
 # We could do a classic 3-part specification of the loop, but the short form
-# just declares the upper bound.
-loop all rows in table (row: row count):
-    loop all fields in row (field: field count):
+# just declares the upper bound. Note the use of the IN operator, -[.
+loop all rows in table (row -[ row count):
+    loop all fields in row (field -[ field count):
         if (fields[field].value == 42):
             # This demonstrates the "named break" feature. We break out of
             ... both loops with this statement, not just out of the inner one.
             break all rows
 
 # Loop over a numeric range, visiting every value once.
-loop each month of the year (month: +<range[1..12]):
+loop each month of the year (month -[ +<range[1..12]):
     Make calendar(month)
 
 # Loop over a numeric range, visiting every value once, alternate form.
@@ -47,12 +47,12 @@ loop +<backward (month: 1; month <= 12; month += 2):
     Do something(month)
 
 # Loop over a numeric range, visiting every value once -- backwards.
-loop each month of the year (month: +<range[12..1]):
+loop each month of the year (month -[ +<range[12..1]):
     Print month name(month)
 
 # Loop over a numeric range, visiting every value once -- backwards, alternate
 ... form.
-loop +<backward each month of the year (month: +<range[12..1]):
+loop +<backward; each month of the year (month -[ +<range[12..1]):
     Generate spending report(month)
 
 # Loop over a numeric range, visiting every value once -- backwards, alternate
@@ -61,7 +61,7 @@ loop (month:= 12; month >= 1; --month):
     Print(Get month name(month))
 
 # Loop over a container, visiting every value once.
-loop (school: high schools):
+loop (school -[ high schools):
     Print(school.mascot)
 
 # Loop over a container, visiting every value once, in reverse order
@@ -69,11 +69,11 @@ loop +<backward (school: high schools):
     school.Find valedictorian()
 
 # Loop over an enum, visiting every value once.
-loop +<backward (day: weekdays):
+loop +<backward (day -[ weekdays):
     Print(To string(day))
 
 # Nested loops.
-loop (year: recent years):
+loop (year -[ recent years):
     loop (month: +<range[1..12]):
         day count := Get day count(month, year)
         if (day count == 29):

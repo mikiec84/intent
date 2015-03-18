@@ -54,6 +54,5 @@ x: +< y = z
 if +<unlikely; we got a super small file (size < 100 \kb):
     # do something to handle the corner case
 
-# Multiple marks can be delimited with their claim prefix, or (if they all have
-... the same claim prefix) with a comma:
-x: +<a, b, c -<d ++<e = Get default()
+# Multiple marks can be delimited with their claim prefix:
+x: foo +<a +<b +<c -<d ++<e = Get default()
