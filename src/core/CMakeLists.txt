@@ -11,8 +11,9 @@ include_directories(${CURL_INCLUDE_DIR})
 
 file(GLOB_RECURSE SRC_LIST "*.cpp")
 file(GLOB_RECURSE HEADERS "*.h")
-file(GLOB_RECURSE HEADERS "*.tuples")
 list(APPEND SRC_LIST ${HEADERS})
+file(GLOB_RECURSE TUPLES "*.tuples")
+list(APPEND SRC_LIST ${TUPLES})
 
 include(../../cmake/boost.cmake)
 include(../../cmake/asio.cmake)

@@ -30,11 +30,14 @@ lexer::lexer(char const * begin, size_t length) : lexer(str_view(begin, length))
 }
 
 lexer::lexer(str_view const & _txt) :
-    txt(_txt), line_begin(_txt.begin), p(_txt.begin),
+    txt(_txt), t(), unwrapped_text(), line_begin(_txt.begin), p(_txt.begin),
     inconsistent_indent(nullptr), line_number(0), total_indent_width(0),
     indent_dedent_delta(0), last_stack_insert_idx(NO_INDENT_YET) {
 
     if (p) {
+        // Preempt allocs for small strings. This size should be big enough for
+        // all but the most enormous comments.
+        unwrapped_text.reserve(2048);
         // Consume any whitespace at the beginning of the code. We always call
         // scan_beginning_of_line() immediately after a line break, to consume
         // indents and make sure advance() doesn't have to worry about them.
@@ -204,13 +207,20 @@ inline void lexer::scan_minus() {
     if (p + 1 < end) {
         switch (p[1]) {
         case '-':
-            consume(2, tt_operator_decrement);
+            if (p + 2 < end && p[2] == '<') {
+                consume(3, tt_operator_double_negative_mark);
+            } else {
+                consume(2, tt_operator_decrement);
+            }
             return;
         case '=':
             consume(2, tt_operator_minus_equals);
             return;
         case '[':
             consume(2, tt_operator_in);
+            return;
+        case '<':
+            consume(2, tt_operator_negative_mark);
             return;
         default:
             if (isdigit(p[1])) {
@@ -228,10 +238,17 @@ inline void lexer::scan_plus() {
     if (p + 1 < end) {
         switch (p[1]) {
         case '+':
-            consume(2, tt_operator_increment);
+            if (p + 2 < end && p[2] == '<') {
+                consume(3, tt_operator_double_positive_mark);
+            } else {
+                consume(2, tt_operator_increment);
+            }
             return;
         case '=':
             consume(2, tt_operator_plus_equals);
+            return;
+        case '<':
+            consume(2, tt_operator_positive_mark);
             return;
         default:
             if (isdigit(p[1])) {
@@ -290,20 +307,6 @@ inline void lexer::scan_slash() {
         }
     }
     consume(1, tt_operator_slash);
-}
-
-inline void lexer::scan_backslash() {
-    const auto end = txt.end();
-    if (p + 1 < end) {
-        switch (p[1]) {
-        case '-':
-            consume(2, tt_operator_negative_mark);
-            return;
-        default:
-            break;
-        }
-    }
-    consume(1, tt_operator_mark);
 }
 
 inline void lexer::scan_amper() {
@@ -427,13 +430,6 @@ inline void lexer::scan_question() {
                 consume(2, tt_operator_safe_subscript);
             }
             return;
-        case '\\':
-            if (p + 2 < end && p[2] == '-') {
-                consume(3, tt_operator_tentative_negative_mark);
-            } else {
-                consume(2, tt_operator_tentative_mark);
-            }
-            return;
         case ':':
             consume(2, tt_operator_elvis);
             return;
@@ -465,10 +461,11 @@ bool lexer::advance() {
     t.substr.begin_at(t.substr.end());
     p = t.substr.begin;
 
-    // Before we scan more text, emit any errors that we've already discovered.
+    // Before we scan more text, emit any error left over from previous lexing.
     if (pending_error) {
         t.type = tt_error;
-        t.value = pending_error->to_string();
+        unwrapped_text = pending_error->to_string();
+        t.value = unwrapped_text;
         pending_error.reset();
         return true;
     }
@@ -528,9 +525,6 @@ bool lexer::advance() {
         break;
     case '?':
         scan_question();
-        break;
-    case '\\':
-        scan_backslash();
         break;
     case '.':
         scan_dot();
@@ -616,16 +610,16 @@ bool lexer::advance() {
  * @post p points to first char after phrase
  */
 bool lexer::get_phrase_token() {
-    string value;
+    unwrapped_text.clear();
     t.type = isupper(*p) ? tt_verb : tt_noun;
     const auto end = txt.end();
     for (; p != end; ++p) {
         char c = *p;
         if (isalnum(c) || c == '\'' || c == ' ') {
-            value += c;
+            unwrapped_text += c;
         } else if (is_line_break(c)) {
             if (next_line_continues(consume_line_break(p, end))) {
-                value += ' ';
+                unwrapped_text += ' ';
             }
             break;
         } else {
@@ -633,7 +627,7 @@ bool lexer::get_phrase_token() {
         }
     }
     t.substr.end_at(p);
-    t.value = value;
+    t.value = unwrapped_text;
     return true;
 }
 
@@ -655,7 +649,7 @@ bool lexer::next_line_continues(char const * beginning_of_next_line) {
 }
 
 char const * lexer::get_comment_token() {
-    string value;
+    unwrapped_text.clear();
     const auto end = txt.end();
     while (true) {
         ++p;
@@ -663,16 +657,16 @@ char const * lexer::get_comment_token() {
         auto after_spaces = scan_spaces_and_tabs(p, end);
         if (after_spaces < end_of_line) {
             auto rtrim_result = rtrim(after_spaces, end_of_line);
-            if (!value.empty()) {
-                value += ' ';
+            if (!unwrapped_text.empty()) {
+                unwrapped_text += ' ';
             }
-            value += string(after_spaces, rtrim_result);
+            unwrapped_text.append(after_spaces, rtrim_result - after_spaces);
         }
         if (!next_line_continues(end_of_line + 1)) {
             break;
         }
     }
-    t.value = value;
+    t.value = unwrapped_text;
     return p;
 }
 
@@ -695,7 +689,7 @@ inline char const * scan_rest_of_line(char const * p, char const * end) {
  * @post t.value contains the normalized content of quoted str
  */
 char const * lexer::get_string_literal(char ch) {
-    string value;
+    unwrapped_text.clear();
     const auto end = txt.end();
     while (p < end){
         bool handled = false;
@@ -714,7 +708,7 @@ char const * lexer::get_string_literal(char ch) {
                 char * tmp = buf;
                 cat_codepoint_to_utf8(tmp, buf_length, cp);
                 // TODO: prove that cat_codepoint_to_utf8 worked.
-                value += buf;
+                unwrapped_text += buf;
                 p = seq_end;
             }
         } else if (is_line_break(c)) {
@@ -726,11 +720,11 @@ char const * lexer::get_string_literal(char ch) {
             }
         }
         if (!handled) {
-            value += c;
+            unwrapped_text += c;
             ++p;
         }
     }
-    t.value = value;
+    t.value = unwrapped_text;
     return p;
 }
 

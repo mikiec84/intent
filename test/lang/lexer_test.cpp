@@ -40,13 +40,13 @@ void test_unterminated_string_literal(char delim) {
     lexer lex(literal);
     auto it = lex.begin();
     ASSERT_EQ(tt_quoted_string, it->type);
-    string v = any_cast<string>(it->value);
+    auto v = it->value.to_string();
     ASSERT_STREQ("abc", v.c_str());
 
     // Prove that we emit an error in the correct place
     ++it;
     ASSERT_EQ(tt_error, it->type);
-    v = any_cast<string>(it->value);
+    v = it->value.to_string();
     string expected = interp("line 2, offset 0: error {1} -- {2}", {
                            static_cast<int>(ii_unterminated_string_literal),
                            get_issue_msg(ii_unterminated_string_literal)});
@@ -54,7 +54,7 @@ void test_unterminated_string_literal(char delim) {
     // Now prove that we resume in the correct state
     ++it;
     ASSERT_EQ(tt_noun, it->type);
-    v = any_cast<string>(it->value);
+    v = it->value.to_string();
     ASSERT_STREQ("xyz", v.c_str());
 }
 
@@ -84,7 +84,7 @@ void test_wrapped_comment(token_type comment_type) {
     ASSERT_EQ(tt_indent, it->type);
     ++it;
     ASSERT_EQ(comment_type, it->type);
-    string const & v = any_cast<string const &>(it->value);
+    string const & v = it->value.to_string();
     ASSERT_STREQ("this is a comment that spans multiple lines.", v.c_str());
 }
 
@@ -308,20 +308,20 @@ TEST(lexer_test, close_paren) {
     check_operator_between(")", tt_operator_close_paren);
 }
 
-TEST(lexer_test, mark) {
-    check_operator_between("\\", tt_operator_mark);
+TEST(lexer_test, positive_mark) {
+    check_operator_between("+<", tt_operator_positive_mark);
 }
 
 TEST(lexer_test, negative_mark) {
-    check_operator_between("\\-", tt_operator_negative_mark);
+    check_operator_between("-<", tt_operator_negative_mark);
 }
 
-TEST(lexer_test, tentative_mark) {
-    check_operator_between("?\\", tt_operator_tentative_mark);
+TEST(lexer_test, double_positive_mark) {
+    check_operator_between("++<", tt_operator_double_positive_mark);
 }
 
-TEST(lexer_test, tentative_negative_mark) {
-    check_operator_between("?\\-", tt_operator_tentative_negative_mark);
+TEST(lexer_test, double_negative_mark) {
+    check_operator_between("--<", tt_operator_double_negative_mark);
 }
 
 TEST(lexer_test, lshift) {
@@ -483,7 +483,7 @@ TEST(lexer_test, quoted_string) {
             ADD_FAILURE() << "Expected \"" << txt << "\" to be parsed as a quoted string; got "
                           << get_token_type_name(it->type) << " instead.";
         }
-        string const & v = any_cast<string const &>(it->value);
+        string const & v = it->value.to_string();
         EXPECT_STREQ(quoted_strs[i].expected_value, v.c_str());
         if (++it != lex.end()) {
             ADD_FAILURE() << "Did not consume full quoted string with \"" << txt << "\".";

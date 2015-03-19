@@ -23,7 +23,7 @@ int progress_cb(request & req, uint64_t expected_receive_total,
 }
 
 
-TEST(curl_test, simple_download) {
+TEST(curl_test, DISABLED_simple_download) {
     channel c;
     session s(c);
     response r = s.get("http://www.google.com/");
