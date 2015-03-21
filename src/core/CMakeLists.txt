@@ -13,8 +13,10 @@ find_package(PCRE REQUIRED)
 include_directories(${PCRE_INCLUDE_DIRS})
 
 file(GLOB_RECURSE SRC_LIST "*.cpp")
+
 file(GLOB_RECURSE HEADERS "*.h")
 list(APPEND SRC_LIST ${HEADERS})
+
 file(GLOB_RECURSE TUPLES "*.tuples")
 list(APPEND SRC_LIST ${TUPLES})
 
