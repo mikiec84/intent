@@ -515,6 +515,13 @@ TEST(lexer_test, numbers) {
     }
 }
 
+TEST(lexer_test, decimal_no_exponent) {
+    lexer lex("3.14");
+    auto it = lex.begin();
+    arg x(3.14);
+    EXPECT_EQ(x.dbl, it->value.dbl);
+}
+
 TEST(lexer_test, DISABLED_malformed_numbers) {
 #if 0
     What if a number has multiple underscores in a row, is all underscores, or has

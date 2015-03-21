@@ -796,19 +796,19 @@ bool get_number_token(char const * p, char const * end, token & t) {
         p = scan_decimal_digits_pre_radix(p, end, whole_number);
     }
 
-    double significand, value;
+    double value;
 
     if (floating_point || (t.type == tt_none && p < end && *p == '.')) {
         floating_point = true;
-        p = scan_decimal_digits_post_radix(++p, end, significand);
+        p = scan_decimal_digits_post_radix(++p, end, value);
     } else {
-        significand = 0.0;
+        value = 0.0;
     }
 
     // Now we've read everything except possibly an exponent. Make sure we've
     // combined values to left and right of radix, if appropriate.
     if (floating_point) {
-        significand += whole_number;
+        value += whole_number;
     }
 
     // Check for exponent.
@@ -823,7 +823,7 @@ bool get_number_token(char const * p, char const * end, token & t) {
             exp *= -1;
         }
         // TODO: what if exponent is too big? What if there's nothing after "e"?
-        value = significand * pow(10, exp);
+        value *= pow(10, exp);
         if (negative) {
             value *= -1;
         }
