@@ -9,7 +9,10 @@ namespace lang {
 namespace ast {
 
 /**
- * An expression is anything that evaluates to a value.
+ * An expr is anything that evaluates to a value. In formal grammar:
+expr
+    : value | unary_expr | binary_expr | ternary_expr | call | group
+    ;
  */
 class expression: public node {
 public:
