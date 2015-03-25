@@ -38,6 +38,28 @@ static uint32_t get_next_id() {
 }
 
 
+static void set_curl_verb(CURL * curl, char const * verb) {
+	static constexpr uint8_t EMPTY_DATA[] = {0};
+
+	auto method = get_http_method_by_name(verb);
+	switch (method->id) {
+	case http_get:
+		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
+		return;
+	case http_post:
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, &EMPTY_DATA);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0L);
+		return;
+	case http_put:
+	case http_head:
+	case http_delete:
+	case http_options:
+	default:
+		break;
+	}
+}
+
+
 response::impl_t::impl_t(class response * resp, class request && req,
 	receive_callback receive_func, progress_callback progress_func):
 		id(get_next_id()),
@@ -51,9 +73,9 @@ response::impl_t::impl_t(class response * resp, class request && req,
 		received_byte_count(0),
 		expected_receive_total(0),
 		sent_byte_count(0),
-		expected_send_total(0) {
+		expected_send_total(0),
+		status_code(0) {
 
-	curl = curl_easy_init();
 	if (!curl) {
 		fprintf(stdout, "\ncurl_easy_init() failed, exiting!");
 		exit(2);
@@ -62,8 +84,8 @@ response::impl_t::impl_t(class response * resp, class request && req,
 	auto s = request.impl->session;
 	auto ch = s->impl->channel;
 
-	s->register_response(response);
-
+	curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
+	set_curl_verb(curl, request.get_verb());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -86,7 +108,6 @@ response::impl_t::impl_t(class response * resp, class request && req,
 	curl_easy_setopt(curl, CURLOPT_CLOSESOCKETDATA, ch.impl);
 
 	ch.open();
-	curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
 	fprintf(stdout,
 			"\nAdding curl %p to channel %u (%s)", curl, ch.get_id(), request.get_url());
 	auto rc = curl_multi_add_handle(ch.impl->multi, curl);
@@ -105,16 +126,32 @@ response::impl_t::~impl_t() {
 
 response::response(request && req, receive_callback rcb, progress_callback pcb) :
 		impl(new impl_t(this, std::move(req), rcb, pcb)) {
+
+	// We can only register ourselves after our impl is fully constructed, which
+	// is why we don't call register_response in the ctor of the impl.
+	get_session().register_response(this, true);
+}
+
+
+session & response::get_session() {
+	return *impl->request.impl->session;
+}
+
+
+session const & response::get_session() const {
+	return *impl->request.impl->session;
 }
 
 
 response::~response() {
+	printf("response %u dtor\n", get_id());
 	delete impl;
 }
 
 
 response::response(response && other) : impl(std::move(other.impl)) {
 	impl->response = this;
+	other.impl = nullptr;
 }
 
 

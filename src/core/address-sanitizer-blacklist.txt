@@ -1,0 +1,2 @@
+fun:.*asio.*detail.*timer_queue.*up_heap.*
+fun:.*asio.*detail.*timer_queue.*remove_timer.*

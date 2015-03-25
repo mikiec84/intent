@@ -25,10 +25,10 @@ struct curl_multi {
 		// first. This gives us JIT initialization of curl, with destruction after
 		// main()...
 		get_env(flags);
-		_wrapped = curl_multi_init();
+		CALL_CURL_AND_ASSIGN(curl_multi_init,(), _wrapped);
 	}
 	~curl_multi() {
-		curl_multi_cleanup(_wrapped);
+		CALL_CURL(curl_multi_cleanup,(_wrapped));
 	}
 	// Allow this object to be used as if it were a CURLM *.
 	operator CURLM *() { return _wrapped; }

@@ -4,6 +4,10 @@
 #include "gtest/gtest.h"
 
 
+// Prevent compiler from complaining about unused variables.
+#define use_variable(x) if (&x == nullptr) return
+
+
 using namespace intent::core::net::curl;
 
 size_t receive_cb(request &, void * bytes, size_t byte_count) {
@@ -20,12 +24,25 @@ int progress_cb(request & req, uint64_t expected_receive_total,
 }
 
 
+TEST(curl_test, channel_lifecycle) {
+	// Prove that we can setup and teardown a channel without problems.
+	channel c;
+	use_variable(c);
+}
+
+
+TEST(curl_test, session_lifecycle) {
+	// Prove that we can setup and teardown a session without problems.
+	channel c;
+	session s(c);
+	use_variable(s);
+}
+
+
 TEST(curl_test, simple_download) {
 	channel c;
 	session s(c);
-	response r = s.get("http://www.google.com/");
-	// Get compiler not to bug us about unused variable.
-	if (&s != 0)
-		return;
+	volatile response r = s.get("http://www.google.com/");
+	use_variable(r);
 }
 

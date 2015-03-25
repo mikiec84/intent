@@ -31,6 +31,7 @@ struct response::impl_t {
 	size_t expected_receive_total;
 	size_t sent_byte_count;
 	size_t expected_send_total;
+	int status_code;
 
 	impl_t(class response *, class request &&, receive_callback, progress_callback);
 	~impl_t();

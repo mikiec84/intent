@@ -47,6 +47,7 @@ session::session() :
 
 
 session::~session() {
+	printf("session %u dtor\n", get_id());
 	impl->channel.register_session(this, false);
 	delete impl;
 }

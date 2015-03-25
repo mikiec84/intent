@@ -59,12 +59,14 @@ request::request(session & session, char const * verb, char const * url) :
 
 
 request::~request() {
+	printf("request %u dtor\n", impl ? get_id() : 9999u);
 	delete impl;
 }
 
 
 request::request(request && other) : impl(std::move(other.impl)) {
 	impl->request = this;
+	other.impl = nullptr;
 }
 
 

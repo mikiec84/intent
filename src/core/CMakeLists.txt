@@ -16,6 +16,10 @@ list(APPEND SRC_LIST ${HEADERS})
 include(../../cmake/boost.cmake)
 include(../../cmake/asio.cmake)
 
+if (${CMAKE_CXX_FLAGS} MATCHES "-fsanitize=")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize-blacklist=${CMAKE_CURRENT_LIST_DIR}/address-sanitizer-blacklist.txt")
+endif()
+
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST})
 
 #add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})

@@ -53,6 +53,8 @@ public:
 
 	headers const & get_headers() const;
 	headers & get_headers();
+
+	int get_status_code() const;
 };
 
 

@@ -40,8 +40,8 @@ typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
 // main() exits. Define an object that does init and cleanup in its ctor and dtor;
 // we will create a static (global) instance of it to guarantee this lifecycle.
 struct env {
-	env(long flags) { curl_global_init(flags); }
-	~env() { curl_global_cleanup(); }
+	env(long flags) { CALL_CURL(curl_global_init,(flags)); }
+	~env() { CALL_CURL(curl_global_cleanup,()); }
 };
 
 
@@ -65,11 +65,11 @@ channel::impl_t::impl_t() : id(get_next_id()), multi(), still_running(1),
 		// never exit because it always sees something pending...
 		work(io_service), sessions(), mtx() {
 
-	curl_multi_setopt(multi, CURLMOPT_SOCKETFUNCTION, libcurl_callbacks::on_socket_update);
-	curl_multi_setopt(multi, CURLMOPT_SOCKETDATA, this);
+	CALL_CURL(curl_multi_setopt,(multi, CURLMOPT_SOCKETFUNCTION, libcurl_callbacks::on_socket_update));
+	CALL_CURL(curl_multi_setopt,(multi, CURLMOPT_SOCKETDATA, this));
 
-	curl_multi_setopt(multi, CURLMOPT_TIMERFUNCTION, libcurl_callbacks::on_change_timeout);
-	curl_multi_setopt(multi, CURLMOPT_TIMERDATA, this);
+	CALL_CURL(curl_multi_setopt,(multi, CURLMOPT_TIMERFUNCTION, libcurl_callbacks::on_change_timeout));
+	CALL_CURL(curl_multi_setopt,(multi, CURLMOPT_TIMERDATA, this));
 }
 
 
@@ -78,17 +78,17 @@ channel::impl_t::~impl_t() {
 	if (!io_service.stopped()) {
 		io_service.stop();
 	}
-	service_runner.join();
-	still_running = 0;
-	while (!sessions.empty()) {
-		auto x = sessions.begin();
-		auto session = x->second;
-		if (session) {
-			delete session;
+	if (is_open()) {
+		still_running = 0;
+		while (!sessions.empty()) {
+			auto x = sessions.begin();
+			auto session = x->second;
+			if (session) {
+				delete session;
+			}
+			sessions.erase(x);
 		}
-		sessions.erase(x);
 	}
-	curl_multi_cleanup(multi);
 }
 
 
@@ -97,6 +97,7 @@ channel::channel(): impl(new impl_t()) {
 
 
 channel::~channel() {
+	printf("channel %u dtor\n", get_id());
 	delete impl;
 }
 
@@ -112,11 +113,33 @@ uint32_t channel::get_id() const {
 }
 
 
+static const std::thread::id inert_thread_id;
+
+
 void channel::open() {
-	auto & svc = impl->io_service;
-	if (svc.stopped()) {
-		impl->service_runner = thread([&svc]() { svc.run(); });
+
+	lock_guard<mutex> lock(impl->mtx);
+
+	if (!impl->is_open()) {
+		printf("Opening channel %u.\n", get_id());
+		auto & svc = impl->io_service;
+		impl->service_runner = thread([&svc]() {
+			svc.run();
+		});
+		impl->service_runner.detach();
 	}
+}
+
+
+bool channel::impl_t::is_open() const {
+	return service_runner.get_id() != inert_thread_id;
+}
+
+
+bool channel::is_open() const {
+	lock_guard<mutex> lock(impl->mtx);
+
+	return impl->is_open();
 }
 
 
@@ -143,19 +166,18 @@ void channel::impl_t::check_multi_info() {
 	CURLMsg *msg;
 	int msgs_left;
 	session::impl_t * simpl;
-	CURL *easy;
-	CURLcode res;
 
 	fprintf(stdout, "\nREMAINING: %d", still_running);
 
 	while ((msg = curl_multi_info_read(multi, &msgs_left))) {
 		if (msg->msg == CURLMSG_DONE) {
-			easy = msg->easy_handle;
-			res = msg->data.result;
-			curl_easy_getinfo(easy, CURLINFO_PRIVATE, &simpl);
-			curl_easy_getinfo(easy, CURLINFO_EFFECTIVE_URL, &eff_url);
+			auto easy = msg->easy_handle;
+			auto res = msg->data.result;
+			CALL_CURL(curl_easy_getinfo,(easy, CURLINFO_PRIVATE, &simpl));
+			CALL_CURL(curl_easy_getinfo,(easy, CURLINFO_EFFECTIVE_URL, &eff_url));
 			fprintf(stdout, "\nDONE: %s => (%d) %s", eff_url, res, "simpl->error");
-			curl_multi_remove_handle(multi, easy);
+			//curl_easy_getinfo(easy, CURLINFO_RESPONSE_CODE, &http_code);
+			CALL_CURL(curl_multi_remove_handle,(multi, easy));
 			//free(simpl->url);
 			//simpl->url = nullptr;
 			//curl_easy_cleanup(easy);
@@ -172,8 +194,8 @@ void channel::impl_t::on_socket_event(asio_socket_t *tcp_socket,
 	fprintf(stdout, "\nevent_cb: action=%d", action);
 
 	CURLMcode rc;
-	rc = curl_multi_socket_action(multi, tcp_socket->native_handle(), action,
-								&still_running);
+	CALL_CURL_AND_ASSIGN(curl_multi_socket_action,(multi, tcp_socket->native_handle(), action,
+								&still_running), rc);
 
 	mcode_or_die("on_socket_event: curl_multi_socket_action", rc);
 	check_multi_info();
@@ -192,7 +214,7 @@ void channel::impl_t::on_timeout(error_code const & error)
 		fprintf(stdout, "\ntimer_cb: ");
 
 		CURLMcode rc;
-		rc = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, &still_running);
+		CALL_CURL_AND_ASSIGN(curl_multi_socket_action,(multi, CURL_SOCKET_TIMEOUT, 0, &still_running), rc);
 
 		mcode_or_die("on_timeout: curl_multi_socket_action", rc);
 		check_multi_info();
@@ -254,7 +276,7 @@ void channel::impl_t::add_socket(curl_socket_t sock, CURL * easy, int action)
 	int *fdp = (int *) calloc(sizeof(int), 1);
 
 	change_socket_action(fdp, sock, easy, action);
-	curl_multi_assign(multi, sock, fdp);
+	CALL_CURL(curl_multi_assign,(multi, sock, fdp));
 }
 
 

@@ -40,4 +40,10 @@
  */
 #define CALLABLE_FROM_THREADS(...)
 
+/**
+ * This function requires locking, but it expects the caller to do that.
+ */
+#define CALLER_MUST_LOCK
+
+
 #endif // sentry
