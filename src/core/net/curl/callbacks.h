@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_callbacks_h
-#define intent_core_net_curl_callbacks_h
+#ifndef _8b9a74490f364faab6c44eb175e34ce7
+#define _8b9a74490f364faab6c44eb175e34ce7
 
 #include <cstddef>
 #include <cstdint>
@@ -18,13 +18,13 @@ class session;
  * Describe the state of an interaction that is sending or receiving bytes.
  */
 enum class stream_state {
-	/** Not done yet. */
-	more,
-	/** All bytes have been streamed. */
-	finished,
-	/** No more bytes can be streamed, but this represents an error,
-	 * not success. */
-	premature_close,
+    /** Not done yet. */
+    more,
+    /** All bytes have been streamed. */
+    finished,
+    /** No more bytes can be streamed, but this represents an error,
+     * not success. */
+    premature_close,
 };
 
 
@@ -35,7 +35,7 @@ enum class stream_state {
  * @return The number of bytes handled. Any value different from byte_count
  *     signals an error and triggers the abandonment of the transfer.
  */
-typedef size_t (*receive_callback)(response &, void * bytes, size_t byte_count);
+typedef uint64_t (*receive_callback)(response &, void * bytes, uint64_t byte_count);
 
 
 /**
@@ -43,7 +43,7 @@ typedef size_t (*receive_callback)(response &, void * bytes, size_t byte_count);
  * have been sent and/or received.
  */
 typedef int (*progress_callback)(response &, uint64_t expected_receive_total,
-	uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
+    uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
 
 
 /**

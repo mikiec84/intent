@@ -182,7 +182,7 @@ headers & response::get_headers() {
 
 static constexpr size_t max_stored_response_size = 16 * 1024 * 1024;
 
-size_t response::store_bytes_in_response(response & r, void * bytes, uint64_t byte_count) {
+uint64_t response::store_bytes_in_response(response & r, void * bytes, uint64_t byte_count) {
 
 	if (byte_count) {
 

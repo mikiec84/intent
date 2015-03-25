@@ -1,5 +1,5 @@
-#ifndef intent_lang_lexer_inline_h
-#define intent_lang_lexer_inline_h
+#ifndef _44a73bae58554c0f9b1c3e4aa41fabf8
+#define _44a73bae58554c0f9b1c3e4aa41fabf8
 
 #include "lang/lexer.h"
 

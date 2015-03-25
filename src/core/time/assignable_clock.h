@@ -1,5 +1,5 @@
-#ifndef intent_core_time_assignable_clock_h
-#define intent_core_time_assignable_clock_h
+#ifndef _966faff3623a41dea28713619f201b35
+#define _966faff3623a41dea28713619f201b35
 
 #include <atomic>
 #include <chrono>

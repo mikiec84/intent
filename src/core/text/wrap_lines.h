@@ -1,5 +1,5 @@
-#ifndef intent_core_wrap_lines_h
-#define intent_core_wrap_lines_h
+#ifndef _ccb60446a5b84bebad325d1bf5c4b387
+#define _ccb60446a5b84bebad325d1bf5c4b387
 
 #include <string>
 

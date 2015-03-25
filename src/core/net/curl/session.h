@@ -1,6 +1,5 @@
-#ifndef intent_core_net_curl_session_h
-#define intent_core_net_curl_session_h
-
+#ifndef _ba49b0b1b64448089044a8e80e8dcd01
+#define _ba49b0b1b64448089044a8e80e8dcd01
 
 #include <cstdint>
 

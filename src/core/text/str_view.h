@@ -1,5 +1,5 @@
-#ifndef intent_core_str_view_h
-#define intent_core_str_view_h
+#ifndef _b740fd84ca6c4d6598d0cdd86fca006b
+#define _b740fd84ca6c4d6598d0cdd86fca006b
 
 #include <cstdlib>
 #include <iosfwd>

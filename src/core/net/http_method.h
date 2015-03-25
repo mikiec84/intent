@@ -1,5 +1,5 @@
-#ifndef intent_core_net_http_method_h
-#define intent_core_net_http_method_h
+#ifndef _befe70a0d95645d19f091080a35636aa
+#define _befe70a0d95645d19f091080a35636aa
 
 #include <cstdint>
 
@@ -13,7 +13,7 @@ namespace net {
  */
 enum http_method_id {
 	#define TUPLE(id, str, first_rfc, last_rfc) id,
-	#include "core/net/http_method_tuples.h"
+	#include "core/net/http_method.tuples"
 };
 
 

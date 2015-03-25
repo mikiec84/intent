@@ -1,4 +1,4 @@
-| A +shadowed property is one that has a public getter and (optional) setter,
+| A +<shadowed property is one that has a public getter and (optional) setter,
 ... but that is backed by some kind of internal storage.
 shadowed: mark
 
@@ -11,10 +11,9 @@ shadowed: mark
         type co-occurrence rules:
             # Require that this mark be applied only to properties.
             - {property, claim.affirm, claim.affirm}
-    
+
     properties:
         - type
-        
+
     make: +copyargs ctor
         takes: - type
- 

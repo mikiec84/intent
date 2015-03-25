@@ -1,30 +1,40 @@
-#ifndef intent_lang_expression_h
-#define intent_lang_expression_h
+#ifndef _fe11fee2c3e548588caa3510c79a141c
+#define _fe11fee2c3e548588caa3510c79a141c
 
 #include "lang/token.h"
+#include "lang/ast/node.h"
 
 namespace intent {
 namespace lang {
+namespace ast {
 
 /**
- * An expression is anything that evaluates to a value.
+ * An expr is anything that evaluates to a value. In formal grammar:
+expr
+    : value | unary_expr | binary_expr | ternary_expr | call | group
+    ;
  */
-struct expression
-{
+class expression: public node {
+public:
+    expression(node * parent);
     virtual ~expression();
     virtual token const & first_token() const;
     virtual token const & last_token() const;
 };
 
-struct literal_expression: public expression {
+class literal_expression: public expression {
+public:
+    literal_expression(node * parent);
     token content;
-    literal_expression(token const & t) : content(t) {}
+    literal_expression(token const & t);
     virtual ~literal_expression() {}
 };
 
-struct grouped_expression: public expression {
+class grouped_expression: public expression {
+public:
+    grouped_expression(node * parent);
     expression const & inner;
-    grouped_expression(expression const & e) : inner(e) {}
+    grouped_expression(expression const & e) ;
     virtual ~grouped_expression() {}
 };
 
@@ -51,6 +61,7 @@ struct ternary_expression: public expression {
 
 #endif
 
-}} // end namespace
 
-#endif // SYNTAX_ERROR_H
+}}} // end namespace
+
+#endif

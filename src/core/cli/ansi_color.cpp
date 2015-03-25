@@ -6,12 +6,12 @@ namespace cli {
 
 static char const * ansi_color_names[] = {
     #define TUPLE(name, hi, lo) #name,
-    #include "core/cli/ansi_color_tuples.h"
+    #include "core/cli/ansi_color.tuples"
 };
 
 static char const * ansi_color_esc_seqs[] {
     #define TUPLE(name, hi, lo) ANSI_ESCAPE(hi, lo),
-    #include "core/cli/ansi_color_tuples.h"
+    #include "core/cli/ansi_color.tuples"
 };
 
 char const * get_ansi_color_name(unsigned which) {

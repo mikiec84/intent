@@ -1,5 +1,5 @@
-#ifndef intent_lang_token_h
-#define intent_lang_token_h
+#ifndef _0de674abe9214d818d6f5c6fb743c8d4
+#define _0de674abe9214d818d6f5c6fb743c8d4
 
 #include <cstdint>
 #include <memory>
@@ -28,7 +28,7 @@ public:
      */
     bool operator ==(token const & rhs) const;
 
-    intent::core::text::str_view substr;
+    core::text::str_view substr;
     token_type type;
     intent::core::text::arg value;
 };

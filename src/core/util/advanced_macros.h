@@ -1,5 +1,5 @@
-#ifndef intent_core_util_advanced_macros_h
-#define intent_core_util_advanced_macros_h
+#ifndef _427e4537328c4799bdaaf21d8286b211
+#define _427e4537328c4799bdaaf21d8286b211
 
 /*
 Some things to know about macros:

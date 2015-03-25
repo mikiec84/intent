@@ -1,5 +1,5 @@
-#ifndef intent_lang_issue_h
-#define intent_lang_issue_h
+#ifndef _f690c34bcebc4eef8a931455551b4991
+#define _f690c34bcebc4eef8a931455551b4991
 
 namespace intent {
 namespace lang {
@@ -11,7 +11,7 @@ enum issue_id {
     ii_none = 0,
     #define TUPLE(number, name, msg) \
         ii_##name = number,
-    #include "lang/issue_tuples.h"
+    #include "lang/issue.tuples"
 };
 
 size_t get_issue_count();

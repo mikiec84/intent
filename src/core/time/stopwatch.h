@@ -1,5 +1,5 @@
-#ifndef intent_core_time_stopwatch_h
-#define intent_core_time_stopwatch_h
+#ifndef _55f7e073f55d41a3a5eedba1390bc549
+#define _55f7e073f55d41a3a5eedba1390bc549
 
 #include <cstdint>
 #include <chrono>

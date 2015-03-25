@@ -16,11 +16,11 @@ token_type_info const tt_infos[] = {
 
     #define TUPLE(number, name, example, comment) \
         { "tt_" #name, static_cast<token_type>(number), example, comment },
-    #include "lang/token_type_tuples.h"
+    #include "lang/token_type.tuples"
 
     #define TUPLE(number, precedence, associativity, name, example, comment) \
         { "tt_operator_" #name, static_cast<token_type>(0x8000 | number), example, comment },
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 };
 
 const size_t tt_infos_count = sizeof(tt_infos) / sizeof(token_type_info);
@@ -48,7 +48,7 @@ operator_info const op_infos[] = {
 
     #define TUPLE(number, precedence, associativity, name, example, comment) \
         { static_cast<token_type>(0x8000 | number), precedence, oa_##associativity},
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 };
 
 const size_t op_infos_count = sizeof(op_infos) / sizeof(operator_info);

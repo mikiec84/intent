@@ -1,0 +1,132 @@
+#! /usr/bin/python
+import os, sys, re, stat
+
+add_exe_pat = re.compile(r'\Wadd_executable\s*\(', re.I)
+
+space_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
+def is_executable(path):
+    return bool(stat.S_IXUSR & os.stat(path)[stat.ST_MODE])
+
+def get_testrunner_folders():
+    compiled = []
+    test_folder = os.path.join(space_root, 'test')
+    items = os.listdir(test_folder)
+    for item in items:
+        folder = os.path.join(test_folder, item)
+        cmake_lists = os.path.join(folder, 'CMakeLists.txt')
+        if os.path.isfile(cmake_lists):
+            with open(cmake_lists, 'r') as f:
+                txt = f.read()
+            if add_exe_pat.search(txt):
+                compiled.append(item)
+    #print('Found these testrunner folders: ' + str(compiled))
+    return compiled
+
+_mrbr = None
+def get_most_recent_build_root():
+    '''
+    Normally, builds happen in a 'build' folder that's a sibling of src.
+    However, automated builds may happen in subdirs of build instead.
+    Figure out which path contains the most recent builds (e.g., in case
+    we have build both debug and release).
+    '''
+    global _mrbr
+    if _mrbr:
+        return _mrbr
+    most_recent_path = None
+    most_recent_date = 0
+    subdirs_to_ignore = [d for d in os.listdir(space_root)
+        if d != 'src' and os.path.isdir(os.path.join(space_root, d))]
+    subdirs_to_ignore.append('CMakeFiles')
+    default_build_root = os.path.join(space_root, 'build')
+    for root, dirs, files in os.walk(default_build_root):
+        if 'i' in files:
+            i = os.path.join(root, 'i')
+            if is_executable(i):
+                last_mod = os.stat(i)[stat.ST_MTIME]
+                if last_mod > most_recent_date:
+                    most_recent_date = last_mod
+                    most_recent_path = os.path.abspath(os.path.join(root, '..', '..'))
+        # Optimize dir walking by eliminating recursion in most folders.
+        else:
+            for ig in subdirs_to_ignore:
+                if ig in dirs:
+                    dirs.remove(ig)
+    _mrbr = most_recent_path
+    return most_recent_path
+
+def get_compiled_testrunners():
+    compiled = []
+    br = get_most_recent_build_root()
+    tr = get_testrunner_folders()
+    for t in tr:
+        folder = os.path.join(br, 'test', t)
+        #print('looking for testrunner in %s' % folder)
+        files = os.listdir(folder)
+        matches = [f for f in files if f.find('testrunner') > -1]
+        for m in matches:
+            path = os.path.join(folder, m)
+            #print('Found candidate testrunner at %s.' % path)
+            if is_executable(path):
+                compiled.append(path)
+    return compiled
+
+def print_header(title, char):
+    align_width = 64 - len(title)
+    print('\n%s %s %s\n' % (4*char, title, align_width*char))
+
+def runall():
+    exit_code = 0
+    cwd = os.getcwd()
+    compiled_report = 'No compiled testrunners found.'
+    script_report = 'Test scripts error.'
+    overall_status = 'FAIL'
+    try:
+        compiled = get_compiled_testrunners()
+        compiled_failures = []
+        if compiled:
+            for tr in compiled:
+                os.chdir(os.path.dirname(tr))
+                relative_path = tr[len(space_root)+1:]
+                print_header(relative_path, '-')
+                result = os.system(tr)
+                if result:
+                    exit_code += 1
+                    compiled_failures.append(relative_path)
+            if exit_code:
+                compiled_report = '%d compiled testrunners did not pass:' % exit_code
+                for x in compiled_failures:
+                    compiled_report += '\n    %s' % x
+            else:
+                compiled_report = 'All %d compiled testrunners succeeded.' % len(compiled)
+        else:
+            exit_code = 1
+
+        nose_failures = False
+        scripts_folder = os.path.join(space_root, 'test', 'scripts')
+        if os.path.isdir(scripts_folder):
+            os.chdir(space_root)
+            relative_path = scripts_folder[len(space_root)+1:]
+            cmd = 'nosetests -v %s' % relative_path
+            print_header(cmd, '-')
+            result = os.system(cmd)
+            if result:
+                nose_failures = True
+            if nose_failures:
+                exit_code += 1
+                script_report = 'Test scripts did not pass.'
+            else:
+                script_report = 'All test scripts succeeded.'
+        else:
+            script_report = 'No test scripts found in %s.' % scripts_folder[len(space_root)+1:]
+    finally:
+        if exit_code == 0:
+            overall_status = 'SUCCESS'
+        print_header('Overall status: %s' % overall_status, '=')
+        print('%s\n\n%s\n' % (compiled_report, script_report))
+        os.chdir(cwd)
+    sys.exit(exit_code)
+
+if __name__ == '__main__':
+    runall()

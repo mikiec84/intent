@@ -1,6 +1,5 @@
-#ifndef intent_core_net_curl_channel_h
-#define intent_core_net_curl_channel_h
-
+#ifndef _35a06a9815d54ed1a42f7525dfd7a8aa
+#define _35a06a9815d54ed1a42f7525dfd7a8aa
 
 #include <cstdint>
 

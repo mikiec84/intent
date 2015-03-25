@@ -1,5 +1,5 @@
-#ifndef intent_core_ansi_color_inline_h
-#define intent_core_ansi_color_inline_h
+#ifndef _042cdb2f3d9d4e868504aa58470b1aeb
+#define _042cdb2f3d9d4e868504aa58470b1aeb
 
 #include "core/cli/ansi_color.h"
 

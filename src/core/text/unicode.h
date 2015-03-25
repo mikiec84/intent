@@ -1,5 +1,5 @@
-#ifndef intent_core_unicode_h
-#define intent_core_unicode_h
+#ifndef _81ac2a416fd64b5f9321be3064496b31
+#define _81ac2a416fd64b5f9321be3064496b31
 
 #include <cstddef>
 #include <cstdint>

@@ -1,5 +1,5 @@
-#ifndef intent_core_cmdline_h
-#define intent_core_cmdline_h
+#ifndef _369228301fc2464bb1c053a5d9662a65
+#define _369228301fc2464bb1c053a5d9662a65
 
 #include <initializer_list>
 #include <stdexcept>

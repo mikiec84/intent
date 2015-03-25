@@ -1,17 +1,16 @@
-#ifndef intent_lang_lexer_h
-#define intent_lang_lexer_h
+#ifndef _48f7eccc9c7f42a2b971fbced13c6a53
+#define _48f7eccc9c7f42a2b971fbced13c6a53
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <string>
 
 #include "lang/token.h"
 #include "lang/note.h"
 
 namespace intent {
 namespace lang {
-
-class token;
 
 /**
  * Tokenize a chunk of intent code.
@@ -31,9 +30,11 @@ class token;
  */
 class lexer {
 public:
+    typedef intent::core::text::str_view lexable_t;
+
     lexer(char const * begin, char const * end);
     lexer(char const * begin, size_t length);
-    lexer(intent::core::text::str_view const & txt);
+    lexer(lexable_t const & txt);
 
     /** Behaves like a pointer to a token. */
     class iterator;
@@ -42,8 +43,19 @@ public:
     iterator end() const;
 
 private:
-    intent::core::text::str_view txt;
+    lexable_t txt;
     token t;
+    // As we lex phrases, quoted strings, and comments, we want to build up a
+    // string that contains a normalized version of the text, with all wrapping
+    // undone. This string must have a lifetime at least as long as the token
+    // state returned by an iterator, because it's stored in an arg, which takes
+    // no ownership of its value. We address this by storing the unwrapped text
+    // in a member variable. In the long run, what we ought to do is create a
+    // string bag in the lexer (or even better, the parser), and store an index
+    // into the string bag instead. This is better because the same names are
+    // likely to appear over and over again, and we save space plus mutexing of
+    // the heap if we don't duplicate those values repeatedly.
+    std::string unwrapped_text;
     char const * line_begin;
     char const * p;
     char const * inconsistent_indent;
@@ -75,7 +87,6 @@ private:
     void scan_pipe();
     void scan_caret();
     void scan_percent();
-    void scan_backslash();
     void scan_quote();
     void scan_hash();
 

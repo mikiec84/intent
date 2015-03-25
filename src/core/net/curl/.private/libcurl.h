@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_impl_libcurl_h
-#define intent_core_net_curl_impl_libcurl_h
+#ifndef _f38c85ad3b2642128140e52ae604e01e
+#define _f38c85ad3b2642128140e52ae604e01e
 
 // All references to the raw libcurl headers should come through this #include
 // so we guarantee that curl is used consistently.

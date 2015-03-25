@@ -1,5 +1,5 @@
-#ifndef intent_core_util_namespace_h
-#define intent_core_util_namespace_h
+#ifndef _fc8b8fffe26f4bac9d97ec9b335fd7ae
+#define _fc8b8fffe26f4bac9d97ec9b335fd7ae
 
 // C++ namespaces are very similar to packages in intent, and some of our C++
 // code ultimately needs to be exposed that way. However, the "namespace"

@@ -1,5 +1,5 @@
-#ifndef intent_core_strutil_h
-#define intent_core_strutil_h
+#ifndef _e1f6b48631ad4fd8a5999e9376bdbe8c
+#define _e1f6b48631ad4fd8a5999e9376bdbe8c
 
 #include <string>
 #include <vector>
@@ -16,8 +16,8 @@ typedef core::util::range<uint32_t> str_range;
 constexpr char const * const ANY_WHITESPACE = " \t\r\n";
 constexpr char const * const LINE_WHITESPACE = " \t";
 constexpr char const * const EIGHTY_SPACES =
-		"          ""          ""          ""          "
-		"          ""          ""          ""          ";
+        "          ""          ""          ""          "
+        "          ""          ""          ""          ";
 
 /**
  * Like strchr, but uses end rather than null terminator as end point.
@@ -44,7 +44,7 @@ char const * find_any_char(char const * p, char const * any, str_range range);
  * trimmable, return end.
  */
 char const * ltrim(char const * begin, char const * end, char const *
-	trimmable = ANY_WHITESPACE);
+    trimmable = ANY_WHITESPACE);
 
 /**
  * Scan string from end to begin; find first char that is trimmable. This
@@ -57,7 +57,7 @@ char const * ltrim(char const * begin, char const * end, char const *
  *   char const * new_end = rtrim(p, end); // will point to p + 5, where space is
  */
 char const * rtrim(char const * begin, char const * end, char const *
-	trimmable = ANY_WHITESPACE);
+    trimmable = ANY_WHITESPACE);
 
 bool is_null_or_empty(char const * p);
 
@@ -112,7 +112,7 @@ char * ascii_to_upper_case(char * p, char const * end);
  * way, using only ASCII assumptions that A-Z and a-z are equivalent. Not locale-
  * or codepage-aware.
  */
-int compare_str_ascii_case_insensitive(char * p);
+int compare_str_ascii_case_insensitive(char const * a, char const * b);
 
 
 }}} // end namespace

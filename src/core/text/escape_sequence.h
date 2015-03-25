@@ -1,5 +1,5 @@
-#ifndef intent_core_escape_sequence_h
-#define intent_core_escape_sequence_h
+#ifndef _259ed407b5c648c59999a79a39b960ba
+#define _259ed407b5c648c59999a79a39b960ba
 
 #include "core/text/str_view-fwd.h"
 #include "core/text/unicode.h"

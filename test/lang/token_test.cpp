@@ -7,10 +7,10 @@ using namespace intent::lang;
 
 TEST(token_test, name_lookup) {
     #define TUPLE(number, name, example, comment) EXPECT_STREQ("tt_" #name, get_token_type_name(tt_##name));
-    #include "lang/token_type_tuples.h"
+    #include "lang/token_type.tuples"
 
     #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_STREQ("tt_operator_" #name, get_token_type_name(tt_operator_##name));
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 }
 
 // This is implemented as a macro instead of a function so we get errors on line numbers inside a test func,
@@ -61,12 +61,12 @@ TEST(token_test, get_token_type_from_name) {
 
 TEST(token_test, precedence) {
     #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_EQ(precedence, get_operator_precedence(tt_operator_##name));
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 }
 
 TEST(token_test, associativity) {
     #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_EQ(oa_##associativity, get_operator_associativity(tt_operator_##name));
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 }
 
 TEST(token_test, unique_numbers) {
@@ -81,7 +81,7 @@ TEST(token_test, unique_numbers) {
             counts[number] = "tt_" #name; \
         } \
     }
-    #include "lang/token_type_tuples.h"
+    #include "lang/token_type.tuples"
 
     #define TUPLE(number, precedence, associativity, name, example, comment) \
     { \
@@ -93,5 +93,5 @@ TEST(token_test, unique_numbers) {
             counts[0x8000 | number] = "tt_operator_" #name; \
         } \
     }
-    #include "lang/operator_tuples.h"
+    #include "lang/operator.tuples"
 }

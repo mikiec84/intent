@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_response_h
-#define intent_core_net_curl_response_h
+#ifndef _25b7bb7aad8347e68fe53cdd9c23da02
+#define _25b7bb7aad8347e68fe53cdd9c23da02
 
 #include <cstdint>
 
@@ -28,7 +28,7 @@ class response {
 
 	response(request &&, receive_callback = nullptr, progress_callback = nullptr);
 
-	static size_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
+	static uint64_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
 
 	static int update_progress_in_response(response &, uint64_t expected_receive_total,
 			uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);

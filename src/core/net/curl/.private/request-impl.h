@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_private_request_impl_h
-#define intent_core_net_curl_private_request_impl_h
+#ifndef _cde04c2b82b54983831f2f6400d83bb4
+#define _cde04c2b82b54983831f2f6400d83bb4
 
 #include "core/net/curl/request.h"
 #include "core/net/curl/.private/libcurl.h"

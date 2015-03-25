@@ -1,5 +1,5 @@
-#ifndef intent_core_scope_guard_h
-#define intent_core_scope_guard_h
+#ifndef _c03d92c9a4b94354acd6ed202ceffa5a
+#define _c03d92c9a4b94354acd6ed202ceffa5a
 
 #include "core/util/advanced_macros.h"
 

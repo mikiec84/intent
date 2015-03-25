@@ -1,5 +1,5 @@
-#ifndef intent_core_strutil_inline_h
-#define intent_core_strutil_inline_h
+#ifndef _57fb304ec4644128a5111116d6bfd9ff
+#define _57fb304ec4644128a5111116d6bfd9ff
 
 #include <cstring>
 

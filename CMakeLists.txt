@@ -52,6 +52,7 @@ file(GLOB_RECURSE cmake "cmake/*")
 add_custom_target(misc SOURCES
     .travis.yml
     cmake/run_travis_build
+    test/runall
     README.md
     LICENSE
     .gitignore

@@ -1,5 +1,6 @@
 set(DEBUG_SANITIZERS integer undefined unsigned-integer-overflow address)
 set(BUILD_TESTRUNNERS 1)
+set(CMAKE_MACOSX_RPATH ON)
 
 # Figure out what build types are possible.
 if ("$ENV{INTENT_BUILD_TYPES}" STREQUAL "")

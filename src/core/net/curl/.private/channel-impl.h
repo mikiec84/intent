@@ -1,5 +1,5 @@
-#ifndef intent_core_net_curl_private_channel_impl_h
-#define intent_core_net_curl_private_channel_impl_h
+#ifndef _5182a79d693244daaf448fd5977a5f6b
+#define _5182a79d693244daaf448fd5977a5f6b
 
 #include <map>
 #include <mutex>

@@ -1,5 +1,5 @@
-#ifndef intent_core_countof_h
-#define intent_core_countof_h
+#ifndef _dc902fa4398f4bee816838274a480e68
+#define _dc902fa4398f4bee816838274a480e68
 
 #define countof(array) (sizeof(array) / sizeof(array[0]))
 
