@@ -8,13 +8,13 @@
 #include "core/net/curl/headers.h"
 #include "core/net/curl/session.h"
 #include "core/net/http_method.h"
+#include "core/net/curl/timeout.h"
 
 
 namespace intent {
 namespace core {
 namespace net {
 namespace curl {
-
 
 /**
  * Encapsulate a single response from a remote endpoint.
@@ -62,6 +62,8 @@ public:
 	headers & get_headers();
 
 	int get_status_code() const;
+
+	void wait(timeout const & t=timeout::standard);
 };
 
 

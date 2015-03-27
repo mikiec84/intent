@@ -97,8 +97,10 @@ response::impl_t::impl_t(class response * resp, class request && req,
 		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
 		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
 	}
+#ifdef DO_TIMEOUT
 	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 3L);
 	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
+#endif
 
 	/* call this function to get a socket */
 	curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
@@ -129,6 +131,15 @@ response::impl_t::~impl_t() {
 
 void response::detach() {
 	impl->detached = true;
+}
+
+
+int response::get_status_code() const {
+	return impl->status_code;
+}
+
+void response::wait(struct timeout const & timeout) {
+
 }
 
 
