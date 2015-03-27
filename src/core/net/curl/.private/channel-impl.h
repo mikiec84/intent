@@ -10,7 +10,6 @@
 #include "core/net/curl/channel.h"
 #include "core/net/curl/.private/curl_multi.h"
 #include "core/net/curl/.private/libcurl_callbacks.h"
-#include "core/util/thread_semantics.h"
 
 
 using std::map;
@@ -55,7 +54,7 @@ struct channel::impl_t {
 	void check_multi_info();
 	void remove_socket(int *f);
 
-	CALLER_MUST_LOCK bool is_open() const;
+	bool is_open() const;
 };
 
 

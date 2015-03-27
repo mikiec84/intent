@@ -40,43 +40,43 @@ std::string read_text_file(boost::filesystem::path const & fpath, size_t max_siz
  * Wrap a c-style FILE *
  */
 class c_file {
-    friend int ::fclose(c_file &);
+	friend int ::fclose(c_file &);
 protected: // normally, should be private--but needed to fix order-of-construction in easy_temp_c_file ctor
-    FILE * f;
+	FILE * f;
 public:
-    /** Wrap an already-open FILE or the results of a call to fopen() *. */
-    c_file(FILE *);
+	/** Wrap an already-open FILE or the results of a call to fopen() *. */
+	c_file(FILE *);
 
-    /** Call fopen() and wrap the results. */
-    c_file(boost::filesystem::path const & fpath, char const * mode);
+	/** Call fopen() and wrap the results. */
+	c_file(boost::filesystem::path const & fpath, char const * mode);
 
-    /**
-     * Call fclose() if internal FILE * is open.
-     */
-    virtual ~c_file();
+	/**
+	 * Call fclose() if internal FILE * is open.
+	 */
+	virtual ~c_file();
 
-    /**
-     * Allow this object to be implicitly cast to a FILE *.
-     */
-    operator FILE *();
+	/**
+	 * Allow this object to be implicitly cast to a FILE *.
+	 */
+	operator FILE *();
 
-    /**
-     * operator bool: Test whether file is open.
-     */
-    operator bool() const;
+	/**
+	 * operator bool: Test whether file is open.
+	 */
+	operator bool() const;
 
-    NOT_COPYABLE(c_file);
-    MOVEABLE(c_file);
+	NOT_COPYABLE(c_file);
+	MOVEABLE(c_file);
 };
 
 /**
  * Delete a file name when exiting the current scope.
  */
 class file_delete_on_exit {
-    boost::filesystem::path fpath;
+	boost::filesystem::path fpath;
 public:
-    file_delete_on_exit(boost::filesystem::path const & path);
-    ~file_delete_on_exit();
+	file_delete_on_exit(boost::filesystem::path const & path);
+	~file_delete_on_exit();
 };
 
 /**
@@ -88,10 +88,10 @@ boost::filesystem::path easy_temp_file_path();
  * Open a file for writing in the temp folder
  */
 struct easy_temp_c_file : public c_file {
-    boost::filesystem::path path;
-    easy_temp_c_file();
+	boost::filesystem::path path;
+	easy_temp_c_file();
 
-    NOT_COPYABLE(easy_temp_c_file);
+	NOT_COPYABLE(easy_temp_c_file);
 };
 
 }}} // end namespace

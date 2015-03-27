@@ -74,7 +74,8 @@ response::impl_t::impl_t(class response * resp, class request && req,
 		expected_receive_total(0),
 		sent_byte_count(0),
 		expected_send_total(0),
-		status_code(0) {
+		status_code(0),
+		detached(false) {
 
 	if (!curl) {
 		fprintf(stdout, "\ncurl_easy_init() failed, exiting!");
@@ -120,7 +121,14 @@ response::impl_t::impl_t(class response * resp, class request && req,
 
 
 response::impl_t::~impl_t() {
-	request.impl->session->register_response(response, false);
+	if (!detached) {
+		request.impl->session->register_response(response, false);
+	}
+}
+
+
+void response::detach() {
+	impl->detached = true;
 }
 
 

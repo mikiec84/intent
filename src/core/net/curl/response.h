@@ -18,13 +18,19 @@ namespace curl {
 
 /**
  * Encapsulate a single response from a remote endpoint.
+ *
+ * Responses are not thread-safe; you must mutex them for concurrent access to
+ * a single instance from more than one thread.
  */
+// -<threadsafe
 class response {
 	struct impl_t;
 	impl_t * impl;
 
 	friend struct libcurl_callbacks;
 	friend class session;
+
+	void detach();
 
 	response(request &&, receive_callback = nullptr, progress_callback = nullptr);
 
@@ -36,7 +42,8 @@ class response {
 public:
 
 	// Requests are usually created by calling relevant methods such as "get" or
-	// "post", on a session. The move ctor only exists to allow return-by-value.
+	// "post", on a session. The move ctor only exists to allow efficient
+	// return-by-value.
 
 	response(response &&);
 	~response();

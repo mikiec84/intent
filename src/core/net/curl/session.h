@@ -5,6 +5,7 @@
 
 #include "core/net/curl/callbacks.h"
 #include "core/net/curl/headers.h"
+#include "core/marks/concurrency_marks.h"
 
 
 namespace intent {
@@ -21,7 +22,11 @@ class request;
  * Manage one or more requests against a particular endpoint. A session
  * encapsulates credentials, cookies, and http 1.1 keep-alives--so different
  * sessions against the same server can authenticate differently.
+ *
+ * Sessions are thread-safe; instances can be shared safely on multiple threads
+ * without additional synchronization.
  */
+mark(+, threadsafe)
 class session {
 	struct impl_t;
 	impl_t * impl;
@@ -31,6 +36,7 @@ class session {
 	friend class request;
 	friend class response;
 
+	void detach();
 	void register_response(response *, bool add = true);
 	void merge_headers(headers & overrides);
 
@@ -44,6 +50,15 @@ public:
 	channel const & get_channel() const;
 
 	uint32_t get_id() const;
+
+	/**
+	 * A session can become detached if the channel that it depends on is
+	 * closed or destroyed. In such cases, the session and all the requests and
+	 * responses that it manages become unusable. This only happens if object
+	 * lifetimes are coded incorrectly. In such cases, calls that modify state
+	 * of sessions, requests, or responses throw exceptions.
+	 */
+	bool is_detached() const;
 
 	void set_user(char const * user);
 	char const * get_user() const;

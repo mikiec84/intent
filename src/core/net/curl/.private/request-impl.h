@@ -14,13 +14,15 @@ namespace curl {
 class session;
 
 
+// -<threadsafe
 struct request::impl_t {
 
-	uint32_t id;
-	session * session; // reference; not owned
-	request * request; // reference; not owned
-	char * verb;	// owned; must delete in dtor
-	char * url;		// owned; must delete in dtor
+	uint32_t id; // +<final
+	session * session; // +<final, +<owned_elsewhere
+	request * request; // +<final, +<owned_elsewhere
+	char * verb; // +final, -<owned_elsewhere
+	char * url; // +final, -<owned_elsewhere
+
 	headers headers;
 
 	impl_t(class session *, class request *, char const * verb, char const * url);

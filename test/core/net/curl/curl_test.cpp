@@ -42,10 +42,10 @@ TEST(curl_test, session_lifecycle) {
 }
 
 
-TEST(curl_test, DISABLED_simple_download) {
+TEST(curl_test, simple_download) {
 	channel c;
 	session s(c);
-	response r = s.get("http://www.google.com/");
+	//response r = s.get("http://www.google.com/");
 	// Get compiler not to bug us about unused variable.
 	if ((void*)&s != (void*)&c)
 		return;

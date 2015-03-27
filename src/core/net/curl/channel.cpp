@@ -36,7 +36,7 @@ typedef asio::ip::tcp::socket asio_socket_t;
 typedef map<curl_socket_t, asio_socket_t *> socket_map_t;
 typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
 
-// Curl needs to be initialized once, globally, and cleaned up after
+// Curl needs to be initialized once per process, globally, and cleaned up after
 // main() exits. Define an object that does init and cleanup in its ctor and dtor;
 // we will create a static (global) instance of it to guarantee this lifecycle.
 struct env {
@@ -84,8 +84,11 @@ channel::impl_t::~impl_t() {
 			auto x = sessions.begin();
 			auto session = x->second;
 			if (session) {
+				// Avoid deadlock by telling session we'll deregister it automatically.
+				session->detach();
 				delete session;
 			}
+			// Here's where we do auto-deregistration.
 			sessions.erase(x);
 		}
 	}

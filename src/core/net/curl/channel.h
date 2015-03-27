@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "core/marks/concurrency_marks.h"
+
 
 namespace intent {
 namespace core {
@@ -27,9 +29,10 @@ class session;
  * read or write on a socket; a good rule of thumb is that one channel can
  * efficiently handle, say, up to about 1000 open connections at a time.
  *
- * Instances of this class can be shared safely on multiple threads without
- * additional synchronization.
+ * Channels are thread-safe; instances can be shared safely on multiple threads
+ * without additional synchronization.
  */
+mark(+, threadsafe)
 class channel {
 	struct impl_t;
 	impl_t * impl;

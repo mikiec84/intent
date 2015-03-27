@@ -2,7 +2,6 @@
 #define _584cd27111434eae82d127ec5ac746b8
 
 #include "core/text/str_view.h"
-#include "core/util/thread_semantics.h"
 
 namespace intent {
 namespace core {
@@ -25,35 +24,34 @@ namespace cli {
  * nearly as cheap as ongoing usage, so the expectation is that they will be
  * kept around and reused instead of being repeatedly created.
  */
-IMMUTABLE
-class ansi_color_palette {
-    struct data_t;
-    data_t * data;
+class ansi_color_palette /* +<frozen */ {
+	struct data_t;
+	data_t * data;
 public:
-    /**
-     * Create a palette from a string.
-     *
-     * @param spec: a string that contains a series of name=value pairs,
-     *     delimited by \n. Color names are not case-sensitive and consist of a
-     *     single token of [a-z][a-z0-9_-.]* (non-alphanums are ignored in
-     *     comparisons, so "stat-msg", "Stat.Msg", "STAT_MSG", and "statMsg"
-     *     are equivalent). In actual usage, names only need to be specified
-     *     with as many chars as it takes to make them unique, and should be
-     *     kept short for performance and terseness. Values are numbers in the
-     *     range [0..15]; not all of them need be defined. Order of items in the
-     *     spec is irrelevant, and a single value may have more than one name.
-     *     For example:
-     *
-     *         title=15
-     *         see-also=3
-     *         warning=9
-     *         error=10
-     *         xref=7
-     */
-    ansi_color_palette(intent::core::text::str_view const & spec);
-    ~ansi_color_palette();
+	/**
+	 * Create a palette from a string.
+	 *
+	 * @param spec: a string that contains a series of name=value pairs,
+	 *     delimited by \n. Color names are not case-sensitive and consist of a
+	 *     single token of [a-z][a-z0-9_-.]* (non-alphanums are ignored in
+	 *     comparisons, so "stat-msg", "Stat.Msg", "STAT_MSG", and "statMsg"
+	 *     are equivalent). In actual usage, names only need to be specified
+	 *     with as many chars as it takes to make them unique, and should be
+	 *     kept short for performance and terseness. Values are numbers in the
+	 *     range [0..15]; not all of them need be defined. Order of items in the
+	 *     spec is irrelevant, and a single value may have more than one name.
+	 *     For example:
+	 *
+	 *         title=15
+	 *         see-also=3
+	 *         warning=9
+	 *         error=10
+	 *         xref=7
+	 */
+	ansi_color_palette(intent::core::text::str_view const & spec);
+	~ansi_color_palette();
 
-    unsigned map_name(char const * name) const;
+	unsigned map_name(char const * name) const;
 };
 
 }}} // end namespace
