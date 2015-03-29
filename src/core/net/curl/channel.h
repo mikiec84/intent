@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "core/marks/concurrency_marks.h"
+
 
 namespace intent {
 namespace core {
@@ -14,16 +16,23 @@ class session;
 
 
 /**
- * Encapsulate one or more concurrent interactions with servers on the web.
+ * Service one or more sessions with servers on the web.
+ *
  * A channel is an artifical construct that allows grouping sessions together
  * in whatever way makes sense; there can be a global channel in an app, one
  * channel per unique server, or other postures to suit different purposes.
- * Channels share accepted security certificates, cache, and other state that
- * might accumulate across multiple sessions with multiple remote hosts.
+ * Simple apps only need one channel, and a default is provided and created
+ * automatically, allowing channels to mostly be ignored in many use cases.
  *
- * Instances of this class can shared safely on multiple threads without
- * additional synchronization.
+ * Each channel has a single background event/reactor thread (using epoll() on
+ * linux, for example) to efficiently dispatch callbacks as data is ready to
+ * read or write on a socket; a good rule of thumb is that one channel can
+ * efficiently handle, say, up to about 1000 open connections at a time.
+ *
+ * Channels are thread-safe; instances can be shared safely on multiple threads
+ * without additional synchronization.
  */
+mark(+, threadsafe)
 class channel {
 	struct impl_t;
 	impl_t * impl;
@@ -41,6 +50,7 @@ public:
 	~channel();
 
 	uint32_t get_id() const;
+	bool is_open() const;
 
 	static channel & get_default();
 };

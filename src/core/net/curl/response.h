@@ -8,6 +8,7 @@
 #include "core/net/curl/headers.h"
 #include "core/net/curl/session.h"
 #include "core/net/http_method.h"
+#include "core/net/curl/timeout.h"
 
 
 namespace intent {
@@ -15,16 +16,21 @@ namespace core {
 namespace net {
 namespace curl {
 
-
 /**
  * Encapsulate a single response from a remote endpoint.
+ *
+ * Responses are not thread-safe; you must mutex them for concurrent access to
+ * a single instance from more than one thread.
  */
+// -<threadsafe
 class response {
     struct impl_t;
     impl_t * impl;
 
     friend struct libcurl_callbacks;
     friend class session;
+
+    void detach();
 
     response(request &&, receive_callback = nullptr, progress_callback = nullptr);
 
@@ -54,7 +60,8 @@ public:
     headers const & get_headers() const;
     headers & get_headers();
 
-    uint16_t get_response_code() const;
+    uint16_t get_status_code() const;
+    void wait(timeout const & t=timeout::standard);
 };
 
 

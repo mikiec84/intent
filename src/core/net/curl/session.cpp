@@ -30,8 +30,9 @@ static uint32_t get_next_id() {
 session::impl_t::impl_t(class channel & ch):
 	id(get_next_id()),
 	channel(ch),
+	mtx(),
 	responses(),
-	mtx() {
+	detached(false) {
 }
 
 
@@ -47,8 +48,29 @@ session::session() :
 
 
 session::~session() {
-	impl->channel.register_session(this, false);
+	printf("session %u dtor\n", get_id());
+	lock_guard<mutex> lock(impl->mtx);
+	if (!impl->detached) {
+		impl->channel.register_session(this, false);
+	}
+	while (!impl->responses.empty()) {
+		auto x = impl->responses.begin();
+		auto resp = x->second;
+		if (resp) {
+			// Avoid deadlock by telling request we'll deregister it automatically.
+			resp->response->detach();
+			delete resp;
+		}
+		// Here's where we do auto-deregistration.
+		impl->responses.erase(x);
+	}
 	delete impl;
+}
+
+
+void session::detach() {
+	lock_guard<mutex> lock(impl->mtx);
+	impl->detached = false;
 }
 
 

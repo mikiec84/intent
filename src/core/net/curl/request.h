@@ -9,7 +9,6 @@
 #include "core/net/curl/session.h"
 #include "core/net/http_method.h"
 
-
 namespace intent {
 namespace core {
 namespace net {
@@ -18,7 +17,11 @@ namespace curl {
 
 /**
  * Encapsulate a single request to a remote endpoint.
+ *
+ * Requests are not thread-safe; you must mutex them for concurrent access to
+ * a single instance from more than one thread.
  */
+// -<threadsafe
 class request {
 	struct impl_t;
 	impl_t * impl;

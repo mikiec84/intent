@@ -18,15 +18,21 @@ list(APPEND SRC_LIST ${TUPLES})
 
 add_library(${PROJECT_NAME} STATIC ${SRC_LIST})
 
-add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})
-target_link_libraries(${PROJECT_NAME}-shared
-    intent-core
-    ${Boost_LIBRARIES}
-#    ${PCRE_LIBRARIES}
-#    ${CURL_LIBRARIES}
-)
+set(intall_targets intent-lang)
 
-install(TARGETS intent-lang intent-lang-shared
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+    add_library(${PROJECT_NAME}-shared SHARED ${SRC_LIST})
+    target_link_libraries(${PROJECT_NAME}-shared
+        intent-core
+        ${Boost_LIBRARIES}
+    #    ${PCRE_LIBRARIES}
+    #    ${CURL_LIBRARIES}
+    )
+    list(APPEND install_targets intent-lang-shared)
+endif()
+
+install(TARGETS ${install_targets}
     ARCHIVE DESTINATION lib
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib

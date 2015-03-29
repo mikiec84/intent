@@ -54,6 +54,7 @@ struct channel::impl_t {
 	void check_multi_info();
 	void remove_socket(int *f);
 
+	bool is_open() const;
 };
 
 

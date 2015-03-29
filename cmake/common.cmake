@@ -53,7 +53,7 @@ if (NOT ("$ENV{CMAKE_BUILDTYPE_SHOWN}" STREQUAL "1"))
             "  (Change with -DCMAKE_BUILD_TYPE=x...)\n")
 endif()
 
-set(WARNING_FLAGS "-Wall -Wextra -Werror -Wno-unused-result -Wno-unused-value")
+set(WARNING_FLAGS "-Wall -Wextra -Werror -Wno-unused-result -Wno-unused-value -Wno-unused-local-typedef")
 set(WARNING_FLAGS "${WARNING_FLAGS} -Wno-unused-parameter -Wno-write-strings")
 set(WARNING_FLAGS "${WARNING_FLAGS} -Qunused-arguments -Wno-missing-field-initializers")
 
