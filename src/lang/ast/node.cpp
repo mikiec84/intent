@@ -6,7 +6,7 @@ namespace intent {
 namespace lang {
 namespace ast {
 
-void node::add_child(node * child) {
+void node::add_child(handle_t child) {
     // We could use a std::vector<node *> instead. However, I don't want to
     // preallocate *any* space, and I only want to allocate enough space for
     // 4 children in the common case, because most nodes have very few children.
@@ -24,7 +24,7 @@ void node::add_child(node * child) {
         children = reinterpret_cast<node **>(new_children);
         allocated_child_count = new_count;
     }
-    children[child_count++] = child;
+    children[child_count++] = child.get();
 }
 
 

@@ -21,7 +21,7 @@ TEST(node_test, root) {
 }
 
 
-TEST(node_test, children) {
+TEST(node_test, DISABLED_children) {
     node n(nullptr);
     EXPECT_EQ(0u, n.get_child_count());
     n.add_child(nullptr);

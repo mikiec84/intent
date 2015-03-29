@@ -134,7 +134,7 @@ void response::detach() {
 }
 
 
-int response::get_status_code() const {
+uint16_t response::get_status_code() const {
     return impl->status_code;
 }
 
@@ -196,11 +196,6 @@ headers const & response::get_headers() const {
 
 headers & response::get_headers() {
     return impl->headers;
-}
-
-
-uint16_t response::get_status_code() const {
-    return 0;
 }
 
 

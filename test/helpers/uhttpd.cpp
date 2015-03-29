@@ -79,7 +79,7 @@ bool uhttpd::stop() {
     static curl::session session;
     auto quit_url = impl->base_url + "quit";
     curl::response response = session.get(quit_url.c_str());
-    if (response.get_response_code() >= 400) {
+    if (response.get_status_code() >= 400) {
         auto status = impl->child.wait();
         if (status.exit_status() == -1) {
             return false;
