@@ -12,6 +12,8 @@ namespace intent {
 namespace core {
 namespace text {
 
+    typedef boost::filesystem::path path;
+
 /**
  * An arg is a specialized type of variant--a lightweight wrapper around
  * any argument passed to interp() or similar functions that need variadic
@@ -40,7 +42,7 @@ struct arg {
     arg(double);
     arg(std::string const &);
     arg(char const *);
-    arg(boost::filesystem::path const &);
+    arg(path const &);
     arg(str_view const &);
     arg(bool);
 
@@ -93,7 +95,7 @@ struct arg {
         double dbl;
         std::string const * str;
         char const * cstr;
-        boost::filesystem::path const * path;
+        path const * path;
         str_view const * slice;
         bool boolean;
     };

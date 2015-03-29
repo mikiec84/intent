@@ -1,9 +1,10 @@
 #include "core/dev/space.h"
 
-using namespace boost::filesystem;
-
 namespace intent {
 namespace core {
+
+using namespace filesystem;
+
 namespace dev {
 
 const char * const sandbox_prop_file = "sandbox.i";

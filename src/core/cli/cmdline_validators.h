@@ -1,10 +1,10 @@
 #ifndef _b24750f44d3446858e95cab7f984814d
 #define _b24750f44d3446858e95cab7f984814d
 
-#include <boost/filesystem.hpp>
 #include <initializer_list>
 #include <string>
 
+#include "core/filesystem.h"
 #include "core/util/enum_operators.h"
 #include "core/text/numeric_formats.h"
 
@@ -27,7 +27,7 @@ struct numeric_range_info {
 /**
  * A validator for numbers passed as cmdline args.
  */
-std::string in_numeric_range(cmdline_param const & param, char const * value, 
+std::string in_numeric_range(cmdline_param const & param, char const * value,
     void /*numeric_range_info*/ const *);
 
 /**
@@ -48,7 +48,7 @@ std::string matches_regex(cmdline_param const & param, char const * value,
     void /*precpp::RE*/ const *);
 
 struct filesys_info {
-    std::initializer_list<boost::filesystem::file_type> type_must_be_in;
+    std::initializer_list<filesystem::file_type> type_must_be_in;
     unsigned perms_mask;
     unsigned masked_perms_must_equal;
     double min_size;

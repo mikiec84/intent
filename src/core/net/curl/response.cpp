@@ -143,6 +143,11 @@ headers & response::get_headers() {
 }
 
 
+uint16_t response::get_response_code() const {
+    return 0;
+}
+
+
 static constexpr size_t max_stored_response_size = 16 * 1024 * 1024;
 
 uint64_t response::store_bytes_in_response(response & r, void * bytes, uint64_t byte_count) {

@@ -4,7 +4,10 @@ project(test-util)
 
 include(../../cmake/common.cmake)
 
-include_directories(..)
+include_directories(
+    ..
+    ../../src
+)
 
 file(GLOB SRC_LIST "*.cpp")
 file(GLOB HEADERS "*.h")

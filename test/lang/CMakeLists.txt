@@ -8,6 +8,7 @@ file(GLOB_RECURSE SRC_LIST "*.cpp")
 
 if (BUILD_TESTRUNNERS)
     include_directories(
+        ..
         ../../src
         ${gtest_SOURCE_DIR}/include
     )

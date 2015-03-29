@@ -2,11 +2,11 @@
 #include <cmath>
 #include <sstream>
 
-#include <boost/filesystem.hpp>
 #include <pcrecpp.h> // "brew install pcre" or "sudo apt-get install libpcre3-dev"
 
 #include "core/cli/cmdline.h"
 #include "core/cli/cmdline_validators.h"
+#include "core/filesystem.h"
 #include "core/util/dbc.h"
 #include "core/text/interp.h"
 #include "core/text/scan_numbers.h"
@@ -16,29 +16,30 @@ using std::find;
 using std::string;
 using std::stringstream;
 
-using boost::filesystem::block_file;
-using boost::filesystem::character_file;
-using boost::filesystem::directory_file;
-using boost::filesystem::fifo_file;
-using boost::filesystem::file_not_found;
-using boost::filesystem::file_status;
-using boost::filesystem::file_type;
-using boost::filesystem::path;
-using boost::filesystem::regular_file;
-using boost::filesystem::socket_file;
-using boost::filesystem::status_error;
-using boost::filesystem::symlink_file;
-using boost::filesystem::read_symlink;
-
-using intent::core::text::interp;
-using intent::core::text::number_info;
-using intent::core::text::numeric_formats;
-
 namespace intent {
 namespace core {
+
+using filesystem::block_file;
+using filesystem::character_file;
+using filesystem::directory_file;
+using filesystem::fifo_file;
+using filesystem::file_not_found;
+using filesystem::file_status;
+using filesystem::file_type;
+using filesystem::path;
+using filesystem::regular_file;
+using filesystem::socket_file;
+using filesystem::status_error;
+using filesystem::symlink_file;
+using filesystem::read_symlink;
+
+using text::interp;
+using text::number_info;
+using text::numeric_formats;
+
 namespace cli {
 
-std::string in_numeric_range(cmdline_param const & param, char const * value, 
+std::string in_numeric_range(cmdline_param const & param, char const * value,
     void const * range_info) {
 
     const char * const MSG = "Error with {1}=\"{2}\": expected a value between "
@@ -111,7 +112,7 @@ string matches_filesys_info(cmdline_param const & param, char const * value,
     unsigned problem_count = 0;
     stringstream err;
     path p(value);
-    file_status status = boost::filesystem::status(p);
+    file_status status = intent::core::filesystem::status(p);
     auto typ = status.type();
     auto exists = !(typ == file_not_found || typ == status_error);
     if (!in(fsinfo.type_must_be_in, typ)) {
@@ -172,7 +173,7 @@ string matches_filesys_info(cmdline_param const & param, char const * value,
         bool has_min_size = !std::isnan(fsinfo.min_size) && fsinfo.min_size > 0;
         bool has_max_size = !std::isnan(fsinfo.min_size) && fsinfo.min_size < std::numeric_limits<double>::max();
         if (exists && (has_min_size || has_max_size)) {
-            auto sz = boost::filesystem::file_size(p);
+            auto sz = intent::core::filesystem::file_size(p);
             if (has_min_size && sz < fsinfo.min_size) {
                 append(err, "file is too small", problem_count);
             } else if (has_max_size && sz > fsinfo.max_size) {

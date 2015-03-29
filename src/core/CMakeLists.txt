@@ -4,7 +4,9 @@ project(intent-core)
 
 include(../../cmake/common.cmake)
 
-include_directories(..)
+include_directories(
+    ..
+)
 
 find_package(CURL REQUIRED)
 include_directories(${CURL_INCLUDE_DIR})

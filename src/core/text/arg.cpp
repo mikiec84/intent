@@ -1,7 +1,7 @@
-#include <boost/filesystem.hpp>
 #include <cstdio>
 #include <cstring>
 
+#include "core/filesystem.h"
 #include "core/text/arg.h"
 #include "core/text/str_view.h"
 

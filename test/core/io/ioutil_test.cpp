@@ -4,8 +4,8 @@
 
 #include "gtest/gtest.h"
 
-using namespace boost::filesystem;
 using namespace intent::core::io;
+using namespace intent::core::filesystem;
 
 TEST(ioutil_test, file_delete_on_exit) {
     path tmp = easy_temp_file_path();

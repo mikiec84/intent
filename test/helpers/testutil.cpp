@@ -1,6 +1,6 @@
-#include "testutil.h"
+#include "helpers/testutil.h"
 
-using namespace boost::filesystem;
+using namespace intent::core::filesystem;
 
 path find_test_folder(char const * cpp_file, char const * start_folder) {
     path p(start_folder);

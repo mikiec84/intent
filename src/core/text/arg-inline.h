@@ -1,6 +1,7 @@
 #ifndef _7f0832fdef36490793c4662b6c2f85ed
 #define _7f0832fdef36490793c4662b6c2f85ed
 
+#include "core/filesystem.h"
 #include "core/text/arg.h"
 
 namespace intent {
@@ -61,7 +62,7 @@ inline arg::arg(char const * value) :
     type(vt_cstr), cstr(value) {
 }
 
-inline arg::arg(boost::filesystem::path const & p) :
+inline arg::arg(filesystem::path const & p) :
     type(vt_path), path(&p) {
 }
 

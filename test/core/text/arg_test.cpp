@@ -1,5 +1,4 @@
-#include <boost/filesystem.hpp>
-
+#include "core/filesystem.h"
 #include "core/text/arg.h"
 #include "core/util/countof.h"
 #include "core/text/str_view.h"
@@ -10,7 +9,7 @@ using namespace intent::core::text;
 
 const char * const txt = "abcxyz";
 str_view const slc(txt + 1, txt + 4); // bcx
-boost::filesystem::path file("/root/subdir/x.txt");
+intent::core::filesystem::path file("/root/subdir/x.txt");
 std::string str_arg("my string");
 
 arg test_args[] = {

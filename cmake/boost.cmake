@@ -20,6 +20,10 @@ find_package(Boost 1.48.0 REQUIRED COMPONENTS filesystem system)
 set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} CACHE STRING "where boost headers are")
 include_directories(${Boost_INCLUDE_DIRS})
 
+# We are using a boost extension that's not part of boost proper. It is header-
+# only, and stored at src/external/process. Add that path to the includes.
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../src/external/boost.process)
+
 # To link against boost libraries, simply add ${Boost_LIBRARIES} to link
 # targets, like this:
 

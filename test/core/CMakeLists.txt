@@ -12,6 +12,7 @@ if (BUILD_TESTRUNNERS)
     find_package(CURL REQUIRED)
 
     include_directories(
+        ..
         ../../src
         ${gtest_SOURCE_DIR}/include
         ${PCRE_INCLUDE_DIRS}

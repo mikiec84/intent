@@ -28,13 +28,13 @@ TEST(node_test, children) {
     EXPECT_EQ(0u, n.get_child_count());
     auto a = new node(&n);
     auto b = new node(&n);
-    n.add_child(a);
-    n.add_child(b);
+    n.add_child(node::handle_t(a));
+    n.add_child(node::handle_t(b));
     EXPECT_EQ(2u, n.get_child_count());
     EXPECT_EQ(a, n.get_child(0));
     EXPECT_EQ(b, n.get_child(1));
     for (unsigned i = 0; i < 200; ++i) {
-        n.add_child(new node(&n));
+        n.add_child(node::handle_t(new node(&n)));
     }
     EXPECT_EQ(202u, n.get_child_count());
 }

@@ -23,11 +23,11 @@ using std::vector;
 
 using boost::any_cast;
 using boost::lexical_cast;
-using namespace boost::filesystem;
 
 using namespace intent::core;
 using namespace intent::core::io;
 using namespace intent::core::text;
+using namespace intent::core::filesystem;
 using namespace intent::lang;
 
 #define EXPECT_TOKEN_TYPE(ex, actual, i) \
@@ -601,12 +601,12 @@ struct token_dumper {
             x_path /= path(i.filename().string() + ".lex");
             if (exists(x_path)) {
                 try {
-                    boost::filesystem::remove(x_path);
+                    filesystem::remove(x_path);
                 } catch (...) {
                 }
             }
             if (!exists(x_path)) {
-                boost::filesystem::rename(final_path, x_path);
+                filesystem::rename(final_path, x_path);
                 final_path = x_path;
             }
             if (initial_error_size == 0) {

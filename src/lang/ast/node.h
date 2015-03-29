@@ -2,6 +2,7 @@
 #define _5650cbbd17644dc0946a1cdbd05a2400
 
 #include <cstdint>
+#include <memory>
 
 namespace intent {
 namespace lang {
@@ -21,6 +22,8 @@ class node {
     uint32_t child_count;
     uint32_t allocated_child_count;
 public:
+    typedef std::unique_ptr<node> handle_t;
+
     node(node const &) = delete;
     node & operator =(node const &) = delete;
 
@@ -33,7 +36,7 @@ public:
     node * get_root();
     node const * get_root() const;
 
-    void add_child(node *);
+    void add_child(handle_t);
     uint32_t get_child_count() const;
 
     node * get_child(uint32_t i);

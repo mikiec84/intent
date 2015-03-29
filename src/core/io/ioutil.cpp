@@ -1,12 +1,12 @@
 #include "core/io/ioutil.h"
 
-using boost::filesystem::path;
-using boost::filesystem::temp_directory_path;
-using boost::filesystem::unique_path;
-
 namespace intent {
 namespace core {
 namespace io {
+
+using filesystem::path;
+using filesystem::temp_directory_path;
+using filesystem::unique_path;
 
 c_file::c_file(FILE * _f) : f(_f)
 {

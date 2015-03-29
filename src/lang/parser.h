@@ -2,10 +2,18 @@
 #define _d1c7ed60cc3d4a079e7232f44d26a225
 
 #include <cstddef>
+#include <memory>
 
 #include "core/text/str_view.h"
+#include "lang/ast/node.h"
 
 namespace intent {
+
+namespace core {
+namespace work {
+    class progress_tracker;
+}}
+
 namespace lang {
 
 /**
@@ -20,6 +28,13 @@ public:
     parser(char const * begin, size_t length);
     parser(core::text::str_view const & txt);
     ~parser();
+
+    /**
+     * Convert raw text into an abstract syntax tree.
+     *
+     * @return root of ast
+     */
+    ast::node::handle_t build_ast(core::work::progress_tracker * = nullptr);
 };
 
 }} // end namespace

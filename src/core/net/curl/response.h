@@ -35,7 +35,7 @@ class response {
 
 public:
 
-    // Requests are usually created by calling relevant methods such as "get" or
+    // Responses are usually created by calling relevant methods such as "get" or
     // "post", on a session. The move ctor only exists to allow return-by-value.
 
     response(response &&);
@@ -53,6 +53,8 @@ public:
 
     headers const & get_headers() const;
     headers & get_headers();
+
+    uint16_t get_response_code() const;
 };
 
 
