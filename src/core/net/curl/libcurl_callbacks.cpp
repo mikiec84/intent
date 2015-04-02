@@ -15,7 +15,7 @@ namespace net {
 namespace curl {
 
 
-/* Update the event timer after curl_multi library calls */
+/* Update the event timer after multi library calls */
 int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _chimpl)
 {
 	fprintf(stderr, "%s(): timeout_ms %ld\n", __func__, timeout_ms);

@@ -8,7 +8,7 @@
 #include "asio.hpp"
 
 #include "core/net/curl/channel.h"
-#include "core/net/curl/.private/curl_multi.h"
+#include "core/net/curl/.private/multi.h"
 #include "core/net/curl/.private/libcurl_callbacks.h"
 
 
@@ -32,29 +32,29 @@ typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
  */
 struct channel::impl_t {
 
-	uint32_t id;
-	curl_multi multi;
-	int still_running;
-	asio::io_service io_service;
-	asio::deadline_timer timeout;
-	socket_map_t socket_map;
-	std::thread service_runner;
-	asio::io_service::work work;
-	std::map<uint32_t, session *> sessions;
-	std::mutex mtx;
+    uint32_t id;
+    struct multi multi;
+    int still_running;
+    asio::io_service io_service;
+    asio::deadline_timer timeout;
+    socket_map_t socket_map;
+    std::thread service_runner;
+    asio::io_service::work work;
+    std::map<uint32_t, session *> sessions;
+    std::mutex mtx;
 
-	impl_t();
-	~impl_t();
+    impl_t();
+    ~impl_t();
 
-	void on_socket_event(asio_socket_t * tcp_socket, int action);
-	void on_timeout(asio::error_code const & error);
+    void on_socket_event(asio_socket_t * tcp_socket, int action);
+    void on_timeout(asio::error_code const & error);
 
-	void add_socket(curl_socket_t sock, CURL *easy, int action);
-	void change_socket_action(int *fdp, curl_socket_t sock, CURL*easy, int act);
-	void check_multi_info();
-	void remove_socket(int *f);
+    void add_socket(curl_socket_t sock, CURL *easy, int action);
+    void change_socket_action(int *fdp, curl_socket_t sock, CURL*easy, int act);
+    void check_multi_info();
+    void remove_socket(int *f);
 
-	bool is_open() const;
+    bool is_open() const;
 };
 
 

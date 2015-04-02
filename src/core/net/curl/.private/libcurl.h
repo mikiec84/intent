@@ -7,14 +7,4 @@
 #define CURL_STATICLIB 1
 #include <curl/curl.h>
 
-#define CALL_CURL(f, args) \
-	printf("Calling %s %s in %s, %s line %d\n", #f, #args, __func__, __FILE__, __LINE__); \
-	fflush(stdout); \
-	f args
-
-#define CALL_CURL_AND_ASSIGN(f, args, ret) \
-	printf("Calling %s %s in %s, %s line %d\n", #f, #args, __func__, __FILE__, __LINE__); \
-	fflush(stdout); \
-	ret = f args
-
 #endif // sentry
