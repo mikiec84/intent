@@ -14,7 +14,7 @@ struct issue_info {
 
 issue_info const issue_infos[] = {
 
-    #define TUPLE( number, name, msg ) \
+    #define tuple( number, name, msg ) \
         { ii_##name, "ii_" #name, msg },
     #include "lang/issue.tuples"
 };

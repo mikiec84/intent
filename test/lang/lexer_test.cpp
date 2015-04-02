@@ -112,7 +112,7 @@ TEST(lexer_test, all_operators_are_tested) {
         }
     }
     string not_found;
-    #define TUPLE(number, precedence, associativity, name, example, comment) \
+    #define tuple(number, precedence, associativity, name, example, comment) \
     { \
         int tt = 0x8000 | number; \
         auto it = found.find(tt); \

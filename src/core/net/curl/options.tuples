@@ -1,0 +1,71 @@
+// No sentry. Don't add one!
+
+// tuple(name, datatype, libcurl_name)
+
+// Behaviors
+tuple(verbose, bool, CURLOPT_VERBOSE)
+tuple(include_header_in_body, bool, CURLOPT_HEADER)
+tuple(disable_progress, bool, CURLOPT_NOPROGRESS)
+tuple(disable_signals, bool, CURLOPT_NOSIGNAL)
+tuple(wildcard_match, bool, CURLOPT_WILDCARDMATCH)
+
+// Callbacks
+//tuple(write_func, write_func, CURLOPT_WRITEFUNCTION)
+//tuple(write_data_func, void *, CURLOPT_WRITEDATA)
+//tuple(read_func, read_func, CURLOPT_READFUNCTION)
+//tuple(read_data_func, void *, CURLOPT_READDATA)
+//tuple(ioctl_func, ioctl_func, CURLOPT_IOCTLFUNCTION)
+//tuple(ioctldata_func, void *, CURLOPT_IOCTLDATA)
+//tuple(seek_func, seek_func, CURLOPT_SEEKFUNCTION)
+//tuple(seekdata_func, void *, CURLOPT_SEEKDATA)
+//tuple(sockopt_func, sockopt_func, CURLOPT_SOCKOPTFUNCTION)
+//tuple(sockoptdata_func, void *, CURLOPT_SOCKOPTDATA)
+//tuple(opensocket_func, opensocket_func, CURLOPT_OPENSOCKETFUNCTION)
+//tuple(opensocketdata_func, void *, CURLOPT_OPENSOCKETDATA)
+//tuple(closesocket_func, closesocket_func, CURLOPT_CLOSESOCKETFUNCTION)
+//tuple(closesocketdata_func, void *, CURLOPT_CLOSESOCKETDATA)
+//tuple(progress_func, progress_func, CURLOPT_PROGRESSFUNCTION)
+//tuple(progressdata_func, void *, CURLOPT_PROGRESSDATA)
+//tuple(xferinfo_func, xferinfo_func, CURLOPT_XFERINFOFUNCTION)
+//tuple(xferinfodata_func, void *, CURLOPT_XFERINFODATA)
+//tuple(header_func, header_func, CURLOPT_HEADERFUNCTION)
+//tuple(headerdata_func, void *, CURLOPT_HEADERDATA)
+//tuple(debug_func, debug_func, CURLOPT_DEBUGFUNCTION)
+//tuple(debugdata_func, void *, CURLOPT_DEBUGDATA)
+//tuple(ssl_ctx_func, ssl_ctx_func, CURLOPT_SSL_CTX_FUNCTION)
+//tuple(ssl_ctx_data_func, void *, CURLOPT_SSL_CTX_DATA)
+//tuple(conv_to_network_func, conv_to_network_func, CURLOPT_CONV_TO_NETWORK_FUNCTION)
+//tuple(conv_from_network_func, conv_from_network_func, CURLOPT_CONV_FROM_NETWORK_FUNCTION)
+//tuple(conv_from_utf8_func, conv_from_utf8_func, CURLOPT_CONV_FROM_UTF8_FUNCTION)
+//tuple(interleave_func, interleave_func, CURLOPT_INTERLEAVEFUNCTION)
+//tuple(interleavedata_func, void *, CURLOPT_INTERLEAVEDATA)
+//tuple(chunk_bgn_func, chunk_bgn_func, CURLOPT_CHUNK_BGN_FUNCTION)
+//tuple(chunk_end_func, chunk_end_func, CURLOPT_CHUNK_END_FUNCTION)
+//tuple(chunkdata_func, void *, CURLOPT_CHUNK_DATA)
+//tuple(fnmatch_func, fnmatch_func, CURLOPT_FNMATCH_FUNCTION)
+//tuple(fnmatch_data_func, void *, CURLOPT_FNMATCH_DATA)
+
+// Error options
+//tuple(error_buffer, char *, CURLOPT_ERRORBUFFER)
+//tuple(stderr, FILE *, CURLOPT_STDERR)
+tuple(fail_on_error, bool, CURLOPT_FAILONERROR)
+
+// Network options
+tuple(url, char const *, CURLOPT_URL)
+tuple(path_as_is, bool, CURLOPT_PATH_AS_IS)
+tuple(protocols, uint32_t /*bitmask*/, CURLOPT_PROTOCOLS)
+tuple(redir_protocols, uint32_t /*bitmask*/, CURLOPT_REDIR_PROTOCOLS)
+tuple(proxy, char const *, CURLOPT_PROXY)
+tuple(proxy_port, uint16_t, CURLOPT_PROXYPORT)
+tuple(proxy_type, uint32_t, CURLOPT_PROXYTYPE)
+tuple(no_proxy_hosts, char const *, CURLOPT_NOPROXY)
+tuple(tunnel_through_http_proxy, bool, CURLOPT_HTTPPROXYTUNNEL)
+tuple(socks5_gssapi_service, char const *, CURLOPT_SOCKS5_GSSAPI_SERVICE)
+tuple(socks5_gssapi_nec, bool, CURLOPT_SOCKS5_GSSAPI_NEC)
+tuple(outgoing_interface, char const *, CURLOPT_INTERFACE) // default null
+tuple(local_port, uint16_t, CURLOPT_LOCALPORT)
+tuple(local_port_range, uint16_t, CURLOPT_LOCALPORTRANGE)
+tuple(dns_cache_timeout_seconds, int, CURLOPT_DNS_CACHE_TIMEOUT) // default 60
+
+
+#undef tuple

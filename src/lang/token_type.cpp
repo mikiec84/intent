@@ -14,11 +14,11 @@ struct token_type_info {
 
 token_type_info const tt_infos[] = {
 
-    #define TUPLE(number, name, example, comment) \
+    #define tuple(number, name, example, comment) \
         { "tt_" #name, static_cast<token_type>(number), example, comment },
     #include "lang/token_type.tuples"
 
-    #define TUPLE(number, precedence, associativity, name, example, comment) \
+    #define tuple(number, precedence, associativity, name, example, comment) \
         { "tt_operator_" #name, static_cast<token_type>(0x8000 | number), example, comment },
     #include "lang/operator.tuples"
 };
@@ -46,7 +46,7 @@ struct operator_info {
 
 operator_info const op_infos[] = {
 
-    #define TUPLE(number, precedence, associativity, name, example, comment) \
+    #define tuple(number, precedence, associativity, name, example, comment) \
         { static_cast<token_type>(0x8000 | number), precedence, oa_##associativity},
     #include "lang/operator.tuples"
 };

@@ -24,10 +24,13 @@ class session;
  * Simple apps only need one channel, and a default is provided and created
  * automatically, allowing channels to mostly be ignored in many use cases.
  *
+ * Channels may provide default, overridable configuration (e.g., headers,
+ * credentials, callbacks, ) to all sessions that derive from them.
+ *
  * Each channel has a single background event/reactor thread (using epoll() on
  * linux, for example) to efficiently dispatch callbacks as data is ready to
  * read or write on a socket; a good rule of thumb is that one channel can
- * efficiently handle, say, up to about 1000 open connections at a time.
+ * efficiently handle, say, up to a few thousand open connections at a time.
  *
  * Channels are thread-safe; instances can be shared safely on multiple threads
  * without additional synchronization.
@@ -50,9 +53,31 @@ public:
 	~channel();
 
 	uint32_t get_id() const;
+
+	/**
+	 * A channel is initially closed. It opens automatically the first time
+	 * someone needs it to do real work. Use this function to test its state.
+	 */
 	bool is_open() const;
 
+	/**
+	 * Simple apps can ignore the channel construct entirely--in which case,
+	 * the default channel is always used.
+	 */
 	static channel & get_default();
+
+	/**
+	 * Whenever a new session is created, it is cloned from a prototype provided
+	 * by its associated channel. If the prototype session has state such as a
+	 * User-Agent header, credentials, callbacks, or debug/verbose configuration,
+	 * this lets it propagates--which is both faster, performance-wise, and
+	 * cleaner, code-wise.
+	 */
+	session const * get_prototype_session() const;
+	session * get_prototype_session();
+
+	void set_prototype_session(session &&);
+	void set_prototype_session(session const &);
 };
 
 

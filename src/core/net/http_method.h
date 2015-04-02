@@ -12,7 +12,7 @@ namespace net {
  * Enumerate methods usable in the http protocol.
  */
 enum http_method_id {
-	#define TUPLE(id, str, first_rfc, last_rfc) id,
+	#define tuple(id, str, first_rfc, last_rfc) id,
 	#include "core/net/http_method.tuples"
 };
 

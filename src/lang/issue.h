@@ -9,7 +9,7 @@ namespace lang {
  */
 enum issue_id {
     ii_none = 0,
-    #define TUPLE(number, name, msg) \
+    #define tuple(number, name, msg) \
         ii_##name = number,
     #include "lang/issue.tuples"
 };

@@ -11,7 +11,7 @@ namespace net {
 
 
 constexpr http_method known_methods[] = {
-	#define TUPLE(id, verb, first_rfc, last_rfc) {id, #id, #verb, first_rfc, last_rfc},
+	#define tuple(id, verb, first_rfc, last_rfc) {id, #id, #verb, first_rfc, last_rfc},
 	#include "core/net/http_method.tuples"
 };
 

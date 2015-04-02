@@ -5,12 +5,12 @@ namespace core {
 namespace cli {
 
 static char const * ansi_color_names[] = {
-    #define TUPLE(name, hi, lo) #name,
+    #define tuple(name, hi, lo) #name,
     #include "core/cli/ansi_color.tuples"
 };
 
 static char const * ansi_color_esc_seqs[] {
-    #define TUPLE(name, hi, lo) ANSI_ESCAPE(hi, lo),
+    #define tuple(name, hi, lo) ANSI_ESCAPE(hi, lo),
     #include "core/cli/ansi_color.tuples"
 };
 

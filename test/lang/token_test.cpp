@@ -6,10 +6,10 @@
 using namespace intent::lang;
 
 TEST(token_test, name_lookup) {
-    #define TUPLE(number, name, example, comment) EXPECT_STREQ("tt_" #name, get_token_type_name(tt_##name));
+    #define tuple(number, name, example, comment) EXPECT_STREQ("tt_" #name, get_token_type_name(tt_##name));
     #include "lang/token_type.tuples"
 
-    #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_STREQ("tt_operator_" #name, get_token_type_name(tt_operator_##name));
+    #define tuple(number, precedence, associativity, name, example, comment) EXPECT_STREQ("tt_operator_" #name, get_token_type_name(tt_operator_##name));
     #include "lang/operator.tuples"
 }
 
@@ -60,18 +60,18 @@ TEST(token_test, get_token_type_from_name) {
 }
 
 TEST(token_test, precedence) {
-    #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_EQ(precedence, get_operator_precedence(tt_operator_##name));
+    #define tuple(number, precedence, associativity, name, example, comment) EXPECT_EQ(precedence, get_operator_precedence(tt_operator_##name));
     #include "lang/operator.tuples"
 }
 
 TEST(token_test, associativity) {
-    #define TUPLE(number, precedence, associativity, name, example, comment) EXPECT_EQ(oa_##associativity, get_operator_associativity(tt_operator_##name));
+    #define tuple(number, precedence, associativity, name, example, comment) EXPECT_EQ(oa_##associativity, get_operator_associativity(tt_operator_##name));
     #include "lang/operator.tuples"
 }
 
 TEST(token_test, unique_numbers) {
     std::unordered_map<int, char const *> counts;
-    #define TUPLE(number, name, example, comment) \
+    #define tuple(number, name, example, comment) \
     { \
         auto already = counts[number]; \
         if (already) { \
@@ -83,7 +83,7 @@ TEST(token_test, unique_numbers) {
     }
     #include "lang/token_type.tuples"
 
-    #define TUPLE(number, precedence, associativity, name, example, comment) \
+    #define tuple(number, precedence, associativity, name, example, comment) \
     { \
         auto already = counts[0x8000 | number]; \
         if (already) { \

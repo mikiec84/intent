@@ -19,14 +19,21 @@ class request;
 
 
 /**
- * Manage one or more requests against a particular endpoint. A session
- * encapsulates credentials, cookies, and http 1.1 keep-alives--so different
- * sessions against the same server can authenticate differently.
+ * Manage a sequence of zero or more interactions with a single remote endpoint.
  *
- * Sessions are thread-safe; instances can be shared safely on multiple threads
- * without additional synchronization.
+ * A session encapsulates accumulated state related to its target endpoint.
+ * This includes credentials, cookies, and http 1.1 keep-alives, as well as
+ * the callbacks that it triggers in response to events such as progress,
+ * completion of send, completion of receive, timeout, and so forth. Each new
+ * interaction managed by the session acquires the state accumulated previously.
+ *
+ * Sessions roughly map onto an open socket and a "curl easy" handle, and as
+ * such, they are built to handle only one interaction at a time. Sessions are
+ * not threadsafe; you must mutex them if you access them from multiple threads
+ * concurrently. However, sessions are easy to clone; this allows you to
+ * download multiple resources from the same web server in parallel, for example.
  */
-mark(+, threadsafe)
+mark(-, threadsafe)
 class session {
 	struct impl_t;
 	impl_t * impl;
@@ -75,6 +82,11 @@ public:
 	response head(char const * url);
 
 	response send(request &&);
+
+	headers const * get_default_headers() const;
+	headers * get_default_headers();
+	void set_default_headers(headers &&);
+
 };
 
 

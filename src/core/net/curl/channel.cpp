@@ -124,10 +124,13 @@ void channel::open() {
 	lock_guard<mutex> lock(impl->mtx);
 
 	if (!impl->is_open()) {
-		printf("Opening channel %u.\n", get_id());
+		fprintf(stderr, "Opening channel %u.\n", get_id());
 		auto & svc = impl->io_service;
 		impl->service_runner = thread([&svc]() {
+			fprintf(stderr, "Entering asio service runner thread.\n");
+			asio::io_service::work never_done(svc);
 			svc.run();
+			fprintf(stderr, "Leaving asio service runner thread.\n");
 		});
 		impl->service_runner.detach();
 	}

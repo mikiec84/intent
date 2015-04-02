@@ -17,7 +17,7 @@ namespace cli {
 static constexpr char * RESET_COLOR = ANSI_ESCAPE_PREFIX "0m";
 
 enum class ansi_color: uint8_t {
-    #define TUPLE(name, hi, lo) name,
+    #define tuple(name, hi, lo) name,
     #include "core/cli/ansi_color.tuples"
 };
 

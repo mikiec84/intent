@@ -18,7 +18,7 @@ namespace curl {
 /* Update the event timer after curl_multi library calls */
 int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _chimpl)
 {
-	fprintf(stdout, "\nmulti_timer_cb: timeout_ms %ld", timeout_ms);
+	fprintf(stderr, "%s(): timeout_ms %ld\n", __func__, timeout_ms);
 
 	auto & chimpl = *reinterpret_cast<channel::impl_t *>(_chimpl);
 
@@ -42,7 +42,7 @@ int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _
 /* CURLMOPT_SOCKETFUNCTION */
 int libcurl_callbacks::on_socket_update(CURL * easy, curl_socket_t sock, int what, void * _chimpl, void *sockp)
 {
-	fprintf(stdout, "\nsock_cb: socket=%d, what=%d, sockp=%p", sock, what, sockp);
+	fprintf(stderr, "%s(): socket=%d, what=%d, sockp=%p", __func__, sock, what, sockp);
 
 	auto & chimpl = *reinterpret_cast<channel::impl_t *>(_chimpl);
 	int *actionp = (int *) sockp;
@@ -73,6 +73,7 @@ int libcurl_callbacks::on_socket_update(CURL * easy, curl_socket_t sock, int wha
 /* CURLOPT_WRITEFUNCTION */
 size_t libcurl_callbacks::on_receive_data(void * data, size_t size_per_record, size_t num_records, void * _rimpl)
 {
+	fprintf(stderr, "entering %s()\n", __func__);
 	size_t bytes_handled = 0;
 	if (_rimpl) {
 		auto &rimpl = *reinterpret_cast<response::impl_t *>(_rimpl);
@@ -89,6 +90,7 @@ int libcurl_callbacks::on_progress(void * _rimpl, uint64_t expected_receive_tota
 		uint64_t received_so_far, uint64_t expected_send_total,
 		uint64_t sent_so_far)
 {
+	fprintf(stderr, "entering %s()\n", __func__);
 	int err = 0;
 	if (_rimpl) {
 		auto & rimpl = *reinterpret_cast<response::impl_t *>(_rimpl);
@@ -107,7 +109,8 @@ curl_socket_t libcurl_callbacks::on_open_socket(void * _chimpl, curlsocktype pur
 								curl_sockaddr *address)
 {
 	curl_socket_t sockfd = CURL_SOCKET_BAD;
-	fprintf(stdout, "\nopensocket :");
+	fprintf(stderr, "entering %s()\n", __func__);
+
 
 	if (_chimpl) {
 		auto & chimpl = *reinterpret_cast<channel::impl_t *>(_chimpl);
@@ -140,7 +143,7 @@ curl_socket_t libcurl_callbacks::on_open_socket(void * _chimpl, curlsocktype pur
 /* CURLOPT_CLOSESOCKETFUNCTION */
 int libcurl_callbacks::on_close_socket(void * _chimpl, curl_socket_t item)
 {
-	fprintf(stdout, "\nclosesocket : %d", item);
+	fprintf(stderr, "%s(): %d", __func__, item);
 
 	if (_chimpl) {
 		auto & socket_map = reinterpret_cast<channel::impl_t *>(_chimpl)->socket_map;

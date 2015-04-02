@@ -6,13 +6,13 @@
 using namespace intent::core::cli;
 
 TEST(ansi_color_test, names) {
-    #define TUPLE(name, hi, lo) \
+    #define tuple(name, hi, lo) \
         EXPECT_STREQ(#name, get_ansi_color_name(ansi_color::name));
     #include "core/cli/ansi_color.tuples"
 }
 
 TEST(ansi_color_test, escape_sequences) {
-    #define TUPLE(name, hi, lo) \
+    #define tuple(name, hi, lo) \
         EXPECT_STREQ("\x1B[" #hi ";" #lo "m", get_ansi_color_esc_seq(ansi_color::name));
     #include "core/cli/ansi_color.tuples"
 }
