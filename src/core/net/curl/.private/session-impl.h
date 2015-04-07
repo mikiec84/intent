@@ -4,8 +4,10 @@
 #include <cstdint>
 #include <map>
 #include <mutex>
+#include <string>
 
 #include "core/net/curl/session.h"
+#include "core/net/curl/.private/easy.h"
 #include "core/net/curl/.private/response-impl.h"
 
 
@@ -17,18 +19,15 @@ namespace curl {
 struct session::impl_t /* --<threadsafe */ {
 
 	uint32_t id; // +<final
-	channel & channel;
+	channel_handle channel;
 	std::mutex mtx;
-	std::map<uint32_t, response::impl_t *> responses;
+	request_handle current_request;
+	response_handle current_response;
+	struct easy easy;
+	std::string error;
 
-	// A session can be destroyed directly, or because its containing channel
-	// is destroyed. If the latter, then we have a potential deadlock where
-	// the channel calls the dtor of all its sessions, and the normal session
-	// dtor logic calls the (locked) channel to deregister. We use this member
-	// variable to recognize that state and do the right thing.
-	bool detached;
-
-	impl_t(class channel & ch);
+	impl_t(channel_handle ch);
+	~impl_t();
 };
 
 

@@ -7,6 +7,8 @@
 #include "core/net/curl/.private/request-impl.h"
 #include "core/net/curl/.private/session-impl.h"
 #include "core/net/curl/request.h"
+#include "core/util/monotonic_id.h"
+
 
 
 using asio::deadline_timer;
@@ -32,8 +34,8 @@ typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
 
 
 static uint32_t get_next_id() {
-	static atomic<uint32_t> the_next_id;
-	return the_next_id.fetch_add(1);
+	static util::monotonic_id<uint32_t> the_generator;
+	return the_generator.next();
 }
 
 
@@ -64,12 +66,6 @@ request::~request() {
 }
 
 
-request::request(request && other) : impl(std::move(other.impl)) {
-	impl->request = this;
-	other.impl = nullptr;
-}
-
-
 char const * request::get_verb() const {
 	return impl->verb;
 }
@@ -80,12 +76,7 @@ char const * request::get_url() const {
 }
 
 
-channel & request::get_channel() {
-	return impl->session->get_channel();
-}
-
-
-channel const & request::get_channel() const {
+channel_handle request::get_channel() {
 	return impl->session->get_channel();
 }
 

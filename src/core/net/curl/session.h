@@ -4,9 +4,10 @@
 #include <cstdint>
 #include <memory>
 
-#include "core/net/curl/callbacks.h"
-#include "core/net/curl/headers.h"
 #include "core/marks/concurrency_marks.h"
+#include "core/net/curl/callbacks.h"
+#include "core/net/curl/fwd.h"
+#include "core/net/curl/headers.h"
 
 
 namespace intent {
@@ -15,13 +16,9 @@ namespace net {
 namespace curl {
 
 
-class channel;
-class request;
-
-
 /**
  * Handle a stateful sequence of one or more interactions with a single remote
- * endpoint.
+ * endpoint.bmail.bluecoat.com/
  *
  * Each new interaction encapsulated by the session builds upon the state
  * accumulated previously. This includes credentials, cookies, keep-alives, and
@@ -31,7 +28,7 @@ class request;
  * as progress, completion of send, completion of receive, timeout, and so
  * forth.
  *
- * Sessions roughly map onto an open socket and a "curl easy", and as
+ * Sessions roughly map onto an open socket and a "curl easy" handle, and as
  * such, they are built to handle only one interaction at a time. However, it
  * is easy to clone a session, avoiding repetitive configuration. Also, the
  * @ref shared_cookies and @ref shared_tls_handshake classes allow some aspects
@@ -59,66 +56,42 @@ class request;
  */
 mark(+, threadsafe)
 class session {
-    struct impl_t;
-    impl_t * impl;
+	struct impl_t;
+	impl_t * impl;
 
-    friend class channel;
-    friend struct libcurl_callbacks;
-    friend class request;
-    friend class response;
+	friend class channel;
+	friend struct libcurl_callbacks;
+	friend class request;
+	friend class response;
 
-    void detach();
-    void register_response(response *, bool add = true);
-    void merge_headers(headers & overrides);
+	void set_error(char const *);
+	void set_error(std::string &&);
+	void set_error(std::string const &);
+
+	bool open();
+	void merge_headers(headers & overrides);
 
 public:
 
-    session();
-    session(channel &);
-    ~session();
+	session();
+	session(channel_handle);
+	~session();
 
-    channel & get_channel();
-    channel const & get_channel() const;
+	bool is_open() const;
 
-    /**
-     * Identifies the underlying state encapsulated by this session. IDs are
-     * monotonically incrementing numbers
-     * @return
-     */
-    uint32_t get_id() const;
+	/**
+	 * Identifies the underlying state encapsulated by this session. IDs are
+	 * monotonically incrementing numbers
+	 * @return
+	 */
+	uint32_t get_id() const;
 
-    /**
-     * A session can become detached if the channel that it depends on is
-     * closed or destroyed. In such cases, the session and all the requests and
-     * responses that it manages become unusable. This only happens if object
-     * lifetimes are coded incorrectly. In such cases, calls that modify state
-     * of sessions, requests, or responses throw exceptions.
-     */
-    bool is_detached() const;
+	channel_handle get_channel();
+	response_handle get_current_response();
+	request_handle get_current_request();
 
-    void set_user(char const * user);
-    char const * get_user() const;
-
-    void set_password(char const * password);
-
-    response get(char const * url, receive_callback=nullptr);
-    response get(char const * url, headers const & headers);
-
-    response put(char const * url);
-    response post(char const * url);
-    response del(char const * url);
-    response options(char const * url);
-    response head(char const * url);
-
-    response send(request &&);
-
-    headers const * get_default_headers() const;
-    headers * get_default_headers();
-    void set_default_headers(headers &&);
-
+	void set_verbose(bool);
 };
-
-typedef std::shared_ptr<session> session_handle;
 
 
 }}}} // end namespace
