@@ -26,13 +26,15 @@ static bool range_is_less(unicode_range_info const & a, unicode_range_info const
 
 
 unicode_range_info const * get_unicode_range_info(uint32_t codepoint) {
-    unicode_range_info x;
-    x.end = codepoint;
-    auto first_not_lower = std::lower_bound(range_infos_begin, range_infos_end,
-            x, range_is_less);
-    if (first_not_lower != range_infos_end) {
-        if (first_not_lower->begin <= codepoint) {
-            return first_not_lower;
+    if (codepoint < 0x110000) {
+        unicode_range_info x;
+        x.end = codepoint;
+        auto first_not_lower = std::lower_bound(range_infos_begin, range_infos_end,
+                x, range_is_less);
+        if (first_not_lower != range_infos_end) {
+            if (first_not_lower->begin <= codepoint) {
+                return first_not_lower;
+            }
         }
     }
     return nullptr;
