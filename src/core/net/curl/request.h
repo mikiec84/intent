@@ -33,19 +33,15 @@ class request {
 
 public:
 
-	// Requests are usually created by calling relevant methods such as "get" or
-	// "post", on a session. The move ctor only exists to allow return-by-value.
-
-	request(request &&);
 	~request();
 
-	session & get_session();
-	session const & get_session() const;
-	channel & get_channel();
-	channel const & get_channel() const;
+	session_handle get_session();
+	const_session_handle get_session() const;
+	channel_handle get_channel();
 	char const * get_verb() const;
 	char const * get_url() const;
 	uint32_t get_id() const;
+
 	headers const & get_headers() const;
 	headers & get_headers();
 };

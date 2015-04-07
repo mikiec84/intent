@@ -18,8 +18,8 @@ class session;
 struct request::impl_t {
 
 	uint32_t id; // +<final
-	session * session; // +<final, +<owned_elsewhere
-	request * request; // +<final, +<owned_elsewhere
+	session_handle session;
+	request_handle request; // +<final, +<owned_elsewhere
 	char * verb; // +final, -<owned_elsewhere
 	char * url; // +final, -<owned_elsewhere
 

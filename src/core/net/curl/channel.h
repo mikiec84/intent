@@ -2,18 +2,14 @@
 #define _35a06a9815d54ed1a42f7525dfd7a8aa
 
 #include <memory>
-#include <vector>
 
 #include "core/marks/concurrency_marks.h"
+#include "core/net/curl/fwd.h"
 
 namespace intent {
 namespace core {
 namespace net {
 namespace curl {
-
-
-class session;
-typedef std::shared_ptr<session> session_handle;
 
 
 /**
@@ -42,65 +38,52 @@ typedef std::shared_ptr<session> session_handle;
  */
 mark(+, threadsafe)
 class channel {
-    struct impl_t;
-    impl_t * impl;
+	struct impl_t;
+	impl_t * impl;
 
-    friend struct libcurl_callbacks;
-    friend class request;
-    friend class response;
-    friend class session;
+	friend struct libcurl_callbacks;
+	friend class request;
+	friend class response;
+	friend class session;
 
-    void open();
-    void register_session(session *, bool add=true);
+	void open();
+	void attach(session *);
+	void detach(unsigned session_id);
 
 public:
-    channel();
-    ~channel();
+	channel();
+	~channel();
 
-    /**
-     * Uniquely identify a channel. IDs are auto-assigned, monotonically
-     * incrementing numbers that begin with 0. The default channel may or may
-     * not have id 0, since it is only created on demand.
-     */
-    unsigned get_id() const;
+	/**
+	 * Uniquely identify a channel. IDs are auto-assigned, monotonically
+	 * incrementing numbers that begin with 0. The default channel may or may
+	 * not have id 0, since it is only created on demand.
+	 */
+	unsigned get_id() const;
 
-    /**
-     * A channel is initially closed. It opens automatically the first time
-     * a consumer needs it to do real work, and remains open from then on. Use
-     * this function to test its state. (Primarily for internal use.)
-     */
-    bool is_open() const;
+	/**
+	 * A channel is initially closed. It opens automatically the first time
+	 * a consumer needs it to do real work, and remains open from then on. Use
+	 * this function to test its state. (Primarily for internal use.)
+	 */
+	bool is_open() const;
 
-    /**
-     * Simple apps can ignore the channel construct entirely--in which case,
-     * the default channel is always used. This channel is created on demand,
-     * and destroyed (if applicable) on app teardown.
-     */
-    static channel & get_default();
+	/**
+	 * Simple apps can ignore the channel construct entirely--in which case,
+	 * the default channel is always used. This channel is created on demand,
+	 * and destroyed (if applicable) on app teardown.
+	 */
+	static channel_handle get_default();
 
-    /**
-     * Find a session by its numeric id. Returns null handle if id is invalid.
-     */
-    session_handle get_session_by_id(uint32_t id);
-
-    /**
-     * Enumerate all valid session IDs. Uses move semantics for efficiency.
-     * The IDs in this collection are guaranteed to have been valid at the
-     * moment when the channel's internal list was mutexed and enumerated, but
-     * may become invalid at any time thereafter. However, the collection itself
-     * will not mutate.
-     */
-    std::vector<unsigned> get_session_ids();
-
-    /**
-     * Whenever a new session is created, it is cloned from a prototype provided
-     * by its associated channel. If the prototype session has state such as a
-     * User-Agent header, credentials, callbacks, or debug/verbose configuration,
-     * this lets it propagate--which is both faster (performance-wise) and
-     * cleaner (code-wise), than manually duplicating everything.
-     */
-    session_handle get_prototype_session();
-    void set_prototype_session(session_handle);
+	/**
+	 * Whenever a new session is created, it is cloned from a prototype provided
+	 * by its associated channel. If the prototype session has state such as a
+	 * User-Agent header, credentials, callbacks, or debug/verbose configuration,
+	 * this lets it propagate--which is both faster (performance-wise) and
+	 * cleaner (code-wise), than manually duplicating everything.
+	 */
+	session_handle get_prototype_session();
+	void set_prototype_session(session_handle);
 };
 
 
