@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <map>
 #include <mutex>
-#include <string>
 
 #include "core/net/curl/session.h"
 #include "core/net/curl/.private/easy.h"
@@ -18,16 +17,17 @@ namespace curl {
 
 struct session::impl_t /* --<threadsafe */ {
 
-	uint32_t id; // +<final
-	channel_handle channel;
-	std::mutex mtx;
-	request_handle current_request;
-	response_handle current_response;
-	struct easy easy;
-	std::string error;
+    uint32_t id; // +<final
+    channel * channel;
+    std::mutex mtx;
+    request_handle current_request;
+    response_handle current_response;
+    struct easy easy;
+    char error[CURL_ERROR_SIZE];
+    session_state state;
 
-	impl_t(channel_handle ch);
-	~impl_t();
+    impl_t(class channel *);
+    ~impl_t();
 };
 
 

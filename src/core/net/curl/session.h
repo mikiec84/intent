@@ -8,6 +8,7 @@
 #include "core/net/curl/callbacks.h"
 #include "core/net/curl/fwd.h"
 #include "core/net/curl/headers.h"
+#include "core/net/curl/session_state.h"
 
 
 namespace intent {
@@ -56,41 +57,51 @@ namespace curl {
  */
 mark(+, threadsafe)
 class session {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend class channel;
-	friend struct libcurl_callbacks;
-	friend class request;
-	friend class response;
+    friend class channel;
+    friend struct libcurl_callbacks;
+    friend class request;
+    friend class response;
 
-	void set_error(char const *);
-	void set_error(std::string &&);
-	void set_error(std::string const &);
+    void set_error(char const *); //+<caller_must_lock
+    void set_error(std::string const &); //+<caller_must_lock
 
-	bool open();
-	void merge_headers(headers & overrides);
+    void merge_headers(headers & overrides);
 
 public:
 
-	session();
-	session(channel_handle);
-	~session();
+    session();
+    session(channel &);
+    ~session();
 
-	bool is_open() const;
+    session_state get_state() const;
 
-	/**
-	 * Identifies the underlying state encapsulated by this session. IDs are
-	 * monotonically incrementing numbers
-	 * @return
-	 */
-	uint32_t get_id() const;
+    /**
+     * Identifies the underlying state encapsulated by this session. IDs are
+     * monotonically incrementing numbers
+     * @return
+     */
+    uint32_t get_id() const;
 
-	channel_handle get_channel();
-	response_handle get_current_response();
-	request_handle get_current_request();
+    channel * get_channel();
+    response_handle get_current_response();
+    request_handle get_current_request();
 
-	void set_verbose(bool);
+    response_handle get(char const * url);
+    response_handle start_get(char const * url);
+
+    response_handle send();
+
+    /**
+     * Start a new request/response interaction. Moves state from idle to
+     * configuring.
+     * @return a handle to a new request object, ready to be configured.
+     */
+    request_handle reset();
+
+    void set_verbose(bool);
 };
 
 

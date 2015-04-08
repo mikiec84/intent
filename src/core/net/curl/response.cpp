@@ -20,6 +20,7 @@ using asio::error_code;
 using std::atomic;
 using std::map;
 using std::thread;
+using std::string;
 
 using namespace std::placeholders;
 
@@ -33,241 +34,222 @@ typedef asio::ip::tcp::socket asio_socket_t;
 typedef map<curl_socket_t, asio_socket_t *> socket_map_t;
 typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
 
-#if 0
 static uint32_t get_next_id() {
-	static util::monotonic_id<uint32_t> the_generator;
-	return the_generator.next();
+    static util::monotonic_id<uint32_t> the_generator;
+    return the_generator.next();
+}
+
+response::impl_t::impl_t(class session & s) :
+    id(get_next_id()),
+    session(&s),
+    session_owned_by_me(false),
+    request(s.get_current_request()),
+    received_bytes(nullptr) {
 }
 
 
-static void set_curl_verb(CURL * curl, char const * verb) {
-	static constexpr uint8_t EMPTY_DATA[] = {0};
-
-	auto method = get_http_method_by_name(verb);
-	switch (method->id) {
-	case http_get:
-		curl_easy_setopt(curl, CURLOPT_HTTPGET, 1L);
-		return;
-	case http_post:
-		curl_easy_setopt(curl, CURLOPT_HTTPPOST, &EMPTY_DATA);
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0L);
-		return;
-	case http_put:
-	case http_head:
-	case http_delete:
-	case http_options:
-	default:
-		break;
-	}
+response::impl_t::~impl_t() {
+    if (session_owned_by_me) {
+        delete session;
+    }
 }
 
+#if 0
 response::impl_t::impl_t(class response * resp, class request && req,
-	receive_callback receive_func, progress_callback progress_func):
-		id(get_next_id()),
-		response(resp),
-		request(),
-		curl(nullptr),
-		receive_func(receive_func),
-		progress_func(progress_func),
-		received_bytes(nullptr),
-		allocated_byte_count(0),
-		received_byte_count(0),
-		expected_receive_total(0),
-		sent_byte_count(0),
-		expected_send_total(0),
-		status_code(0),
-		detached(false) {
+    receive_callback receive_func, progress_callback progress_func):
+        id(get_next_id()),
+        response(resp),
+        request(),
+        curl(nullptr),
+        receive_func(receive_func),
+        progress_func(progress_func),
+        received_bytes(nullptr),
+        allocated_byte_count(0),
+        received_byte_count(0),
+        expected_receive_total(0),
+        sent_byte_count(0),
+        expected_send_total(0),
+        status_code(0),
+        detached(false) {
 
-	curl = curl_easy_init();
-	printf("Called curl_easy_init() in %s, %s line %d; got 0x%p\n", __func__, __FILE__, __LINE__, curl);
-	fflush(stdout);
-	if (!curl) {
-		fprintf(stdout, "\ncurl_easy_init() failed, exiting!");
-		exit(2);
-	}
+    curl = curl_easy_init();
+    printf("Called curl_easy_init() in %s, %s line %d; got 0x%p\n", __func__, __FILE__, __LINE__, curl);
+    fflush(stdout);
+    if (!curl) {
+        fprintf(stdout, "\ncurl_easy_init() failed, exiting!");
+        exit(2);
+    }
 
-	auto s = request.impl->session;
-	auto ch = s->impl->channel;
+    auto s = request.impl->session;
+    auto ch = s->impl->channel;
 
-	curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
-	set_curl_verb(curl, request.get_verb());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
-	curl_easy_setopt(curl, CURLOPT_PRIVATE, this);
-	if (progress_func) {
-		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
-		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
-	}
+    curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
+    set_curl_verb(curl, request.get_verb());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
+    curl_easy_setopt(curl, CURLOPT_PRIVATE, this);
+    if (progress_func) {
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
+    }
 #ifdef DO_TIMEOUT
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 3L);
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 3L);
+    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
 #endif
 
-	/* call this function to get a socket */
-	curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
-	curl_easy_setopt(curl, CURLOPT_OPENSOCKETDATA, ch->impl);
+    /* call this function to get a socket */
+    curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
+    curl_easy_setopt(curl, CURLOPT_OPENSOCKETDATA, ch->impl);
 
-	/* call this function to close a socket */
-	curl_easy_setopt(curl, CURLOPT_CLOSESOCKETFUNCTION, libcurl_callbacks::on_close_socket);
-	curl_easy_setopt(curl, CURLOPT_CLOSESOCKETDATA, ch->impl);
+    /* call this function to close a socket */
+    curl_easy_setopt(curl, CURLOPT_CLOSESOCKETFUNCTION, libcurl_callbacks::on_close_socket);
+    curl_easy_setopt(curl, CURLOPT_CLOSESOCKETDATA, ch->impl);
 
-	ch->open();
-	fprintf(stdout,
-			"\nAdding curl %p to channel %u (%s)", curl, ch->get_id(), request.get_url());
-	auto rc = curl_multi_add_handle(ch->impl->multi, curl);
-	mcode_or_die("new_conn: multi_add_handle", rc);
+    ch->open();
+    fprintf(stdout,
+            "\nAdding curl %p to channel %u (%s)", curl, ch->get_id(), request.get_url());
+    auto rc = curl_multi_add_handle(ch->impl->multi, curl);
+    mcode_or_die("new_conn: multi_add_handle", rc);
 
-	/* note that the add_handle() will set a time-out to trigger very soon so
-	   that the necessary socket_action() call will be called by this app */
+    /* note that the add_handle() will set a time-out to trigger very soon so
+       that the necessary socket_action() call will be called by this app */
 
 }
+#endif
 
 #if 0
 response::impl_t::~impl_t() {
-	if (!detached) {
-		request.impl->session->register_response(response, false);
-	}
+    if (!detached) {
+        request.impl->session->register_response(response, false);
+    }
 }
 #endif
 
 
-void response::detach() {
-	impl->detached = true;
+response::response(class session & s) :
+        impl(new impl_t(s)) {
+    fprintf(stderr, "response %u ctor\n", get_id());
 }
 
 
 uint16_t response::get_status_code() const {
-	return impl->status_code;
+    return impl->status_code;
 }
 
 
 void response::wait(struct timeout const & timeout) {
-	fprintf(stderr, "entering %s()\n", __func__);
-	std::this_thread::sleep_for(std::chrono::milliseconds(500000));
+    fprintf(stderr, "entering %s()\n", __func__);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500000));
 }
 
 #if 0
 response::response(request && req, receive_callback rcb, progress_callback pcb) :
-		impl(new impl_t(this, std::move(req), rcb, pcb)) {
+        impl(new impl_t(this, std::move(req), rcb, pcb)) {
 
-	// We can only register ourselves after our impl is fully constructed, which
-	// is why we don't call register_response in the ctor of the impl.
-	get_session().register_response(this, true);
-}
-
-
-session & response::get_session() {
-	return *impl->request.impl->session;
-}
-
-
-session const & response::get_session() const {
-	return *impl->request.impl->session;
+    // We can only register ourselves after our impl is fully constructed, which
+    // is why we don't call register_response in the ctor of the impl.
+    get_session().register_response(this, true);
 }
 #endif
 
 
 response::~response() {
-	printf("response %u dtor\n", get_id());
-	delete impl;
+    fprintf(stderr, "response %u dtor\n", get_id());
+    delete impl;
 }
 
 
-response::response(response && other) : impl(std::move(other.impl)) {
-	impl->response = this;
-	other.impl = nullptr;
+session * response::get_session() {
+    return impl->session;
 }
 
 
-channel_handle response::get_channel() {
-	return impl->request.impl->session->get_channel();
+channel * response::get_channel() {
+    auto s = impl->session;
+    return s ? s->get_channel() : nullptr;
 }
 
-
-channel_handle response::get_channel() const {
-	return impl->request.impl->session->get_channel();
-}
-
-#endif
 
 uint32_t response::get_id() const {
-	return impl->id;
+    return impl->id;
 }
 
 
 headers const & response::get_headers() const {
-	return impl->headers;
+    return impl->headers;
 }
 
 
-headers & response::get_headers() {
-	return impl->headers;
+string const & response::get_body() const {
+    return impl->received_bytes;
 }
 
+
+#if 0
 
 static constexpr size_t max_stored_response_size = 16 * 1024 * 1024;
 
 uint64_t response::store_bytes_in_response(response & r, void * bytes, uint64_t byte_count) {
-	fprintf(stderr, "entering %s()\n", __func__);
+    fprintf(stderr, "entering %s()\n", __func__);
 
-	if (byte_count) {
+    if (byte_count) {
 
-		auto i = r.impl;
-		if (i->allocated_byte_count >= max_stored_response_size) {
-			return 0;
-		}
+        auto i = r.impl;
+        if (i->allocated_byte_count >= max_stored_response_size) {
+            return 0;
+        }
 
-		auto desired_byte_count = i->received_byte_count + byte_count + 1/*null terminate*/;
-		auto new_size = desired_byte_count;
-		if (new_size > max_stored_response_size) {
-			// We are going to store a subset of the bytes we were given. How
-			// many bytes is that?
-			byte_count -= (new_size - max_stored_response_size);
-			new_size = max_stored_response_size;
-		} else {
-			auto round_up_to = new_size < 8192 ? 1024 : 4096;
-			auto mod = new_size % round_up_to;
-			if (mod) {
-				new_size += round_up_to - mod;
-			}
-		}
+        auto desired_byte_count = i->received_byte_count + byte_count + 1/*null terminate*/;
+        auto new_size = desired_byte_count;
+        if (new_size > max_stored_response_size) {
+            // We are going to store a subset of the bytes we were given. How
+            // many bytes is that?
+            byte_count -= (new_size - max_stored_response_size);
+            new_size = max_stored_response_size;
+        } else {
+            auto round_up_to = new_size < 8192 ? 1024 : 4096;
+            auto mod = new_size % round_up_to;
+            if (mod) {
+                new_size += round_up_to - mod;
+            }
+        }
 
-		if (new_size > i->allocated_byte_count) {
+        if (new_size > i->allocated_byte_count) {
 
-			auto new_ptr = realloc(i->received_bytes, new_size);
-			if (!new_ptr) {
-				return 0;
-			}
+            auto new_ptr = realloc(i->received_bytes, new_size);
+            if (!new_ptr) {
+                return 0;
+            }
 
-			i->received_bytes = reinterpret_cast<char *>(new_ptr);
-			i->allocated_byte_count = new_size;
-			memcpy(i->received_bytes + i->received_byte_count, bytes, byte_count);
-		} else {
-			memcpy(i->received_bytes, bytes, byte_count);
-		}
-		i->received_byte_count += byte_count;
-		i->received_bytes[i->received_byte_count] = 0;
-	}
+            i->received_bytes = reinterpret_cast<char *>(new_ptr);
+            i->allocated_byte_count = new_size;
+            memcpy(i->received_bytes + i->received_byte_count, bytes, byte_count);
+        } else {
+            memcpy(i->received_bytes, bytes, byte_count);
+        }
+        i->received_byte_count += byte_count;
+        i->received_bytes[i->received_byte_count] = 0;
+    }
 
-	return byte_count;
+    return byte_count;
 }
 
 
 int response::update_progress_in_response(response & r, uint64_t expected_receive_total,
-		uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far) {
-	fprintf(stderr, "entering %s()\n", __func__);
-	auto i = r.impl;
-	i->expected_receive_total = expected_receive_total;
-	i->expected_send_total = expected_send_total;
-	if (i->receive_func != store_bytes_in_response) {
-		i->received_byte_count = received_so_far;
-	}
-	i->sent_byte_count = sent_so_far;
-	return 0;
+        uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far) {
+    fprintf(stderr, "entering %s()\n", __func__);
+    auto i = r.impl;
+    i->expected_receive_total = expected_receive_total;
+    i->expected_send_total = expected_send_total;
+    if (i->receive_func != store_bytes_in_response) {
+        i->received_byte_count = received_so_far;
+    }
+    i->sent_byte_count = sent_so_far;
+    return 0;
 }
-
+#endif
 
 }}}} // end namespace

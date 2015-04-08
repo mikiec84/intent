@@ -3,12 +3,16 @@
 #include <mutex>
 
 
-#include "core/net/curl/.private/session-impl.h"
+#include "core/net/curl/.private/libcurl_callbacks.h"
+#include "core/net/curl/.private/channel-impl.h"
 #include "core/net/curl/.private/request-impl.h"
+#include "core/net/curl/.private/session-impl.h"
 #include "core/net/curl/channel.h"
 #include "core/net/curl/request.h"
 #include "core/net/curl/response.h"
+#include "core/net/http_method.h"
 #include "core/util/monotonic_id.h"
+#include "core/text/interp.h"
 
 
 using std::atomic;
@@ -16,168 +20,235 @@ using std::lock_guard;
 using std::map;
 using std::mutex;
 
+using intent::core::text::interp;
 
+using namespace intent::core::net;
 using namespace intent::core::net::curl;
 
 
 static uint32_t get_next_id() {
-	static intent::core::util::monotonic_id<uint32_t> the_generator;
-	return the_generator.next();
+    static intent::core::util::monotonic_id<uint32_t> the_generator;
+    return the_generator.next();
 }
 
 
-session::impl_t::impl_t(channel_handle ch):
-	id(get_next_id()),
-	channel(ch),
-	mtx(),
-	current_request(),
-	current_response(),
-	easy() {
+session::impl_t::impl_t(class channel * ch):
+        id(get_next_id()),
+        channel(ch),
+        mtx(),
+        current_request(),
+        current_response(),
+        easy(),
+        state(session_state::configuring) {
+    error[0] = 0;
 }
 
 
 session::impl_t::~impl_t() {
 
-	// We don't need to lock in this method, because if we get here, then
-	// nobody can possibly have a pointer or reference to the object. We know
-	// this, because all access to session objects goes through ref-counted
-	// smart pointers.
-	//lock_guard<mutex> lock(impl->mtx);
+    // We don't need to lock in this method, because if we get here, then
+    // nobody can possibly have a pointer or reference to the object. We know
+    // this, because all access to session objects goes through ref-counted
+    // smart pointers.
+    //lock_guard<mutex> lock(impl->mtx);
 
-	// Normally, a session's lifespan fits neatly inside the lifespan of its
-	// channel. In such cases, we will have a valid handle to a channel at this
-	// point, and we should tell the channel to remove us from its list.
-	// The unusual case is that a channel is dying before we do. In that case,
-	// its destructor will have broken our backref, and will be removing us
-	// from its list already, so all we do is our own cleanup.
-	if (channel) {
-		channel->detach(id);
-	}
+    // Normally, a session's lifespan fits neatly inside the lifespan of its
+    // channel. In such cases, we will have a valid handle to a channel at this
+    // point, and we should tell the channel to remove us from its list.
+    // The unusual case is that a channel is dying before we do. In that case,
+    // its destructor will have broken our backref, and will be removing us
+    // from its list already, so all we do is our own cleanup.
+    if (channel) {
+        channel->detach(id);
+    }
 
-	// Release smart pointer to request.
-	if (current_request) {
-		// If we have a current request, break its link to us, so that when we
-		// fire its destructor soon, it won't try to contact us to break our link.
-		current_request->impl->session.reset();
-		// This may cause the request's dtor to fire, if we're the only one
-		// holding a handle to the request. But it's also possible that the
-		// request will live on because a handle to it is also held elsewhere.
-		// In fact, this is likely, since the response probably holds a handle.
-		current_request.reset();
-	}
+    // Release smart pointer to request.
+    if (current_request) {
+        // If we have a current request, break its link to us, so that when we
+        // fire its destructor soon, it won't try to contact us to break our link.
+        current_request->impl->session = nullptr;
+        // This may cause the request's dtor to fire, if we're the only one
+        // holding a handle to the request. But it's also possible that the
+        // request will live on because a handle to it is also held elsewhere.
+        // In fact, this is likely, since the response probably holds a handle.
+        current_request.reset();
+    }
 
-	// Now do a similar release for response.
-	if (current_response) {
-		current_response->impl->session.reset();
-		current_response.reset();
-	}
+    // Now do a similar release for response.
+    if (current_response) {
+        current_response->impl->session = nullptr;
+        current_response.reset();
+    }
 }
 
 
-session::session(channel_handle ch) :
-		impl(new impl_t(ch)) {
-	// We have to do this in the body of the ctor, because only this outer
-	// class, not the impl, has the right "this" pointer.
-	impl->channel->attach(this);
+session::session(class channel & ch) :
+        impl(new impl_t(&ch)) {
+    // We have to do this in the body of the ctor, because only this outer
+    // class, not the impl, has the right "this" pointer.
+    ch.attach(this);
+    fprintf(stderr, "session %u ctor\n", get_id());
 }
 
 
 session::session() :
-	session(channel::get_default()) {
+    session(channel::get_default()) {
 }
 
 
-bool session::is_open() const {
-	return bool(static_cast<CURL*>(impl->easy));
+static inline void copy_error(char * buf, char const * txt, size_t bytes_to_copy) {
+    static constexpr size_t max_error_bytes_to_copy = CURL_ERROR_SIZE - 1;
+
+    if (bytes_to_copy && txt && *txt) {
+        bytes_to_copy = std::min(max_error_bytes_to_copy, bytes_to_copy);
+        strncpy(buf, txt, bytes_to_copy);
+        buf[bytes_to_copy] = 0;
+    } else {
+        buf[0] = 0;
+    }
 }
 
 
 void session::set_error(char const * txt) {
-	lock_guard<mutex> lock(impl->mtx);
-	impl->error = txt;
-}
-
-
-void session::set_error(std::string && txt) {
-	lock_guard<mutex> lock(impl->mtx);
-	impl->error = std::move(txt);
+    copy_error(impl->error, txt, txt ? strlen(txt): 0);
 }
 
 
 void session::set_error(std::string const & txt) {
-	lock_guard<mutex> lock(impl->mtx);
-	impl->error = txt;
+    copy_error(impl->error, txt.c_str(), txt.size());
 }
 
 
-bool session::open() {
-	lock_guard<mutex> lock(impl->mtx);
+static void set_curl_verb(CURL * easy, char const * verb) {
+    static constexpr uint8_t EMPTY_DATA[] = {0};
+
+    auto method = get_http_method_by_name(verb);
+    switch (method->id) {
+    case http_get:
+        curl_easy_setopt(easy, CURLOPT_HTTPGET, 1L);
+        return;
+    case http_post:
+        curl_easy_setopt(easy, CURLOPT_HTTPPOST, &EMPTY_DATA);
+        curl_easy_setopt(easy, CURLOPT_POSTFIELDSIZE, 0L);
+        return;
+    case http_put:
+    case http_head:
+    case http_delete:
+    case http_options:
+    default:
+        break;
+    }
+}
 
 #if 0
-	if (is_open()) {
-		set_error("Session is already open.");
-		return false;
-	}
+static uint64_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
 
-	impl->easy = curl_easy_init();
-	if (!is_open()) {
-		set_error("Unable to initialze curl easy handle.");
-		return false;
-	}
-
-	current_response = response_handle(new response());
-
-	curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
-	set_curl_verb(curl, request.get_verb());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-	curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
-	curl_easy_setopt(curl, CURLOPT_PRIVATE, this);
-	if (progress_func) {
-		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
-		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
-	}
-	#ifdef DO_TIMEOUT
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 3L);
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
-	#endif
-
-	/* call this function to get a socket */
-	curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
-	curl_easy_setopt(curl, CURLOPT_OPENSOCKETDATA, ch->impl);
-
-	/* call this function to close a socket */
-	curl_easy_setopt(curl, CURLOPT_CLOSESOCKETFUNCTION, libcurl_callbacks::on_close_socket);
-	curl_easy_setopt(curl, CURLOPT_CLOSESOCKETDATA, ch->impl);
-
-ch->open();
-fprintf(stdout,
-		"\nAdding curl %p to channel %u (%s)", curl, ch->get_id(), request.get_url());
-auto rc = curl_multi_add_handle(ch->impl->multi, curl);
-mcode_or_die("new_conn: multi_add_handle", rc);
-
-/* note that the add_handle() will set a time-out to trigger very soon so
-   that the necessary socket_action() call will be called by this app */
-
+static int update_progress_in_response(response &, uint64_t expected_receive_total,
+        uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
 #endif
-return false;
+
+response_handle session::send() {
+    lock_guard<mutex> lock(impl->mtx);
+
+    auto ch = impl->channel ? impl->channel->impl : nullptr;
+    if (!ch) {
+        set_error("Session is detached from channel.");
+        return response_handle();
+    }
+
+    auto state = impl->state;
+    if (state != session_state::configuring) {
+        set_error(interp("Session state is '{1}'; request cannot be sent.", {get_name_for_session_state(state)}));
+        return response_handle();
+    }
+
+    auto req = impl->current_request.get();
+    auto url = req ? req->get_url() : nullptr;
+    if (!url || !*url) {
+        set_error("No url has been configured in the request.");
+        return response_handle();
+    }
+
+    // Reset our response to hold the new data we're about to generate.
+    impl->current_response = response_handle(new response(*this));
+
+    CURL * easy = impl->easy;
+    curl_easy_setopt(easy, CURLOPT_URL, url);
+    set_curl_verb(easy, req->get_verb());
+    curl_easy_setopt(easy, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
+    curl_easy_setopt(easy, CURLOPT_WRITEDATA, this);
+    curl_easy_setopt(easy, CURLOPT_VERBOSE, 1L);
+    curl_easy_setopt(easy, CURLOPT_ERRORBUFFER, impl->error);
+    curl_easy_setopt(easy, CURLOPT_PRIVATE, this);
+#ifdef DO_PROGRESS
+    if (progress_func) {
+        curl_easy_setopt(easy, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(easy, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
+        curl_easy_setopt(easy, CURLOPT_XFERINFODATA, this);
+    }
+#endif
+    #ifdef DO_TIMEOUT
+    curl_easy_setopt(easy, CURLOPT_LOW_SPEED_TIME, 3L);
+    curl_easy_setopt(easy, CURLOPT_LOW_SPEED_LIMIT, 10L);
+    #endif
+
+    /* call this function to get a socket */
+    curl_easy_setopt(easy, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
+    curl_easy_setopt(easy, CURLOPT_OPENSOCKETDATA, ch);
+
+    /* call this function to close a socket */
+    curl_easy_setopt(easy, CURLOPT_CLOSESOCKETFUNCTION, libcurl_callbacks::on_close_socket);
+    curl_easy_setopt(easy, CURLOPT_CLOSESOCKETDATA, ch);
+
+    // Make sure our channel is ready to do business.
+    impl->channel->open();
+
+    auto rc = curl_multi_add_handle(ch->multi, easy);
+    mcode_or_die("new_conn: multi_add_handle", rc);
+
+    /* note that the add_handle() will set a time-out to trigger very soon so
+       that the necessary socket_action() call will be called by this app */
+
+    return impl->current_response;
+}
+
+
+request_handle session::get_current_request() {
+    return impl->current_request;
+}
+
+
+response_handle session::get_current_response() {
+    return impl->current_response;
 }
 
 
 session::~session() {
-	delete impl;
+    fprintf(stderr, "session %u dtor\n", get_id());
+    delete impl;
 }
 
 
-channel_handle session::get_channel() {
-	return impl->channel;
+channel * session::get_channel() {
+    return impl->channel;
 }
 
 
 uint32_t session::get_id() const {
-	return impl->id;
+    return impl->id;
+}
+
+
+response_handle session::get(char const * url) {
+    return response_handle();
+}
+
+
+response_handle session::start_get(char const * url) {
+    auto request = *reset();
+    request.set_url(url);
+    request.set_verb("get");
+    return send();
 }
 
 
@@ -185,13 +256,18 @@ void session::merge_headers(headers & overrides) {
 }
 
 
+request_handle session::reset() {
+    impl->current_request = request_handle(new request(*this));
+    return impl->current_request;
+}
+
 #if 0
 
 response session::get(char const * url, receive_callback rcb) {
-	class request request(*this, get_http_method_by_index(http_get)->verb, url);
-	merge_headers(request.get_headers());
-	class response response(std::move(request), rcb);
-	return response;
+    class request request(*this, get_http_method_by_index(http_get)->verb, url);
+    merge_headers(request.get_headers());
+    class response response(std::move(request), rcb);
+    return response;
 }
 
 #endif

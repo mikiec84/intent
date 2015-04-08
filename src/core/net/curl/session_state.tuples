@@ -1,0 +1,9 @@
+//tuple(id)
+
+tuple( configuring )
+tuple( requesting )
+tuple( waiting_for_response )
+tuple( accepting_response )
+tuple( idle )
+
+#undef tuple

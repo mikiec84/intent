@@ -14,19 +14,16 @@ namespace curl {
 class session;
 
 
-// -<threadsafe
 struct request::impl_t {
 
-	uint32_t id; // +<final
-	session_handle session;
-	request_handle request; // +<final, +<owned_elsewhere
-	char * verb; // +final, -<owned_elsewhere
-	char * url; // +final, -<owned_elsewhere
+    uint32_t id;
+    session * session;
+    char * verb; // own
+    char * url; // own
+    headers headers;
 
-	headers headers;
-
-	impl_t(class session *, class request *, char const * verb, char const * url);
-	~impl_t();
+    impl_t(class session &);
+    ~impl_t();
 
 };
 

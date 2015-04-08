@@ -2,6 +2,7 @@
 #define _25b7bb7aad8347e68fe53cdd9c23da02
 
 #include <cstdint>
+#include <string>
 
 #include "core/net/curl/callbacks.h"
 #include "core/net/curl/channel.h"
@@ -24,42 +25,33 @@ namespace curl {
  */
 // -<threadsafe
 class response {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend struct libcurl_callbacks;
-	friend class session;
+    friend struct libcurl_callbacks;
+    friend class request;
+    friend class session;
 
-	void detach();
-
-	response(request &&, receive_callback = nullptr, progress_callback = nullptr);
-
-	static uint64_t store_bytes_in_response(response &, void * bytes, uint64_t byte_count);
-
-	static int update_progress_in_response(response &, uint64_t expected_receive_total,
-			uint64_t received_so_far, uint64_t expected_send_total, uint64_t sent_so_far);
+    response(session &);
 
 public:
 
-	// Responses are usually created by calling relevant methods such as "get" or
-	// "post", on a session. The move ctor only exists to allow return-by-value.
+    ~response();
 
-	response(response &&);
-	~response();
+    session * get_session();
 
-	session_handle get_session();
+    channel * get_channel();
 
-	channel_handle get_channel();
+    void get_url(char const * url);
 
-	void get_url(char const * url);
+    uint32_t get_id() const;
 
-	uint32_t get_id() const;
+    headers const & get_headers() const;
+    std::string const & get_body() const;
 
-	headers const & get_headers() const;
-	headers & get_headers();
+    uint16_t get_status_code() const;
 
-	uint16_t get_status_code() const;
-	void wait(timeout const & t=timeout::standard);
+    void wait(timeout const & t=timeout::standard);
 };
 
 

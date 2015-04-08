@@ -23,27 +23,37 @@ namespace curl {
  */
 // -<threadsafe
 class request {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend class response;
-	friend class session;
+    friend class response;
+    friend class session;
 
-	request(session &, char const * verb, char const * url);
+    request(session &);
 
 public:
 
-	~request();
+    ~request();
 
-	session_handle get_session();
-	const_session_handle get_session() const;
-	channel_handle get_channel();
-	char const * get_verb() const;
-	char const * get_url() const;
-	uint32_t get_id() const;
+    session * get_session();
 
-	headers const & get_headers() const;
-	headers & get_headers();
+    channel * get_channel();
+
+    void set_verb(char const *);
+    char const * get_verb() const;
+
+    void set_url(char const *);
+    char const * get_url() const;
+
+    uint32_t get_id() const;
+
+    headers const & get_headers() const;
+    headers & get_headers();
+
+    // Convenience methods for extremely simple use cases where we can use the
+    // default channel, and a temporary, throwaway session.
+    static response_handle get(char const * url);
+    static response_handle start_get(char const * url);
 };
 
 
