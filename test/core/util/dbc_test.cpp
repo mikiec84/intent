@@ -1,4 +1,4 @@
-#define CONTRACT_VIOLATION_ACTION(contract_type, expr) \
+#define contract_violation_action(contract_type, expr) \
     report_violation(contract_type, expr, __FILE__, __LINE__, __FUNCTION__)
 
 #include "core/util/dbc.h"
@@ -25,7 +25,7 @@ TEST(dbc_test, custom_action) {
     auto vcount = violation_count;
     // This check should call our custom action, but NOT trigger a
     // throw because should_throw == false.
-    CHECK(0 == 1);
+    intracondition(0 == 1);
     ASSERT_EQ(vcount + 1, violation_count);
 }
 
@@ -42,8 +42,8 @@ TEST(dbc_test, precondition) {
     constexpr char * txt = "hi";
     auto line_num = 0;
     try {
-        line_num = __LINE__; PRECONDITION(txt == nullptr);
-        FAIL() << "Expected PRECONDITION to throw an exception.";
+        line_num = __LINE__; precondition(txt == nullptr);
+        FAIL() << "Expected precondition to throw an exception.";
     } catch (contract_violation const & cv) {
         ASSERT_EQ(contract_type::pre, cv.ctype);
         ASSERT_TRUE(strstr(cv.what(), "txt == nullptr"));
@@ -54,23 +54,23 @@ TEST(dbc_test, precondition) {
         ASSERT_TRUE(strstr(cv.what(), buf));
     }
     try {
-        PRECONDITION("hi" != nullptr);
+        precondition("hi" != nullptr);
     } catch (...) {
-        FAIL() << "Did not expect PRECONDITION to throw an exception.";
+        FAIL() << "Did not expect precondition to throw an exception.";
     }
 }
 
 TEST(dbc_test, check) {
     try {
-        CHECK(3 < 2);
-        FAIL() << "Expected CHECK to throw an exception.";
+        intracondition(3 < 2);
+        FAIL() << "Expected intracondition to throw an exception.";
     } catch (contract_violation const & cv) {
         ASSERT_EQ(contract_type::check, cv.ctype);
     }
     try {
-        CHECK(3 > 2);
+        intracondition(3 > 2);
     } catch (...) {
-        FAIL() << "Did not expect CHECK to throw an exception.";
+        FAIL() << "Did not expect intracondition to throw an exception.";
     }
 }
 
@@ -91,20 +91,20 @@ TEST(dbc_test, postcondition) {
     auto vcount = violation_count;
     int i = 0;
     {
-        POSTCONDITION(i > 3); // should only be evaluated at end of scope, not now
+        postcondition(i > 3); // should only be evaluated at end of scope, not now
         i = 5;
     }
     if (violation_count > vcount) {
-        FAIL() << "Did not expect POSTCONDITION to trip, since the value of i"
+        FAIL() << "Did not expect postcondition to trip, since the value of i"
                   " was 5 when we went out of scope.";
     }
     {
         i = 0;
-        POSTCONDITION(i == 3);
+        postcondition(i == 3);
         i = 5;
     }
     if (vcount == violation_count) {
-        FAIL() << "Expected POSTCONDITION to trip, since the value of i was 5"
+        FAIL() << "Expected postcondition to trip, since the value of i was 5"
                   " when we went out of scope.";
     }
 }
@@ -112,6 +112,6 @@ TEST(dbc_test, postcondition) {
 TEST(dbc_test, failed_precondition_aborts_program_if_not_overridden) {
     ASSERT_DEATH({
         int i = 0;
-        POSTCONDITION(i == 1);
+        postcondition(i == 1);
     }, "Failed postcondition");
 }

@@ -44,7 +44,7 @@ std::string in_numeric_range(cmdline_param const & param, char const * value,
 
     const char * const MSG = "Error with {1}=\"{2}\": expected a value between "
         "{3=min} and {4=max} (inclusive), formatted as {5}.";
-    PRECONDITION(range_info != nullptr);
+    precondition(range_info != nullptr);
 
     numeric_range_info const & nri =
         *reinterpret_cast<numeric_range_info const *>(range_info);
@@ -75,7 +75,7 @@ std::string in_numeric_range(cmdline_param const & param, char const * value,
 std::string matches_regex(cmdline_param const & param, char const * value,
         void /*precpp::RE*/ const * regex) {
 
-    PRECONDITION(regex != nullptr);
+    precondition(regex != nullptr);
     pcrecpp::RE const & re = *reinterpret_cast<pcrecpp::RE const *>(regex);
     if (!re.FullMatch(value)) {
         auto pat = re.pattern();
@@ -106,7 +106,7 @@ inline void append(stringstream & ss, char const * msg, unsigned & n) {
 string matches_filesys_info(cmdline_param const & param, char const * value,
         void /*filesys_info*/ const * fsinfo_ptr) {
 
-    PRECONDITION(fsinfo_ptr != nullptr);
+    precondition(fsinfo_ptr != nullptr);
     filesys_info const & fsinfo = *reinterpret_cast<filesys_info const *>(fsinfo_ptr);
 
     unsigned problem_count = 0;

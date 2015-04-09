@@ -104,14 +104,14 @@ cmdline::cmdline() : data(new data_t) {
 }
 
 void cmdline::set_args(int argc, const char *argv[]) {
-    PRECONDITION(data->phase == lifecycle_phase::usage);
+    precondition(data->phase == lifecycle_phase::usage);
     for (int i = 0; i < argc; ++i) {
         data->args.push_back(string(argv[i]));
     }
 }
 
 void cmdline::set_args(std::initializer_list<string> args) {
-    PRECONDITION(data->phase == lifecycle_phase::usage);
+    precondition(data->phase == lifecycle_phase::usage);
     for (auto arg: args) {
         data->args.push_back(string(arg));
     }
@@ -122,12 +122,12 @@ cmdline::~cmdline() {
 }
 
 vector<string> const & cmdline::get_args() const {
-    PRECONDITION(data->phase == lifecycle_phase::usage);
+    precondition(data->phase == lifecycle_phase::usage);
     return data->args;
 }
 
 bool cmdline::help_needed() const {
-    PRECONDITION(data->phase == lifecycle_phase::usage);
+    precondition(data->phase == lifecycle_phase::usage);
     return false;
 }
 
@@ -136,7 +136,7 @@ cmdline::lifecycle_phase cmdline::get_lifecycle_phase() const {
 }
 
 void cmdline::validate() {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     data->phase = lifecycle_phase::validation;
 
     data->phase = lifecycle_phase::usage;
@@ -202,7 +202,7 @@ static inline void delimit(stringstream & ss, unsigned n,
 }
 
 string cmdline::get_help() const {
-    PRECONDITION(data->phase == lifecycle_phase::usage);
+    precondition(data->phase == lifecycle_phase::usage);
     stringstream ss;
     size_t name_width = std::min(std::max(10UL, get_max_name_width()), 30UL);
     auto prog = get_program_name();
@@ -251,7 +251,7 @@ string cmdline::get_help() const {
 }
 
 void cmdline::set_program_name(char const * name) {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     data->program_name = name;
 }
 
@@ -260,7 +260,7 @@ char const * cmdline::get_program_name() const {
 }
 
 void cmdline::set_description(char const * descrip) {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     data->description = descrip;
 }
 
@@ -269,7 +269,7 @@ char const * cmdline::get_description() const {
 }
 
 void cmdline::set_epilog(char const * epilog) {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     data->epilog = epilog;
 }
 
@@ -278,7 +278,7 @@ char const * cmdline::get_epilog() const {
 }
 
 void cmdline::add_source(cmdline const & source, bool include_positionals) {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     data->sources.push_back(std::make_pair(&source, include_positionals));
 }
 
@@ -286,15 +286,15 @@ void cmdline::define_param(char const * names, char const * help,
         char occurrence_rule, char const * placeholder,
         arg_validator_func validator, void * ref_data) {
 
-    PRECONDITION(data->phase == lifecycle_phase::definition);
-    PRECONDITION(!is_null_or_empty(names));
-    PRECONDITION(!is_null_or_empty(help));
-    PRECONDITION(strchr("?*1+23456789", occurrence_rule));
+    precondition(data->phase == lifecycle_phase::definition);
+    precondition(!is_null_or_empty(names));
+    precondition(!is_null_or_empty(help));
+    precondition(strchr("?*1+23456789", occurrence_rule));
     cmdline_param param;
     param.names = split<string>(names, ", ");
     bool positional = param.is_positional();
     for (unsigned i = 1; i < param.names.size(); ++i) {
-        PRECONDITION((param.names[i][0] != '-') == positional);
+        precondition((param.names[i][0] != '-') == positional);
     }
     param.help = help;
     param.occurrence_rule = occurrence_rule;
@@ -305,7 +305,7 @@ void cmdline::define_param(char const * names, char const * help,
 }
 
 void cmdline::define_flag(char const * names, char const * help) {
-    PRECONDITION(data->phase == lifecycle_phase::definition);
+    precondition(data->phase == lifecycle_phase::definition);
     cmdline_flag flag;
     flag.names = split<string>(names, ", ");
     flag.help = help;

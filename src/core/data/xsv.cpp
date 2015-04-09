@@ -138,8 +138,8 @@ xsv_reader::xsv_reader(xsv_reader && rhs): data(nullptr) {
 }
 
 xsv_reader::xsv_reader(char * txt, char delim): data(nullptr) {
-    PRECONDITION(txt);
-    PRECONDITION(delim);
+    precondition(txt);
+    precondition(delim);
     data = new data_t(delim);
     data->buf = txt;
     data->content_size = strlen(txt);

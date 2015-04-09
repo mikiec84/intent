@@ -8,5 +8,5 @@
 // its intent namespace.
 TEST(uuid_test, available) {
     intent::core::uuids::uuid x;
-    ASSERT_TRUE(x.is_nil());
+    x.is_nil();
 }

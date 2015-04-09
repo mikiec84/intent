@@ -45,7 +45,7 @@ TEST(curl_test, session_lifecycle_normal) {
 TEST(curl_test, DISABLED_simplest_download) {
     auto resp = request::get("http://www.google.com/");
     ASSERT_EQ(200, resp->get_status_code());
-    ASSERT_FALSE(resp->get_headers().empty());
+    ASSERT_FALSE(resp->get_headers().is_empty());
     ASSERT_TRUE(resp->get_body().size() > 0);
 }
 

@@ -24,7 +24,7 @@ request::impl_t::impl_t(class session & s):
         session(&s),
         verb(nullptr),
         url(nullptr),
-        headers(header_is_less) {
+        headers() {
 }
 
 request::impl_t::~impl_t() {

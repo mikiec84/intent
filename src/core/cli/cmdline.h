@@ -60,7 +60,7 @@ struct cmdline_param {
  *
  * The lifetime of this object falls into three distinct phases: definition,
  * validation, and usage. In the definition phase, it is legal to call the ctor
- * and all setters/adders. PRECONDITIONs are used to validate some definition
+ * and all setters/adders. preconditions are used to validate some definition
  * input, but holistic validation is deferred. The validation phase lasts for
  * the duration of a call to validate(); during this phase, all definitions are
  * sanity-checked for mutual compatibility. If the caller does not call validate()

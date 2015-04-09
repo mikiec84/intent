@@ -10,8 +10,11 @@ namespace core {
 namespace text {
 
 /**
- * A subset of a string that doesn't own the memory it references. Allows
+ * A subset of a string that doesn't own the memory it references, and that
+ * is designed for a short lifetime (e.g., for use as a function arg). Allows
  * efficient slicing and dicing of text without making endless copies.
+ * The lifetime of the string data wrapped by a strview must exceed the
+ * lifetime of strview.
  */
 template<typename C>
 struct strview {
@@ -86,7 +89,7 @@ struct strview {
     bool is_null() const;
 
     /**
-     * @return true if slice is not empty.
+     * @return true if slice is not empty (and therefore, not null as well).
      */
     operator bool() const;
 
@@ -140,8 +143,8 @@ int strncmp(strview<C> const & a, strview<C> const & b, size_t length);
 
 }}} // end namespace
 
-std::ostream & operator<<(std::ostream & out, const intent::core::text::str_view & slice);
-std::ostream & operator<<(std::ostream & out, const intent::core::text::wstr_view & slice);
+std::ostream & operator<<(std::ostream & out, const intent::core::text::str_view &);
+std::ostream & operator<<(std::ostream & out, const intent::core::text::wstr_view &);
 
 #include "core/text/str_view-inline.h"
 

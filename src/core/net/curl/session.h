@@ -5,9 +5,9 @@
 #include <memory>
 
 #include "core/marks/concurrency_marks.h"
+#include "core/net/headers.h"
 #include "core/net/curl/callbacks.h"
 #include "core/net/curl/fwd.h"
-#include "core/net/curl/headers.h"
 #include "core/net/curl/session_state.h"
 
 

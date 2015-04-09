@@ -92,8 +92,8 @@ static constexpr ptrdiff_t MAX_INDENT = 64;
 string wrap_lines(str_view const & input, unsigned width,
            char const * line_delim, wrap_lines_advance_func nxt) {
 
-    PRECONDITION(nxt != nullptr);
-    PRECONDITION(width >= 10);
+    precondition(nxt != nullptr);
+    precondition(width >= 10);
 
     char const * indent = nullptr;
 

@@ -3,9 +3,9 @@
 
 #include <cstdint>
 
+#include "core/net/headers.h"
 #include "core/net/curl/callbacks.h"
 #include "core/net/curl/channel.h"
-#include "core/net/curl/headers.h"
 #include "core/net/curl/session.h"
 #include "core/net/http_method.h"
 

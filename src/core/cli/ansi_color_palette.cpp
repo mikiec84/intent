@@ -272,7 +272,7 @@ struct ansi_color_palette::data_t {
 };
 
 ansi_color_palette::ansi_color_palette(str_view const & _spec) : data(new data_t) {
-    PRECONDITION(_spec);
+    precondition(_spec);
     str_view spec(_spec);
 
     spec_entries_t entries;
@@ -281,7 +281,7 @@ ansi_color_palette::ansi_color_palette(str_view const & _spec) : data(new data_t
     str_view name;
     while (find_next_name(spec, name) && entry_count <= tuple_size<spec_entries_t>::value) {
         uint8_t value;
-        PRECONDITION(find_next_value(spec, value));
+        precondition(find_next_value(spec, value));
         auto & buf = entries[entry_count++];
         buf[0] = value;
         copy_name(name, &buf[1]);
@@ -294,7 +294,7 @@ ansi_color_palette::~ansi_color_palette() {
 }
 
 unsigned ansi_color_palette::map_name(char const * name) const {
-    PRECONDITION(!is_null_or_empty(name));
+    precondition(!is_null_or_empty(name));
     auto end = strchr(name, 0);
     mapper_t const * this_map = &data->mappers[0];
     for (auto p = name; *p && p < end;) {

@@ -24,41 +24,41 @@ struct contract_violation: public std::logic_error {
 /**
  * Define what should happen when internal function contracts are violated.
  */
-#ifndef CONTRACT_VIOLATION_ACTION
-#define CONTRACT_VIOLATION_ACTION(contract_type, expr) \
+#ifndef contract_violation_action
+#define contract_violation_action(contract_type, expr) \
     throw ::intent::core::util::contract_violation(::intent::core::util::contract_type, #expr, __FILE__, __LINE__, __FUNCTION__)
 #endif
 
-#ifndef PRECONDITION_VIOLATION_ACTION
-#define PRECONDITION_VIOLATION_ACTION(a, b) CONTRACT_VIOLATION_ACTION(a, b)
+#ifndef precondition_violation_action
+#define precondition_violation_action(a, b) contract_violation_action(a, b)
 #endif
 
-#ifndef CHECK_VIOLATION_ACTION
-#define CHECK_VIOLATION_ACTION(a, b) CONTRACT_VIOLATION_ACTION(a, b)
+#ifndef intracondition_violation_action
+#define intracondition_violation_action(a, b) contract_violation_action(a, b)
 #endif
 
-// Caution: The default behavior with POSTCONDITIONs--to throw an exception--
+// Caution: The default behavior with postconditions--to throw an exception--
 // will terminate the app. This is because we are throwing out of a destructor,
 // which is going to call terminate() (see _More Effective C++_ ch 11
 // [http://j.mp/1owRmqj]). Callers are free to override this behavior by
-// #define-ing POSTCONDITION_VIOLATION_ACTION in some other way.
-#ifndef POSTCONDITION_VIOLATION_ACTION
-#define POSTCONDITION_VIOLATION_ACTION(a, b) CONTRACT_VIOLATION_ACTION(a, b)
+// #define-ing postcondition_violation_action in some other way.
+#ifndef postcondition_violation_action
+#define postcondition_violation_action(a, b) contract_violation_action(a, b)
 #endif
 
-#define PRECONDITION(expr) \
+#define precondition(expr) \
     if (!(expr)) { \
-        PRECONDITION_VIOLATION_ACTION(contract_type::pre, #expr); \
+        precondition_violation_action(contract_type::pre, #expr); \
     }
 
-#define CHECK(expr) \
+#define intracondition(expr) \
     if (!(expr)) { \
-        CHECK_VIOLATION_ACTION(contract_type::check, #expr); \
+        intracondition_violation_action(contract_type::check, #expr); \
     }
 
-#define POSTCONDITION(expr) \
+#define postcondition(expr) \
     on_scope_exit(if (!(expr)) { \
-        POSTCONDITION_VIOLATION_ACTION(contract_type::post, #expr); \
+        postcondition_violation_action(contract_type::post, #expr); \
     } )
 
 }}} // end namespace
