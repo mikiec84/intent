@@ -12,7 +12,7 @@ namespace intent {
 namespace core {
 namespace text {
 
-    typedef boost::filesystem::path path;
+	typedef boost::filesystem::path path;
 
 /**
  * An arg is a specialized type of variant--a lightweight wrapper around
@@ -27,86 +27,88 @@ namespace text {
  * free.
  */
 struct arg {
-    arg(int64_t);
-    arg(uint64_t);
-    arg(int32_t);
-    arg(uint32_t);
-    arg(int16_t);
-    arg(uint16_t);
-    arg(int8_t);
-    arg(uint8_t);
+	arg(int64_t);
+	arg(uint64_t);
+	arg(int32_t);
+	arg(uint32_t);
+	arg(int16_t);
+	arg(uint16_t);
+	arg(int8_t);
+	arg(uint8_t);
 #ifdef DARWIN
-    arg(long);
-    arg(unsigned long);
+	arg(long);
+	arg(unsigned long);
 #endif
-    arg(double);
-    arg(std::string const &);
-    arg(char const *);
-    arg(path const &);
-    arg(str_view const &);
-    arg(bool);
+	arg(double);
+	arg(std::string const &);
+	arg(char const *);
+	arg(path const &);
+	arg(str_view const &);
+	arg(bool);
 
-    // Support copy and move semantics. These are generally unnecessary, since
-    // args are designed to be short-lived objects created just in time--but
-    // allow transitive assignment (e.g., as a member of a struct).
-    arg(arg const &);
-    arg & operator =(arg const &);
+	// Support copy and move semantics. These are generally unnecessary, since
+	// args are designed to be short-lived objects created just in time--but
+	// allow transitive assignment (e.g., as a member of a struct).
+	arg(arg const &);
+	arg & operator =(arg const &);
 
-    arg(arg &&);
-    arg & operator =(arg &&);
+	arg(arg &&);
+	arg & operator =(arg &&);
 
-    /**
-     * Write at most buflen bytes to buf, always finishing with trailing null.
-     * @return strlen() of string written, or number of bytes needed in buf
-     *     if its size is inadequate. Same semantics as posix snprintf(). Any
-     *     number >= buflen represents an overflow.
-     */
-    int snprintf(char * buf, size_t buflen, char const * format = nullptr) const;
+	/**
+	 * Write at most buflen bytes to buf, always finishing with trailing null.
+	 * @return strlen() of string written, or number of bytes needed in buf
+	 *     if its size is inadequate. Same semantics as posix snprintf(). Any
+	 *     number >= buflen represents an overflow.
+	 */
+	int snprintf(char * buf, size_t buflen, char const * format = nullptr) const;
 
-    std::string to_string(char const * format = nullptr) const;
+	std::string to_string(char const * format = nullptr) const;
 
-    /**
-     * A canonical empty arg, useful as a constant.
-     */
-    static arg const & empty;
+	/**
+	 * A canonical empty arg, useful as a constant.
+	 */
+	static arg const & empty;
 
-    /**
-     * Construct an empty arg.
-     */
-    arg();
+	/**
+	 * Construct an empty arg.
+	 */
+	arg();
 
-    enum value_type {
-        vt_empty,
-        vt_signed,
-        vt_unsigned,
-        vt_float,
-        vt_date,
-        vt_string,
-        vt_cstr,
-        vt_path,
-        vt_str_view,
-        vt_bool
-    };
-    value_type type;
+	enum value_type {
+		vt_empty,
+		vt_signed,
+		vt_unsigned,
+		vt_float,
+		vt_date,
+		vt_string,
+		vt_cstr,
+		vt_path,
+		vt_str_view,
+		vt_bool
+	};
+	value_type type;
 
-    union {
-        int64_t i64;
-        uint64_t u64;
-        double dbl;
-        std::string const * str;
-        char const * cstr;
-        path const * path;
-        str_view const * slice;
-        bool boolean;
-    };
+	union {
+		int64_t i64;
+		uint64_t u64;
+		double dbl;
+		std::string const * str;
+		char const * cstr;
+		path const * path;
+		str_view const * slice;
+		bool boolean;
+	};
 
-    ~arg();
+	~arg();
 
 private:
-    friend arg const & make_empty_arg();
+	friend arg const & make_empty_arg();
 };
 
+
 }}} // end namespace
+
 
 #include "core/text/arg-inline.h"
 

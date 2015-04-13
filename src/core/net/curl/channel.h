@@ -38,52 +38,52 @@ namespace curl {
  */
 mark(+, threadsafe)
 class channel {
-    struct impl_t;
-    impl_t * impl;
+	struct impl_t;
+	impl_t * impl;
 
-    friend struct libcurl_callbacks;
-    friend class request;
-    friend class response;
-    friend class session;
+	friend struct libcurl_callbacks;
+	friend class request;
+	friend class response;
+	friend class session;
 
-    void open();
-    void attach(session *);
-    void detach(unsigned session_id);
+	void open();
+	void attach(session *);
+	void detach(unsigned session_id);
 
 public:
-    channel();
-    ~channel();
+	channel();
+	~channel();
 
-    /**
-     * Uniquely identify a channel. IDs are auto-assigned, monotonically
-     * incrementing numbers that begin with 0. The default channel may or may
-     * not have id 0, since it is only created on demand.
-     */
-    unsigned get_id() const;
+	/**
+	 * Uniquely identify a channel. IDs are auto-assigned, monotonically
+	 * incrementing numbers that begin with 0. The default channel may or may
+	 * not have id 0, since it is only created on demand.
+	 */
+	unsigned get_id() const;
 
-    /**
-     * A channel is initially closed. It opens automatically the first time
-     * a consumer needs it to do real work, and remains open from then on. Use
-     * this function to test its state. (Primarily for internal use.)
-     */
-    bool is_open() const;
+	/**
+	 * A channel is initially closed. It opens automatically the first time
+	 * a consumer needs it to do real work, and remains open from then on. Use
+	 * this function to test its state. (Primarily for internal use.)
+	 */
+	bool is_open() const;
 
-    /**
-     * Simple apps can ignore the channel construct entirely--in which case,
-     * the default channel is always used. This channel is created on demand,
-     * and destroyed (if applicable) on app teardown.
-     */
-    static channel & get_default();
+	/**
+	 * Simple apps can ignore the channel construct entirely--in which case,
+	 * the default channel is always used. This channel is created on demand,
+	 * and destroyed (if applicable) on app teardown.
+	 */
+	static channel & get_default();
 
-    /**
-     * Whenever a new session is created, it is cloned from a prototype provided
-     * by its associated channel. If the prototype session has state such as a
-     * User-Agent header, credentials, callbacks, or debug/verbose configuration,
-     * this lets it propagate--which is both faster (performance-wise) and
-     * cleaner (code-wise), than manually duplicating everything.
-     */
-    session_handle get_prototype_session();
-    void set_prototype_session(session_handle);
+	/**
+	 * Whenever a new session is created, it is cloned from a prototype provided
+	 * by its associated channel. If the prototype session has state such as a
+	 * User-Agent header, credentials, callbacks, or debug/verbose configuration,
+	 * this lets it propagate--which is both faster (performance-wise) and
+	 * cleaner (code-wise), than manually duplicating everything.
+	 */
+	session get_prototype_session();
+	void set_prototype_session(session);
 };
 
 

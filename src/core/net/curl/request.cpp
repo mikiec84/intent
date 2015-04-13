@@ -1,6 +1,7 @@
 #include <cstdlib>
 
 #include "core/net/curl/.private/request-impl.h"
+#include "core/net/curl/.private/response-impl.h"
 #include "core/net/curl/.private/session-impl.h"
 #include "core/net/curl/request.h"
 #include "core/util/monotonic_id.h"
@@ -13,100 +14,114 @@ namespace net {
 namespace curl {
 
 
-static uint32_t get_next_id() {
-    static util::monotonic_id<uint32_t> the_generator;
-    return the_generator.next();
+uint32_t get_next_request_id() {
+	static util::monotonic_id<uint32_t> the_generator;
+	return the_generator.next();
 }
 
 
-request::impl_t::impl_t(class session & s):
-        id(get_next_id()),
-        session(&s),
-        verb(nullptr),
-        url(nullptr),
-        headers() {
-}
-
-request::impl_t::~impl_t() {
-    if (verb) {
-        free(verb);
-    }
-    if (url) {
-        free(url);
-    }
+request::request(session * s) :
+		impl(new impl_t(s)) {
 }
 
 
-request::request(class session & s) :
-        impl(new impl_t(s)) {
-    fprintf(stderr, "request %u ctor\n", get_id());
+request::request(request && other) :
+		impl(std::move(other.impl)) {
+	other.impl = nullptr;
+}
+
+
+request::request(request const & other) :
+		impl(new impl_t(other.impl->session)) {
+	impl->add_ref();
+}
+
+
+request::request(impl_t * other) :
+		impl(other) {
+	other->add_ref();
 }
 
 
 request::~request() {
-    fprintf(stderr, "request %u dtor\n", get_id());
-    delete impl;
+	if (impl) {
+		impl->release_ref();
+	}
 }
 
 
 void request::set_verb(char const * verb) {
-    if (verb && *verb) {
-        impl->verb = strdup(verb);
-    }
+	if (verb && *verb) {
+		impl->verb = strdup(verb);
+	}
 }
 
 
 char const * request::get_verb() const {
-    return impl->verb;
+	return impl->verb;
 }
 
 
 void request::set_url(char const * url) {
-    if (url && *url) {
-        impl->url = strdup(url);
-    }
+	if (url && *url) {
+		impl->url = strdup(url);
+	}
 }
 
 
 char const * request::get_url() const {
-    return impl->url;
+	return impl->url;
 }
 
 
-channel * request::get_channel() {
-    auto s = impl->session;
-    return s ? s->get_channel() : nullptr;
+session & request::get_session() {
+	return *impl->session;
+}
+
+
+session const & request::get_session() const {
+	return *impl->session;
+}
+
+
+channel & request::get_channel() {
+	return *impl->session->impl->channel;
+}
+
+
+channel const & request::get_channel() const {
+	return *impl->session->impl->channel;
 }
 
 
 uint32_t request::get_id() const {
-    return impl->id;
+	return impl->id;
 }
 
 
 headers const & request::get_headers() const {
-    return impl->headers;
+	return impl->headers;
 }
 
 
 headers & request::get_headers() {
-    return impl->headers;
+	return impl->headers;
 }
 
 
-response_handle request::start_get(char const * url) {
-    session * s = new session();
-    s->start_get(url);
-    auto & resp = s->impl->current_response;
-    resp->impl->session_owned_by_me = true;
-    return resp;
+response request::start_get(char const * url) {
+	session * s = new session();
+	s->start_get(url);
+	auto resp = s->impl->current_response;
+	resp->session_owned_by_me = true;
+	return resp;
 }
 
 
-response_handle request::get(char const * url) {
-    auto resp = start_get(url);
-    resp->wait();
-    return resp;
+response request::get(char const * url) {
+	auto resp = start_get(url);
+	resp.wait();
+	return resp;
 }
 
 

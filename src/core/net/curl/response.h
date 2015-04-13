@@ -25,33 +25,38 @@ namespace curl {
  */
 // -<threadsafe
 class response {
-    struct impl_t;
-    impl_t * impl;
+	struct impl_t;
+	impl_t * impl;
 
-    friend struct libcurl_callbacks;
-    friend class request;
-    friend class session;
+	friend struct libcurl_callbacks;
+	friend class request;
+	friend class session;
 
-    response(session &);
+	response(session *);
+	response(impl_t *);
 
 public:
 
-    ~response();
+	response(response const &);
+	response(response &&);
+	~response();
 
-    session * get_session();
+	session & get_session();
+	session const & get_session() const;
 
-    channel * get_channel();
+	channel & get_channel();
+	channel const & get_channel() const;
 
-    void get_url(char const * url);
+	void get_url(char const * url);
 
-    uint32_t get_id() const;
+	uint32_t get_id() const;
 
-    headers const & get_headers() const;
-    std::string const & get_body() const;
+	headers const & get_headers() const;
+	std::string const & get_body() const;
 
-    uint16_t get_status_code() const;
+	uint16_t get_status_code() const;
 
-    void wait(timeout const & t=timeout::standard);
+	void wait(timeout const & t=timeout::standard);
 };
 
 
