@@ -7,7 +7,9 @@
 
 
 using std::string;
+using intent::core::text::str_view;
 using intent::core::text::compare_str_ascii_case_insensitive;
+using intent::core::text::find_char;
 
 
 namespace intent {
@@ -155,12 +157,22 @@ void headers::get_defaults_from(headers h) {
 }
 
 
-char const * headers::get(text::str_view header) {
+char const * headers::get(str_view header) {
     if (header) {
         std::string h(header.begin, header.end());
         return impl->get(h);
     }
     return nullptr;
+}
+
+
+void headers::add(str_view line) {
+    if (line) {
+        auto i = find_char(line.begin, ':', line.end());
+        if (i != nullptr) {
+            set(str_view(line.begin, i), str_view(i, line.end()));
+        }
+    }
 }
 
 

@@ -72,6 +72,11 @@ public:
     void set(text::str_view header, text::str_view value);
 
     /**
+     * Add a line in the form Header-Name: value.
+     */
+    void add(text::str_view line);
+
+    /**
      * Remove a header.
      */
     void remove(text::str_view header);

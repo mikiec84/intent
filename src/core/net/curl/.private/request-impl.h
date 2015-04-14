@@ -18,18 +18,21 @@ class session;
 
 struct request::impl_t {
 
-	uint32_t id;
-	session * session; // not owned
-	char * verb; // own
-	char * url; // own
-	headers headers;
-	mutable std::atomic<unsigned> ref_count;
+    uint32_t id;
+    session * session; // not owned
+    char * verb; // own
+    char * url; // own
+    headers headers;
+    mutable std::atomic<unsigned> ref_count;
 
-	impl_t(class session *);
-	~impl_t();
+    impl_t(class session *);
+    ~impl_t();
 
-	void add_ref() const;
-	void release_ref() const;
+    void add_ref() const;
+    void release_ref() const;
+    void set_url(char const *);
+    void set_verb(char const *);
+    void free_verb();
 };
 
 

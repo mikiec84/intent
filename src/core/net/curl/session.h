@@ -57,53 +57,52 @@ namespace curl {
  */
 mark(+, threadsafe)
 class session {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend class channel;
-	friend struct libcurl_callbacks;
-	friend class request;
-	friend class response;
+    friend class channel;
+    friend struct libcurl_callbacks;
+    friend class request;
+    friend class response;
 
-	void set_error(char const *); //+<caller_must_lock
-	void set_error(std::string const &); //+<caller_must_lock
+    void set_error(char const *); //+<caller_must_lock
+    void set_error(std::string const &); //+<caller_must_lock
 
-	void merge_headers(headers & overrides);
-
-	session(impl_t *);
+    session(impl_t *);
+    void reset_internal();
 
 public:
 
-	session();
-	session(channel &);
-	~session();
+    session();
+    session(channel &);
+    ~session();
 
-	session_state get_state() const;
+    session_state get_state() const;
 
-	/**
-	 * Identifies the underlying state encapsulated by this session. IDs are
-	 * monotonically incrementing numbers
-	 * @return
-	 */
-	uint32_t get_id() const;
+    /**
+     * Identifies the underlying state encapsulated by this session. IDs are
+     * monotonically incrementing numbers
+     * @return
+     */
+    uint32_t get_id() const;
 
-	channel * get_channel();
-	response get_current_response();
-	request get_current_request();
+    channel * get_channel();
+    response get_current_response();
+    request get_current_request();
 
-	response get(char const * url);
-	response start_get(char const * url);
+    response get(char const * url);
+    response start_get(char const * url);
 
-	response send();
+    response send();
 
-	/**
-	 * Start a new request/response interaction. Moves state from idle to
-	 * configuring.
-	 * @return a handle to a new request object, ready to be configured.
-	 */
-	request reset();
+    /**
+     * Start a new request/response interaction. Moves state from idle to
+     * configuring.
+     * @return a handle to a new request object, ready to be configured.
+     */
+    request reset();
 
-	void set_verbose(bool);
+    void set_verbose(bool);
 };
 
 

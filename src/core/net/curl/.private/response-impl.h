@@ -18,26 +18,28 @@ namespace curl {
 mark(-, threadsafe)
 struct response::impl_t {
 
-	uint32_t id;
-	session * session; // usually not owned; see session_owned_by_me
-	bool session_owned_by_me; // only true if using invisible sessions
-	receive_callback receive_func;
-	progress_callback progress_func;
-	headers headers;
-	std::string received_bytes;
-	size_t allocated_byte_count;
-	size_t received_byte_count;
-	size_t expected_receive_total;
-	size_t sent_byte_count;
-	size_t expected_send_total;
-	uint16_t status_code;
-	mutable std::atomic<unsigned> ref_count;
+    uint32_t id;
+    session * session; // usually not owned; see session_owned_by_me
+    bool session_owned_by_me; // only true if using invisible sessions
+    headers headers;
+    std::string received_bytes;
+    size_t expected_receive_total;
+    size_t sent_byte_count;
+    size_t expected_send_total;
+    uint16_t status_code;
+    mutable std::atomic<unsigned> ref_count;
 
-	impl_t(class session *);
-	~impl_t();
+    impl_t(class session *);
+    ~impl_t();
 
-	void add_ref() const;
-	void release_ref() const;
+    void add_ref() const;
+    void release_ref() const;
+
+    uint64_t store_bytes(void * bytes, uint64_t byte_count);
+    uint64_t store_header(void * bytes, uint64_t byte_count);
+    int update_progress(uint64_t expected_receive_total,
+            uint64_t received_so_far, uint64_t expected_send_total,
+            uint64_t sent_so_far);
 };
 
 
