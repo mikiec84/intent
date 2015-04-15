@@ -69,7 +69,9 @@ class session {
     void set_error(std::string const &); //+<caller_must_lock
 
     session(impl_t *);
-    void reset_internal();
+
+    void reset_prelocked();
+    void send_prelocked();
 
 public:
 

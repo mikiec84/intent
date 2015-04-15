@@ -9,6 +9,8 @@
 using std::atomic;
 using std::map;
 using std::string;
+using std::mutex;
+using std::lock_guard;
 
 using namespace std::placeholders;
 
@@ -23,72 +25,6 @@ uint32_t get_next_response_id() {
     return the_generator.next();
 }
 
-
-#if 0
-response::impl_t::impl_t(class response * resp, class request && req,
-    receive_callback receive_func, progress_callback progress_func):
-        id(get_next_id()),
-        response(resp),
-        request(),
-        curl(nullptr),
-        receive_func(receive_func),
-        progress_func(progress_func),
-        received_bytes(nullptr),
-        allocated_byte_count(0),
-        received_byte_count(0),
-        expected_receive_total(0),
-        sent_byte_count(0),
-        expected_send_total(0),
-        status_code(0),
-        detached(false) {
-
-    curl = curl_easy_init();
-    printf("Called curl_easy_init() in %s, %s line %d; got 0x%p\n", __func__, __FILE__, __LINE__, curl);
-    fflush(stdout);
-    if (!curl) {
-        fprintf(stdout, "\ncurl_easy_init() failed, exiting!");
-        exit(2);
-    }
-
-    auto s = request.impl->session;
-    auto ch = s->impl->channel;
-
-    curl_easy_setopt(curl, CURLOPT_URL, request.get_url());
-    set_curl_verb(curl, request.get_verb());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, libcurl_callbacks::on_receive_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
-    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-    curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, error);
-    curl_easy_setopt(curl, CURLOPT_PRIVATE, this);
-    if (progress_func) {
-        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, libcurl_callbacks::on_progress);
-        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
-    }
-#ifdef DO_TIMEOUT
-    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 3L);
-    curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
-#endif
-
-    /* call this function to get a socket */
-    curl_easy_setopt(curl, CURLOPT_OPENSOCKETFUNCTION, libcurl_callbacks::on_open_socket);
-    curl_easy_setopt(curl, CURLOPT_OPENSOCKETDATA, ch->impl);
-
-    /* call this function to close a socket */
-    curl_easy_setopt(curl, CURLOPT_CLOSESOCKETFUNCTION, libcurl_callbacks::on_close_socket);
-    curl_easy_setopt(curl, CURLOPT_CLOSESOCKETDATA, ch->impl);
-
-    ch->open();
-    fprintf(stdout,
-            "\nAdding curl %p to channel %u (%s)", curl, ch->get_id(), request.get_url());
-    auto rc = curl_multi_add_handle(ch->impl->multi, curl);
-    mcode_or_die("new_conn: multi_add_handle", rc);
-
-    /* note that the add_handle() will set a time-out to trigger very soon so
-       that the necessary socket_action() call will be called by this app */
-
-}
-#endif
 
 response::response(session * s) :
         impl(new impl_t(s)) {
@@ -125,9 +61,9 @@ uint16_t response::get_status_code() const {
 }
 
 
-void response::wait(struct timeout const & timeout) {
-    fprintf(stderr, "entering %s()\n", __func__);
-    std::this_thread::sleep_for(std::chrono::milliseconds(500000));
+bool response::wait(unsigned timeout_millisecs) {
+    // It's easier to implement wait() correctly in session impl, so delegate...
+    return impl->session->impl->wait(timeout_millisecs);
 }
 
 
@@ -170,6 +106,13 @@ static constexpr size_t max_stored_response_size = 16 * 1024 * 1024;
 
 uint64_t response::impl_t::store_bytes(void * bytes, uint64_t byte_count) {
 
+    {
+        auto simpl = session->impl;
+        lock_guard<mutex> lock(simpl->mtx);
+        if (simpl->state == session_state::requesting || simpl->state == session_state::waiting_for_response) {
+            simpl->state = session_state::accepting_response;
+        }
+    }
     if (byte_count) {
 
         auto received_byte_count = received_bytes.size();
@@ -208,9 +151,9 @@ uint64_t response::impl_t::store_header(void * bytes, uint64_t byte_count) {
     auto txt = reinterpret_cast<char const *>(bytes);
     if (byte_count) {
         headers.add(text::str_view(txt, byte_count));
+        fprintf(stderr, "stored %s\n", txt);
     }
 
-    fprintf(stderr, "stored %s\n", txt);
     return byte_count;
 }
 

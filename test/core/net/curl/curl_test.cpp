@@ -42,13 +42,14 @@ TEST(curl_test, session_lifecycle_normal) {
 }
 
 
-TEST(curl_test, DISABLED_easiest_download_to_debug) {
+TEST(curl_test, easiest_download_to_debug) {
     session s;
     request req = s.get_current_request();
     req.set_url("http://www.google.com/");
     req.set_verb("get");
     req.get_headers().set("User-Agent", "intent.core.net.curl");
     auto resp = s.send();
+
     resp.wait();
     ASSERT_EQ(200, resp.get_status_code());
     ASSERT_FALSE(resp.get_headers().is_empty());

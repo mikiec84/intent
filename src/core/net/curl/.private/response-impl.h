@@ -27,6 +27,7 @@ struct response::impl_t {
     size_t sent_byte_count;
     size_t expected_send_total;
     uint16_t status_code;
+    char * effective_url;
     mutable std::atomic<unsigned> ref_count;
 
     impl_t(class session *);
@@ -40,6 +41,7 @@ struct response::impl_t {
     int update_progress(uint64_t expected_receive_total,
             uint64_t received_so_far, uint64_t expected_send_total,
             uint64_t sent_so_far);
+    void finish();
 };
 
 

@@ -1,4 +1,5 @@
 #include <atomic>
+#include <chrono>
 #include <map>
 #include <mutex>
 
@@ -11,6 +12,7 @@
 #include "core/net/curl/request.h"
 #include "core/net/curl/response.h"
 #include "core/net/curl/state_error.h"
+#include "core/net/curl/timeout.h"
 #include "core/net/http_method.h"
 #include "core/util/monotonic_id.h"
 #include "core/text/interp.h"
@@ -19,6 +21,7 @@ using std::atomic;
 using std::lock_guard;
 using std::map;
 using std::mutex;
+using std::unique_lock;
 
 using intent::core::text::interp;
 
@@ -82,7 +85,6 @@ session::session(class channel & ch) :
     // We have to do this in the body of the ctor, because only this outer
     // class, not the impl, has the right "this" pointer.
     ch.attach(this);
-    fprintf(stderr, "session %u ctor\n", get_id());
 }
 
 
@@ -138,7 +140,14 @@ static void set_curl_verb(CURL * easy, char const * verb) {
 
 response session::send() {
     lock_guard<mutex> lock(impl->mtx);
+    send_prelocked();
+    return impl->current_response;
+}
 
+
+void session::send_prelocked() {
+
+    fprintf(stderr, "sending\n");
     auto ch = impl->channel ? impl->channel->impl : nullptr;
     if (!ch) {
         throw state_error("Session is detached from channel.");
@@ -164,7 +173,7 @@ response session::send() {
     curl_easy_setopt(easy, CURLOPT_WRITEHEADER, impl->current_response);
     curl_easy_setopt(easy, CURLOPT_VERBOSE, 1L);
     curl_easy_setopt(easy, CURLOPT_ERRORBUFFER, impl->error);
-    curl_easy_setopt(easy, CURLOPT_PRIVATE, this);
+    curl_easy_setopt(easy, CURLOPT_PRIVATE, impl);
 #ifdef DO_PROGRESS
     if (progress_func) {
         curl_easy_setopt(easy, CURLOPT_NOPROGRESS, 0L);
@@ -192,22 +201,23 @@ response session::send() {
     // Make sure our channel is ready to do business.
     impl->channel->open();
 
+    impl->state = session_state::requesting;
     auto rc = curl_multi_add_handle(ch->multi, easy);
     mcode_or_die("new_conn: multi_add_handle", rc);
 
     /* note that the add_handle() will set a time-out to trigger very soon so
        that the necessary socket_action() call will be called by this app */
-
-    return impl->current_response;
 }
 
 
 request session::get_current_request() {
+    lock_guard<mutex> lock(impl->mtx);
     return impl->current_request;
 }
 
 
 response session::get_current_response() {
+    lock_guard<mutex> lock(impl->mtx);
     return impl->current_response;
 }
 
@@ -218,7 +228,43 @@ session::~session() {
 }
 
 
+bool session::impl_t::wait(unsigned timeout_millisecs) {
+    unique_lock<mutex> lock(mtx);
+    switch (state) {
+    case session_state::configuring:
+        return false;
+    case session_state::idle:
+        return true;
+    default:
+        break;
+    }
+    bool is_idle = state_signal.wait_for(lock,
+            std::chrono::milliseconds(std::max(100u, timeout_millisecs)),
+            [this]{ return !is_busy(state); });
+    return is_idle;
+}
+
+
+session_state session::get_state() const {
+    lock_guard<mutex> lock(impl->mtx);
+    return impl->state;
+}
+
+
+void session::impl_t::finish() {
+    lock_guard<mutex> lock(mtx);
+    state = session_state::idle;
+    curl_easy_getinfo(easy, CURLINFO_EFFECTIVE_URL, &current_response->effective_url);
+    long n;
+    curl_easy_getinfo(easy, CURLINFO_RESPONSE_CODE, &n);
+    current_response->status_code = static_cast<uint16_t>(n);
+    curl_multi_remove_handle(channel->impl->multi, easy);
+    state_signal.notify_all();
+}
+
+
 channel * session::get_channel() {
+    // no need to mutex; value never changes during session lifetime
     return impl->channel;
 }
 
@@ -234,14 +280,16 @@ response session::get(char const * url) {
 
 
 response session::start_get(char const * url) {
-    reset();
+    lock_guard<mutex> lock(impl->mtx);
+    reset_prelocked();
     impl->current_request->set_url(url);
     impl->current_request->set_verb("get");
-    return send();
+    send_prelocked();
+    return impl->current_response;
 }
 
 
-void session::reset_internal() {
+void session::reset_prelocked() {
     auto & r = impl->current_request;
     if (impl->state != session_state::configuring) {
         r->release_ref();
@@ -257,20 +305,11 @@ void session::reset_internal() {
 
 
 request session::reset() {
-    reset_internal();
+    lock_guard<mutex> lock(impl->mtx);
+    reset_prelocked();
     return request(impl->current_request);
 }
 
-#if 0
-
-response session::get(char const * url, receive_callback rcb) {
-    class request request(*this, get_http_method_by_index(http_get)->verb, url);
-    merge_headers(request.get_headers());
-    class response response(std::move(request), rcb);
-    return response;
-}
-
-#endif
 
 }}}} // end namespace
 

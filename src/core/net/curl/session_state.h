@@ -20,6 +20,9 @@ enum class session_state: uint8_t {
 
 char const * get_name_for_session_state(session_state);
 
+inline bool is_busy(session_state ss) { return ss != session_state::idle && ss != session_state::configuring; }
+
+
 }}}} // end namespace
 
 

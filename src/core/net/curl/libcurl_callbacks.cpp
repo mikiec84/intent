@@ -18,8 +18,6 @@ namespace curl {
 /* Update the event timer after multi library calls */
 int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _chimpl)
 {
-    fprintf(stderr, "%s(): timeout_ms %ld\n", __func__, timeout_ms);
-
     auto & chimpl = *reinterpret_cast<channel::impl_t *>(_chimpl);
 
     /* cancel running timer */
@@ -42,14 +40,12 @@ int libcurl_callbacks::on_change_timeout(CURLM *multi, long timeout_ms, void * _
 /* CURLMOPT_SOCKETFUNCTION */
 int libcurl_callbacks::on_socket_update(CURL * easy, curl_socket_t sock, int what, void * _chimpl, void *sockp)
 {
-    fprintf(stderr, "%s(): socket=%d, what=%d, sockp=%p", __func__, sock, what, sockp);
-
     auto & chimpl = *reinterpret_cast<channel::impl_t *>(_chimpl);
     int *actionp = (int *) sockp;
     const char *whatstr[] = { "none", "IN", "OUT", "INOUT", "REMOVE"};
 
-    fprintf(stdout,
-          "\nsocket callback: sock=%d easy=%p what=%s ", sock, easy, whatstr[what]);
+    fprintf(stderr,
+          "socket callback: sock=%d easy=%p what=%s\n", sock, easy, whatstr[what]);
 
     if (what == CURL_POLL_REMOVE) {
         fprintf(stdout, "\n");
@@ -107,6 +103,25 @@ int libcurl_callbacks::on_progress(void * _rimpl, uint64_t expected_receive_tota
         auto rimpl = reinterpret_cast<response::impl_t *>(_rimpl);
         err = rimpl->update_progress(expected_receive_total, received_so_far,
                  expected_send_total, sent_so_far);
+#if 0
+        // We detect completion in two different ways. The normal case is that
+        // received_so_far == expected_receive_total. However, sometimes curl
+        // tolerates streaming downloads with no content length--in which case,
+        // we see expected_receive_total == 0, and we have to test in a more
+        // manual way... See http://stackoverflow.com/a/10486468.
+        if (expected_receive_total) {
+            if (received_so_far == expected_receive_total) {
+                rimpl->finish();
+            }
+        } else {
+            uint64_t expected, received;
+            curl_easy_getinfo(rimpl->session->impl->easy, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &expected);
+            curl_easy_getinfo(rimpl->session->impl->easy, CURLINFO_SIZE_DOWNLOAD, &received);
+            if (received == expected) {
+                rimpl->finish();
+            }
+        }
+#endif
     }
     return err;
 }

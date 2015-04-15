@@ -23,6 +23,7 @@ inline response::impl_t::impl_t(class session * s) :
         sent_byte_count(0),
         expected_send_total(0),
         status_code(0),
+        effective_url(nullptr),
         ref_count(1) {
 }
 
@@ -43,6 +44,15 @@ inline response::impl_t::~impl_t() {
     if (session_owned_by_me) {
         delete session;
     }
+    if (effective_url) {
+        free(effective_url);
+    }
+}
+
+
+inline void response::impl_t::finish() {
+    // Easier to implement in session; just delegate.
+    session->impl->finish();
 }
 
 
