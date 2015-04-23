@@ -10,7 +10,6 @@ if (BUILD_TESTRUNNERS)
 
     find_package(PCRE REQUIRED)
     find_package(CURL REQUIRED)
-    find_package(LibEV REQUIRED)
 
     include_directories(
         ..
@@ -21,7 +20,6 @@ if (BUILD_TESTRUNNERS)
 
     add_executable(${PROJECT_NAME} ${SRC_LIST})
     add_executable(asiohiper asiohiper.cxx)
-    add_executable(evhiper evhiperfifo.c)
 
     # Suppress sanitizer warnings for a few places where we are deliberately
     # doing funky stuff in tests.
@@ -54,16 +52,6 @@ if (BUILD_TESTRUNNERS)
     target_link_libraries(asiohiper
         curl
         ${Boost_LIBRARIES}
-    )
-
-    include_directories(
-        ${LIBEV_INCLUDE_DIR}
-    )
-
-    target_link_libraries(evhiper
-        curl
-        ${LIBEV_LIBRARIES}
-        m
     )
 
     add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})

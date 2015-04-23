@@ -42,60 +42,60 @@ typedef std::pair<curl_socket_t, asio_socket_t *> socket_pair_t;
 // main() exits. Define an object that does init and cleanup in its ctor and dtor;
 // we will create a static (global) instance of it to guarantee this lifecycle.
 struct env {
-	env(long flags) { curl_global_init(flags); }
-	~env() { curl_global_cleanup(); }
+    env(long flags) { curl_global_init(flags); }
+    ~env() { curl_global_cleanup(); }
 };
 
 
 // Create a static instance of the init/cleanup object the first time
 // this function is called.
 env const & get_env(long flags) {
-	static env the_env(flags);
-	return the_env;
+    static env the_env(flags);
+    return the_env;
 }
 
 
 static uint32_t get_next_id() {
-	static util::monotonic_id<uint32_t> the_generator;
-	return the_generator.next();
+    static util::monotonic_id<uint32_t> the_generator;
+    return the_generator.next();
 }
 
 
 channel::impl_t::impl_t() : id(get_next_id()), multi(), still_running(1),
-		io_service(), timeout(io_service), socket_map(), service_runner(),
-		// Add some abstract "work" so that a call to io_service.run() will
-		// never exit because it always sees something pending...
-		work(io_service), sessions(), mtx() {
+        io_service(), timeout(io_service), socket_map(), service_runner(),
+        // Add some abstract "work" so that a call to io_service.run() will
+        // never exit because it always sees something pending...
+        work(io_service), sessions(), mtx() {
 
-	curl_multi_setopt(multi, CURLMOPT_SOCKETFUNCTION, libcurl_callbacks::on_socket_update);
-	curl_multi_setopt(multi, CURLMOPT_SOCKETDATA, this);
+    curl_multi_setopt(multi, CURLMOPT_SOCKETFUNCTION, libcurl_callbacks::on_socket_update);
+    curl_multi_setopt(multi, CURLMOPT_SOCKETDATA, this);
 
-	curl_multi_setopt(multi, CURLMOPT_TIMERFUNCTION, libcurl_callbacks::on_adjust_timeout);
-	curl_multi_setopt(multi, CURLMOPT_TIMERDATA, this);
+    curl_multi_setopt(multi, CURLMOPT_TIMERFUNCTION, libcurl_callbacks::on_adjust_timeout);
+    curl_multi_setopt(multi, CURLMOPT_TIMERDATA, this);
 }
 
 
 channel::impl_t::~impl_t() {
-	lock_guard<mutex> lock(mtx);
-	if (!io_service.stopped()) {
-		io_service.stop();
-	}
-	if (is_open()) {
-		still_running = 0;
-		while (!sessions.empty()) {
-			auto x = sessions.begin();
-			auto session = x->second;
-			if (session) {
-				// Avoid deadlock by breaking backref.
-				session->impl->channel = nullptr;
-			}
-			// Here's where we do auto-deregistration. This also calls the
-			// dtor of the shared_ptr, which in turn calls the dtor of the
-			// session, which (since it's been detached from us) *won't*
-			// turn around and tell us to remove it from our list.
-			sessions.erase(x);
-		}
-	}
+    lock_guard<mutex> lock(mtx);
+    if (!io_service.stopped()) {
+        io_service.stop();
+    }
+    if (is_open()) {
+        still_running = 0;
+        while (!sessions.empty()) {
+            auto x = sessions.begin();
+            auto session = x->second;
+            if (session) {
+                // Avoid deadlock by breaking backref.
+                session->impl->channel = nullptr;
+            }
+            // Here's where we do auto-deregistration. This also calls the
+            // dtor of the shared_ptr, which in turn calls the dtor of the
+            // session, which (since it's been detached from us) *won't*
+            // turn around and tell us to remove it from our list.
+            sessions.erase(x);
+        }
+    }
 }
 
 
@@ -104,19 +104,19 @@ channel::channel(): impl(new impl_t()) {
 
 
 channel::~channel() {
-	fprintf(stderr, "channel %u dtor\n", get_id());
-	delete impl;
+    fprintf(stderr, "channel %u dtor\n", get_id());
+    delete impl;
 }
 
 
 channel & channel::get_default() {
-	static channel the_handle;
-	return the_handle;
+    static channel the_handle;
+    return the_handle;
 }
 
 
 uint32_t channel::get_id() const {
-	return impl->id;
+    return impl->id;
 }
 
 
@@ -125,85 +125,74 @@ static const std::thread::id inert_thread_id;
 
 void channel::open() {
 
-	lock_guard<mutex> lock(impl->mtx);
+    lock_guard<mutex> lock(impl->mtx);
 
-	if (!impl->is_open()) {
-		fprintf(stderr, "Opening channel %u.\n", get_id());
-		auto & svc = impl->io_service;
-		impl->service_runner = thread([&svc]() {
-			fprintf(stderr, "Entering asio service runner thread.\n");
-			asio::io_service::work never_done(svc);
-			svc.run();
-			fprintf(stderr, "Leaving asio service runner thread.\n");
-		});
-		impl->service_runner.detach();
-	}
+    if (!impl->is_open()) {
+        auto & svc = impl->io_service;
+
+        impl->service_runner = thread([&svc]() {
+            asio::io_service::work never_done(svc);
+            svc.run();
+        });
+
+        impl->service_runner.detach();
+    }
 }
 
 
 bool channel::impl_t::is_open() const {
-	return service_runner.get_id() != inert_thread_id;
+    return service_runner.get_id() != inert_thread_id;
 }
 
 
 bool channel::is_open() const {
-	lock_guard<mutex> lock(impl->mtx);
+    lock_guard<mutex> lock(impl->mtx);
 
-	return impl->is_open();
+    return impl->is_open();
 }
 
 
 void channel::attach(session * s) {
-	if (s) {
-		lock_guard<mutex> lock(impl->mtx);
-		impl->sessions[s->get_id()] = s;
-	}
+    if (s) {
+        lock_guard<mutex> lock(impl->mtx);
+        impl->sessions[s->get_id()] = s;
+    }
 }
 
 
 void channel::detach(unsigned session_id) {
-	lock_guard<mutex> lock(impl->mtx);
-	auto & sessions = impl->sessions;
-	auto x = sessions.find(session_id);
-	if (x != sessions.end()) {
-		// This calls the dtor of the smart ptr, which (since ref count
-		// reaches 0) will also call the dtor of the session.
-		sessions.erase(x);
-	}
+    lock_guard<mutex> lock(impl->mtx);
+    auto & sessions = impl->sessions;
+    auto x = sessions.find(session_id);
+    if (x != sessions.end()) {
+        // This calls the dtor of the smart ptr, which (since ref count
+        // reaches 0) will also call the dtor of the session.
+        sessions.erase(x);
+    }
 }
 
 
 /* Check for completed transfers, and remove their easy handles */
 void channel::impl_t::handle_done_transfers() {
 
-	CURLMsg *msg;
-	int msgs_left;
-	session::impl_t * simpl;
+    CURLMsg *msg;
+    int msgs_left;
+    session::impl_t * simpl;
 
-	fprintf(stderr, "in handle_done_transfers(); active transfers remaining = %d\n", still_running);
+    while ((msg = curl_multi_info_read(multi, &msgs_left)) != nullptr) {
 
-	bool found_done = false;
-	int msg_count = 0;
-	while ((msg = curl_multi_info_read(multi, &msgs_left)) != nullptr) {
-		++msg_count;
-		// It is common to get a CURLMSG_DONE when we are done--but it is not
-		// guaranteed in cases where the remote server closes a socket without
-		// warning. Testing also shows that we don't necessarily receive this
-		// message at the end of chunked transfer encoding with persistent
-		// connections. Therefore, this block is not the only place where we call
-		// cleanup_after_transfer().
-		if (msg->msg == CURLMSG_DONE) {
-			found_done = true;
-			auto easy = msg->easy_handle;
-			curl_easy_getinfo(easy, CURLINFO_PRIVATE, &simpl);
-			simpl->cleanup_after_transfer();
-		} else {
-			fprintf(stderr, "Got unexpected msg type %d.\n", msg->msg);
-		}
-	}
-	if (!found_done) {
-		fprintf(stderr, "handle_done_transfers() didn't get a done msg after %d messages\n", msg_count);
-	}
+        // It is common to get a CURLMSG_DONE when we are done--but it is not
+        // guaranteed in cases where the remote server closes a socket without
+        // warning. Testing also shows that we don't necessarily receive this
+        // message at the end of chunked transfer encoding with persistent
+        // connections. Therefore, this block is not the only place where we call
+        // cleanup_after_transfer().
+        if (msg->msg == CURLMSG_DONE) {
+            auto easy = msg->easy_handle;
+            curl_easy_getinfo(easy, CURLINFO_PRIVATE, &simpl);
+            simpl->cleanup_after_transfer();
+        }
+    }
 }
 
 
@@ -214,96 +203,96 @@ void channel::impl_t::handle_done_transfers() {
  */
 void channel::impl_t::on_socket_event(asio_socket_t *tcp_socket, int event, int * socket_state)
 {
-	fprintf(stderr, "on_socket_event(), event=socket state->%s\n", get_socket_state_descrip(event));
+    int start_state = *socket_state;
 
-	int start_state = *socket_state;
-	do {
-		auto rc = curl_multi_socket_action(multi, tcp_socket->native_handle(),
-				event, &still_running);
-		mcode_or_die("on_socket_event: multi_socket_action", rc);
-	} while (*socket_state == start_state);
+    auto rc = curl_multi_socket_action(multi, tcp_socket->native_handle(),
+            event, &still_running);
 
-	fprintf(stderr, "after calling curl_multi_socket_action with event %d, still_running = %d\n", event, still_running);
+    mcode_or_die("on_socket_event: multi_socket_action", rc);
 
-	handle_done_transfers();
+    // If this past read or write sequence wasn't enough to satisfy curl,
+    // schedule another one to happen as soon as the socket is ready again.
+    if (*socket_state == start_state) {
+        queue_callback_when_socket_is_ready(socket_state, tcp_socket);
+    }
 
-	if (still_running <= 0) {
-		fprintf(stderr, "\nlast transfer done, kill timeout");
-		timeout.cancel();
-	}
+    handle_done_transfers();
+
+    if (still_running <= 0) {
+        timeout.cancel();
+    }
 }
 
 
 /* Called by asio when our timeout expires */
 void channel::impl_t::on_timeout(error_code const & error)
 {
-	if (!error) {
-		auto rc = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, &still_running);
-		fprintf(stderr, "after calling curl_multi_socket_action with timeout, still_running = %d\n", still_running);
-		mcode_or_die("on_timeout: multi_socket_action", rc);
-		handle_done_transfers();
-	}
+    if (!error) {
+        auto rc = curl_multi_socket_action(multi, CURL_SOCKET_TIMEOUT, 0, &still_running);
+        mcode_or_die("on_timeout: multi_socket_action", rc);
+        handle_done_transfers();
+    }
 }
 
 
 /* Clean up any data */
 void channel::impl_t::remove_socket(int *f) {
-	fprintf(stderr, "remove_socket: ");
+    fprintf(stderr, "remove_socket: ");
 
-	if (f) {
-		free(f);
-	}
+    if (f) {
+        free(f);
+    }
+}
+
+
+void channel::impl_t::queue_callback_when_socket_is_ready(int * socket_state, asio_socket_t * tcp_socket) {
+    int desired_state = *socket_state;
+    #define handler std::bind(&impl_t::on_socket_event, this, tcp_socket, desired_state, socket_state)
+    if (desired_state == CURL_POLL_IN)
+    {
+        tcp_socket->async_read_some(asio::null_buffers(), handler);
+
+    } else if (desired_state == CURL_POLL_OUT) {
+        tcp_socket->async_write_some(asio::null_buffers(), handler);
+
+    } else if (desired_state == CURL_POLL_INOUT) {
+        tcp_socket->async_read_some(asio::null_buffers(), handler);
+        tcp_socket->async_write_some(asio::null_buffers(), handler);
+
+    } else {
+        fprintf(stderr, "desired_state = %d (unknown)\n", desired_state);
+    }
+    #undef handler
 }
 
 
 void channel::impl_t::change_socket_state(int * socket_state, curl_socket_t sock, CURL * easy, int desired_state)
 {
-	fprintf(stderr, "change_socket_state(): socket=%d, desired_state=%d, socket_state=%p\n", sock, desired_state, socket_state);
+    auto it = socket_map.find(sock);
 
-	auto it = socket_map.find(sock);
+    if (it == socket_map.end()) {
+        fprintf(stderr, "socket %d is a c-ares socket, ignoring\n", sock);
+        return;
+    }
 
-	if (it == socket_map.end()) {
-		fprintf(stderr, "socket %d is a c-ares socket, ignoring\n", sock);
-		return;
-	}
+    asio_socket_t * tcp_socket = it->second;
 
-	asio_socket_t * tcp_socket = it->second;
+    *socket_state = desired_state;
 
-	*socket_state = desired_state;
-
-	#define handler std::bind(&impl_t::on_socket_event, this, tcp_socket, desired_state, socket_state)
-	if (desired_state == CURL_POLL_IN)
-	{
-		fprintf(stderr, "queuing callback when socket is readable\n");
-
-		tcp_socket->async_read_some(asio::null_buffers(), handler);
-	} else if (desired_state == CURL_POLL_OUT) {
-		fprintf(stderr, "queuing callback when socket is writable\n");
-
-		tcp_socket->async_write_some(asio::null_buffers(), handler);
-	} else if (desired_state == CURL_POLL_INOUT) {
-		fprintf(stderr, "queuing callback when socket is readable & writable\n");
-
-		tcp_socket->async_read_some(asio::null_buffers(), handler);
-
-		tcp_socket->async_write_some(asio::null_buffers(), handler);
-	} else {
-		fprintf(stderr, "desired_state = %d (unknown)\n", desired_state);
-	}
-	#undef handler
+    queue_callback_when_socket_is_ready(socket_state, tcp_socket);
 }
 
 
 void channel::impl_t::add_socket(curl_socket_t sock, CURL * easy, int desired_state)
 {
-	// Allocate a pointer to an int that can track the current state of this socket.
-	int * socket_state = (int *) calloc(sizeof(int), 1);
+    // Allocate a pointer to an int that can track the current state of this socket.
+    int * socket_state = (int *) calloc(sizeof(int), 1);
 
-	// Tell curl to give us this pointer any time we interact with the socket.
-	curl_multi_assign(multi, sock, socket_state);
+    // Tell curl to give us this pointer any time we interact with the socket.
+    curl_multi_assign(multi, sock, socket_state);
 
-	// Now invoke the logic that happens when curl tells us to change our state.
-	change_socket_state(socket_state, sock, easy, desired_state);
+    // Now invoke the logic that happens when curl tells us to change our state.
+    change_socket_state(socket_state, sock, easy, desired_state);
 }
 
 

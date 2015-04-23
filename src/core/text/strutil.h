@@ -87,6 +87,9 @@ template <> std::vector<std::string> split(char const * p, char const * splitter
 template <> std::vector<str_view> split(char const * p, char const * splitters);
 
 
+/** Similar to tolower(), but explicitly limited to ascii and implemented as inline.*/
+char ascii_to_lower_case(char c);
+
 /**
  * Similar to strlwr(); converts bytes in the range A-Z to bytes in the range
  * a-z. Not locale- or codepage-aware; however, any codepage that maps 7-bit
@@ -95,6 +98,10 @@ template <> std::vector<str_view> split(char const * p, char const * splitters);
  */
 char * ascii_to_lower_case(char * p);
 char * ascii_to_lower_case(char * p, char const * end);
+
+
+/** Similar to toupper(), but explicitly limited to ascii and implemented as inline.*/
+char ascii_to_upper_case(char c);
 
 
 /**
@@ -113,6 +120,69 @@ char * ascii_to_upper_case(char * p, char const * end);
  * or codepage-aware.
  */
 int compare_str_ascii_case_insensitive(char const * a, char const * b);
+
+
+/**
+ * Like islower(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_lower(char c);
+
+
+/**
+ * Like isupper(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_upper(char c);
+
+
+/**
+ * Like isalpha(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_alpha(char c);
+
+
+/**
+ * Like isalnum(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_alphanumeric(char c);
+
+
+/**
+ * Like isdigit(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_digit(char c);
+
+
+/**
+ * Like isxdigit(), but inlined, and explicit about only supporting ascii.
+ * Not case-sensitive.
+ */
+bool is_ascii_hex(char c);
+
+
+/**
+ * Like isspace(), but inlined, and explicit about only supporting ascii.
+ */
+bool is_ascii_whitespace(char c);
+
+
+/**
+ * Like isspace(), but inlined and doesn't treat vertical tab (char 11) or
+ * formfeed (char 12) as whitespace.
+ */
+bool is_ascii_space_tab_or_eol(char c);
+
+
+/**
+ * Returns decimal digit value 0-9, or -1 if char isn't a digit.
+ */
+int get_ascii_digit_value(char c);
+
+
+/**
+ * Returns decimal digit value 0-15, or -1 if char isn't a hex digit. Not
+ * case-sensitive.
+ */
+int get_ascii_hex_value(char c);
 
 
 }}} // end namespace

@@ -4,13 +4,15 @@
 #include <cstdint>
 #include <string>
 
+#include "core/text/str_view-fwd.h"
+
 namespace intent {
 namespace core {
 namespace text {
 
 enum class identifier_style: uint8_t {
     /** space-separated names: "use first dns setting" */
-    intent,
+    intent_noun,
     /** space-separated names with first word capitalized: "Use first dns setting" */
     intent_verb,
     /** underscore-separated names: "use_first_dns_setting" */
@@ -27,7 +29,8 @@ enum class identifier_style: uint8_t {
     alt_title,
 };
 
-std::string normalize_identifier(str_view const & in, identifier_style in_style, identifier_style out_style=intent);
+std::string normalize_identifier(str_view const & in, identifier_style in_style,
+        identifier_style out_style=identifier_style::intent_noun);
 
 }}} // end namespace
 
