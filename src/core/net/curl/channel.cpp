@@ -210,8 +210,10 @@ void channel::impl_t::on_socket_event(asio_socket_t *tcp_socket, int event, int 
 
     mcode_or_die("on_socket_event: multi_socket_action", rc);
 
-    // If this past read or write sequence wasn't enough to satisfy curl,
-    // schedule another one to happen as soon as the socket is ready again.
+    // If the read/write that just finished wasn't enough to satisfy curl
+    // (a state we recognize by seeing if curl left the desired socket state
+    // unchanged when we called curl_multi_socket_action), then schedule another
+    // read/write to happen as soon as the socket is ready again.
     if (*socket_state == start_state) {
         queue_callback_when_socket_is_ready(socket_state, tcp_socket);
     }
