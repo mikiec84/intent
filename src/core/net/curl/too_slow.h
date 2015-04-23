@@ -2,9 +2,11 @@
 #define _864d6e90088f4c43bd37fec1d09537ca
 
 /**
- * Define conditions under which a timeout should occur.
+ * Define conditions under which a transfer should be abandoned because it is
+ * too slow. This is different from a classic timeout, in that it deals with
+ * a threshold *rate* rather than a threshold *elapsed time*.
  */
-struct timeout {
+struct too_slow {
 	/** How many bytes per second is considered "too slow"? */
 	unsigned bytes_per_second;
 	/**
@@ -17,14 +19,14 @@ struct timeout {
 	 * Default ctor; time out after 30 secs with <= 10 bytes per sec. Same as
 	 * timeout::standard.
 	 */
-	timeout();
+	too_slow();
 
-	timeout(unsigned bytes_per_second, unsigned seconds);
+	too_slow(unsigned bytes_per_second, unsigned seconds);
 
-	static const timeout standard;
-	static const timeout never;
+	static const too_slow standard;
+	static const too_slow never;
 };
 
-#include "core/net/curl/timeout-inline.h"
+#include "core/net/curl/too_slow-inline.h"
 
 #endif // sentry

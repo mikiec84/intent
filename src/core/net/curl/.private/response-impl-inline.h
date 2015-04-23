@@ -50,9 +50,9 @@ inline response::impl_t::~impl_t() {
 }
 
 
-inline void response::impl_t::finish() {
+inline void response::impl_t::cleanup_after_transfer() {
     // Easier to implement in session; just delegate.
-    session->impl->finish();
+    session->impl->cleanup_after_transfer();
 }
 
 

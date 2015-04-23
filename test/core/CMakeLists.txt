@@ -10,6 +10,7 @@ if (BUILD_TESTRUNNERS)
 
     find_package(PCRE REQUIRED)
     find_package(CURL REQUIRED)
+    find_package(LibEV REQUIRED)
 
     include_directories(
         ..
@@ -19,6 +20,8 @@ if (BUILD_TESTRUNNERS)
     )
 
     add_executable(${PROJECT_NAME} ${SRC_LIST})
+    add_executable(asiohiper asiohiper.cxx)
+    add_executable(evhiper evhiperfifo.c)
 
     # Suppress sanitizer warnings for a few places where we are deliberately
     # doing funky stuff in tests.
@@ -47,6 +50,22 @@ if (BUILD_TESTRUNNERS)
         # may be wrong in a given OS instance, depending on what's installed...)
         #idn.a z.a ssl.a crypto.a crypt.a ssh.a krb5 gssapi_krb5 rtmp.a ldap
     )
+
+    target_link_libraries(asiohiper
+        curl
+        ${Boost_LIBRARIES}
+    )
+
+    include_directories(
+        ${LIBEV_INCLUDE_DIR}
+    )
+
+    target_link_libraries(evhiper
+        curl
+        ${LIBEV_LIBRARIES}
+        m
+    )
+
     add_test(NAME "all_tests_in_${PROJECT_NAME}" COMMAND ${PROJECT_NAME})
 else()
     message("${PROJECT_NAME} is not built in ${CMAKE_BUILD_TYPE} builds.")

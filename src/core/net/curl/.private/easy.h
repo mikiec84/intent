@@ -15,14 +15,15 @@ namespace curl {
  * This is basically a specialized, very simple smart pointer.
  */
 struct easy {
-    CURL * _wrapped;
-    easy() : _wrapped(curl_easy_init()) {}
-    ~easy() {
-        curl_easy_cleanup(_wrapped);
-    }
-    // Allow this object to be used as if it were a CURL *.
-    operator CURL *() { return _wrapped; }
-    CURL * operator ->() { return _wrapped; }
+	CURL * _wrapped;
+	easy() : _wrapped(curl_easy_init()) {}
+	~easy() {
+		fprintf(stderr, "about to call curl_easy_cleanup\n");
+		curl_easy_cleanup(_wrapped);
+	}
+	// Allow this object to be used as if it were a CURL *.
+	operator CURL *() { return _wrapped; }
+	CURL * operator ->() { return _wrapped; }
 };
 
 

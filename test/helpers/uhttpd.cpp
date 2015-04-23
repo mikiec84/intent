@@ -46,7 +46,7 @@ std::atomic<uint16_t> next_port(get_first_port());
 
 #define THIS_FNAME "uhttpd.cpp"
 const path & this_folder() {
-	static const path the_path = find_test_folder("test/core/cli/" THIS_FNAME);
+	static const path the_path = find_test_folder("test/helpers/" THIS_FNAME);
 	return the_path;
 }
 

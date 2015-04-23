@@ -19,20 +19,20 @@ env const & get_env(long flags);
  * a specialized, very simple smart pointer.
  */
 struct multi {
-    CURLM * _wrapped;
-    multi(long flags = CURL_GLOBAL_ALL) {
-        // Any time we call multi_init(), make sure the global init happens
-        // first. This gives us JIT initialization of curl, with destruction after
-        // main()...
-        get_env(flags);
-        _wrapped = curl_multi_init();
-    }
-    ~multi() {
-        curl_multi_cleanup,(_wrapped);
-    }
-    // Allow this object to be used as if it were a CURLM *.
-    operator CURLM *() { return _wrapped; }
-    CURLM * operator ->() { return _wrapped; }
+	CURLM * _wrapped;
+	multi(long flags = CURL_GLOBAL_ALL) {
+		// Any time we call multi_init(), make sure the global init happens
+		// first. This gives us JIT initialization of curl, with destruction after
+		// main()...
+		get_env(flags);
+		_wrapped = curl_multi_init();
+	}
+	~multi() {
+		curl_multi_cleanup(_wrapped);
+	}
+	// Allow this object to be used as if it were a CURLM *.
+	operator CURLM *() { return _wrapped; }
+	CURLM * operator ->() { return _wrapped; }
 };
 
 

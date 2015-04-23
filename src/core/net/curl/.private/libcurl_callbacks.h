@@ -15,7 +15,7 @@ namespace curl {
 void mcode_or_die(const char *where, CURLMcode code);
 
 struct libcurl_callbacks {
-    static int on_change_timeout(CURLM * multi, long timeout_ms, void * _chimpl);
+    static int on_adjust_timeout(CURLM * multi, long timeout_ms, void * _chimpl);
     static curl_socket_t on_open_socket(void * _chimpl, curlsocktype purpose, curl_sockaddr *address);
     static int on_close_socket(void * _chimpl, curl_socket_t item);
     static int on_socket_update(CURL * easy, curl_socket_t sock, int what, void * _chimpl, void * sockp);
