@@ -196,6 +196,18 @@ void channel::impl_t::handle_done_transfers() {
 }
 
 
+static inline bool socket_state_implies_pending_transfer(int state) {
+    switch (state) {
+    case CURL_POLL_IN:
+    case CURL_POLL_OUT:
+    case CURL_POLL_INOUT:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
 /**
  * Called by asio when there is an event that changes status of a socket. Since
  * recent asio versions are edge-triggered, we should assume we only get one
@@ -214,7 +226,7 @@ void channel::impl_t::on_socket_event(asio_socket_t *tcp_socket, int event, int 
     // (a state we recognize by seeing if curl left the desired socket state
     // unchanged when we called curl_multi_socket_action), then schedule another
     // read/write to happen as soon as the socket is ready again.
-    if (*socket_state == start_state) {
+    if (*socket_state == start_state && socket_state_implies_pending_transfer(start_state)) {
         queue_callback_when_socket_is_ready(socket_state, tcp_socket);
     }
 
@@ -238,12 +250,8 @@ void channel::impl_t::on_timeout(error_code const & error)
 
 
 /* Clean up any data */
-void channel::impl_t::remove_socket(int *f) {
-    fprintf(stderr, "remove_socket: ");
-
-    if (f) {
-        free(f);
-    }
+void channel::impl_t::remove_socket(int * socket_state) {
+    *socket_state = CURL_POLL_NONE;
 }
 
 
@@ -287,14 +295,15 @@ void channel::impl_t::change_socket_state(int * socket_state, curl_socket_t sock
 
 void channel::impl_t::add_socket(curl_socket_t sock, CURL * easy, int desired_state)
 {
-    // Allocate a pointer to an int that can track the current state of this socket.
-    int * socket_state = (int *) calloc(sizeof(int), 1);
+    char * x;
+    curl_easy_getinfo(easy, CURLINFO_PRIVATE, &x);
+    session::impl_t * simpl = reinterpret_cast<session::impl_t *>(x);
 
     // Tell curl to give us this pointer any time we interact with the socket.
-    curl_multi_assign(multi, sock, socket_state);
+    curl_multi_assign(multi, sock, simpl);
 
     // Now invoke the logic that happens when curl tells us to change our state.
-    change_socket_state(socket_state, sock, easy, desired_state);
+    change_socket_state(&simpl->curl_socket_state, sock, easy, desired_state);
 }
 
 

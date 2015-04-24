@@ -107,7 +107,7 @@ TEST(cmdline_validators_test, matches_regex) {
 }
 
 #define THIS_FNAME "cmdline_validators_test.cpp"
-const path & this_folder() {
+static const path & this_folder() {
     static const path the_path = find_test_folder("test/core/cli/" THIS_FNAME);
     return the_path;
 }

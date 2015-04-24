@@ -2,6 +2,7 @@
 #define _4bee73c5a8e642a38e1fbb4791446ab5
 
 #include <cstdint>
+#include <string>
 
 #include "core/net/headers.h"
 #include "core/net/curl/callbacks.h"
@@ -23,41 +24,43 @@ namespace curl {
  */
 // -<threadsafe
 class request {
-	struct impl_t;
-	impl_t * impl;
+    struct impl_t;
+    impl_t * impl;
 
-	friend class response;
-	friend class session;
+    friend class response;
+    friend class session;
 
-	request(session *);
-	request(impl_t *);
+    request(session *);
+    request(impl_t *);
 
 public:
-	request(request &&);
-	request(request const &);
-	~request();
+    request(request &&);
+    request(request const &);
+    ~request();
 
-	session & get_session();
-	session const & get_session() const;
+    session & get_session();
+    session const & get_session() const;
 
-	channel & get_channel();
-	channel const & get_channel() const;
+    channel & get_channel();
+    channel const & get_channel() const;
 
-	void set_verb(char const *);
-	char const * get_verb() const;
+    void set_verb(char const *);
+    char const * get_verb() const;
 
-	void set_url(char const *);
-	char const * get_url() const;
+    void set_url(char const *);
+    char const * get_url() const;
 
-	uint32_t get_id() const;
+    uint32_t get_id() const;
 
-	headers const & get_headers() const;
-	headers & get_headers();
+    headers const & get_headers() const;
+    headers & get_headers();
 
-	// Convenience methods for extremely simple use cases where we can use the
-	// default channel, and a temporary, throwaway session.
-	static response get(char const * url);
-	static response start_get(char const * url);
+    // Convenience methods for extremely simple use cases where we can use the
+    // default channel, and a temporary, throwaway session.
+    static response get(char const * url);
+    static response get(std::string const & url);
+    static response start_get(char const * url);
+    static response start_get(std::string const & url);
 };
 
 

@@ -7,6 +7,8 @@
 #include "core/net/curl/request.h"
 #include "core/net/curl/response.h"
 
+#include "helpers/uhttpd.h"
+
 #include "gtest/gtest.h"
 
 
@@ -27,6 +29,13 @@ int progress_cb(request & req, uint64_t expected_receive_total,
     fprintf(stderr, "receive progress on request %u: %" PRIu64 " of %" PRIu64, req.get_id(), received_so_far, expected_receive_total);
     fprintf(stderr, "send progress on request %u: %" PRIu64" of %" PRIu64, req.get_id(), sent_so_far, expected_send_total);
     return 0;
+}
+
+
+TEST(curl_test, uhttpd) {
+    uhttpd svr;
+    std::string url = svr.get_base_url();
+    auto resp = request::get(url + "x.html");
 }
 
 

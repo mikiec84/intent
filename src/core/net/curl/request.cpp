@@ -116,12 +116,22 @@ headers & request::get_headers() {
 }
 
 
+response request::start_get(std::string const & url) {
+    return start_get(url.c_str());
+}
+
+
 response request::start_get(char const * url) {
     session * s = new session();
     s->start_get(url);
     auto resp = s->impl->current_response;
     resp->session_owned_by_me = true;
     return resp;
+}
+
+
+response request::get(std::string const & url) {
+    return request::get(url.c_str());
 }
 
 

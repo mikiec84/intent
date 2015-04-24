@@ -16,15 +16,16 @@ uint32_t get_next_session_id();
 
 
 inline session::impl_t::impl_t(session * wrapped, class channel * ch):
-		id(get_next_session_id()),
-		wrapper(wrapped),
-		channel(ch),
-		mtx(),
-		current_request(new request::impl_t(wrapped)),
-		current_response(new response::impl_t(wrapped)),
-		easy(),
-		state(session_state::configuring) {
-	error[0] = 0;
+        id(get_next_session_id()),
+        wrapper(wrapped),
+        channel(ch),
+        mtx(),
+        current_request(new request::impl_t(wrapped)),
+        current_response(new response::impl_t(wrapped)),
+        easy(),
+        state(session_state::configuring),
+        curl_socket_state(CURL_POLL_NONE) {
+    error[0] = 0;
 }
 
 

@@ -69,6 +69,7 @@ typedef struct _GlobalInfo
 typedef struct _ConnInfo
 {
   CURL *easy;
+  int curl_socket_state;
   char *url;
   GlobalInfo *global;
   char error[CURL_ERROR_SIZE];
@@ -298,7 +299,7 @@ static int sock_cb(CURL *e, curl_socket_t s, int what, void *cbp, void *sockp)
 
   GlobalInfo *g = (GlobalInfo*) cbp;
   int *actionp = (int *) sockp;
-  const char *whatstr[] = { "none", "IN", "OUT", "INOUT", "REMOVE"};
+  static const char *whatstr[] = { "none", "IN", "OUT", "INOUT", "REMOVE"};
 
   fprintf(MSG_OUT,
           "\nsocket callback: s=%d e=%p what=%s ", s, e, whatstr[what]);
@@ -430,6 +431,7 @@ static void new_conn(char *url, GlobalInfo *g)
 
   conn->global = g;
   conn->url = strdup(url);
+  conn->curl_socket_state = CURL_POLL_NONE;
   curl_easy_setopt(conn->easy, CURLOPT_URL, conn->url);
   curl_easy_setopt(conn->easy, CURLOPT_WRITEFUNCTION, write_cb);
   curl_easy_setopt(conn->easy, CURLOPT_WRITEDATA, &conn);
@@ -444,9 +446,11 @@ static void new_conn(char *url, GlobalInfo *g)
 
   /* call this function to get a socket */
   curl_easy_setopt(conn->easy, CURLOPT_OPENSOCKETFUNCTION, opensocket);
+  curl_easy_setopt(conn->easy, CURLOPT_OPENSOCKETDATA, conn);
 
   /* call this function to close a socket */
   curl_easy_setopt(conn->easy, CURLOPT_CLOSESOCKETFUNCTION, closesocket);
+  curl_easy_setopt(conn->easy, CURLOPT_CLOSESOCKETDATA, conn);
 
   fprintf(MSG_OUT,
           "\nAdding easy %p to multi %p (%s)", conn->easy, g->multi, url);
