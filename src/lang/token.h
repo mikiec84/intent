@@ -16,21 +16,21 @@ namespace lang {
  */
 class token {
 public:
-    token();
-    token(token_type type, intent::core::text::str_view const & slice);
-    ~token();
+	token();
+	token(token_type type, intent::core::text::str_view const & slice);
+	~token();
 
-    token(token const & other);
-    token & operator =(token const & rhs);
+	token(token const & other);
+	token & operator =(token const & rhs);
 
-    /**
-     * Tokens are considered "equal" if they have the same type and the same slice.
-     */
-    bool operator ==(token const & rhs) const;
+	/**
+	 * Tokens are considered "equal" if they have the same type and the same slice.
+	 */
+	bool operator ==(token const & rhs) const;
 
-    core::text::str_view substr;
-    token_type type;
-    intent::core::text::arg value;
+	token_type type;
+	core::text::str_view substr;
+	intent::core::text::arg value;
 };
 
 }} // end namespace

@@ -1,8 +1,12 @@
+#include <stack>
+
+#include "core/work/progress_tracker.h"
+#include "lang/ast/token_node.h"
 #include "lang/lexer.h"
 #include "lang/parser.h"
-#include "core/work/progress_tracker.h"
 
 using namespace intent::core::text;
+using namespace intent::lang::ast;
 
 using std::string;
 using std::stringstream;
@@ -10,8 +14,11 @@ using std::stringstream;
 using intent::core::work::work_type;
 using intent::core::work::progress_tracker;
 
+
 namespace intent {
 namespace lang {
+
+typedef node::handle_t node_handle;
 
 
 struct parser::impl_t {
@@ -36,12 +43,43 @@ parser::parser(str_view const & txt) :
 }
 
 
-ast::node::handle_t parser::build_ast(progress_tracker * p) {
+node_handle parser::build_ast(progress_tracker * p) {
 	impl->progress = p;
 	if (p) {
 		//p->expect_work(work_type::read_items, 1);
 	}
-	return nullptr;
+
+	node_handle root;
+	typedef std::stack<node_handle> node_stack;
+	node_stack pending;
+
+	lexer::iterator lex_it = impl->lex.begin();
+	while (lex_it) {
+/*
+		"car: vehicle\n"
+		"    properties:\n"
+		"        - make: +< name\n"
+		"        - price: double\n";
+*/
+		ast::node * nodeptr = nullptr;
+		auto tt = lex_it->type;
+		switch (tt) {
+		case tt_indent:
+		case tt_dedent:
+		case tt_noun:
+		case tt_verb:
+			nodeptr = new token_node(nullptr, *lex_it);
+			break;
+		case tt_if:
+		case tt_else:
+		case tt_operator_colon:
+			break;
+		default:
+			break;
+		}
+		++lex_it;
+	}
+	return root;
 }
 
 
