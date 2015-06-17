@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 #include "core/process.h"
-#include "core/net/curl/response.h"
+#include "core/net/curl/.private/libcurl.h"
 #include "core/net/curl/request.h"
 
 #include "helpers/uhttpd.h"
@@ -37,8 +37,9 @@ struct uhttpd::impl_t {
     process::child * child;
     string base_url;
     bool cant_connect;
+    bool debug;
 
-    impl_t();
+    impl_t(bool debug);
     ~impl_t();
 };
 
@@ -53,8 +54,8 @@ static const path & this_folder() {
 }
 
 
-uhttpd::impl_t::impl_t(): port(next_port++), ctx(), child(nullptr), base_url(),
-        cant_connect(false) {
+uhttpd::impl_t::impl_t(bool dbg): port(next_port++), ctx(), child(nullptr), base_url(),
+        cant_connect(false), debug(dbg) {
 
     static const std::string python = "/usr/bin/python";
 
@@ -62,10 +63,20 @@ uhttpd::impl_t::impl_t(): port(next_port++), ctx(), child(nullptr), base_url(),
 
     char port_buf[16];
     sprintf(port_buf, "%d", port);
-    printf("%s %s %s\n...", python.c_str(), path.c_str(), port_buf);
+    if (debug) {
+        printf("%s %s %s\n", python.c_str(), path.c_str(), port_buf);
+    }
 
-    ctx.stdout_behavior = process::silence_stream();
+    if (debug) {
+        ctx.stdout_behavior = process::inherit_stream();
+        ctx.stderr_behavior = process::inherit_stream();
+    } else {
+        ctx.stdout_behavior = process::silence_stream();
+        ctx.stderr_behavior = process::silence_stream();
+    }
     std::vector<string> args;
+    args.push_back(python);
+    args.push_back(path.string());
     args.push_back(port_buf);
     child = new process::child(process::launch(python, args, ctx));
 
@@ -82,7 +93,7 @@ uhttpd::impl_t::~impl_t() {
 }
 
 
-uhttpd::uhttpd() : impl(new impl_t()) {
+uhttpd::uhttpd(bool debug) : impl(new impl_t(debug)) {
 }
 
 
@@ -91,16 +102,40 @@ char const * uhttpd::get_base_url() const {
 }
 
 
+size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
+    bool debug = *((bool *)userdata);
+    if (debug) {
+        fwrite(ptr, size, nmemb, stdout);
+        fputc('\n', stdout);
+        fflush(stdout);
+    }
+    return size * nmemb;
+}
+
+
 bool uhttpd::stop() {
     auto quit_url = impl->base_url + "quit";
-    auto response = curl::request::get(quit_url.c_str());
-    if (response.get_status_code() >= 400) {
-        auto status = impl->child->wait();
-        if (status.exit_status() == -1) {
-            return false;
+
+    CURL *curl = curl_easy_init();
+    bool ok = true;
+    if (curl) {
+        ok = false;
+        curl_easy_setopt(curl, CURLOPT_URL, quit_url.c_str());
+        if (impl->debug) {
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
         }
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &impl->debug);
+        auto res = curl_easy_perform(curl);
+        if (res == CURLE_OK) {
+            ok = true;
+        } else {
+            fprintf(stderr, "curl_easy_perform(\"%s\") failed: %s\n",
+                quit_url.c_str(), curl_easy_strerror(res));
+        }
+        curl_easy_cleanup(curl);
     }
-    return true;
+    return ok;
 }
 
 

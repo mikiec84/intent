@@ -13,7 +13,7 @@ class uhttpd {
     impl_t * impl;
 
 public:
-    uhttpd();
+    uhttpd(bool debug);
     ~uhttpd();
 
     /**
