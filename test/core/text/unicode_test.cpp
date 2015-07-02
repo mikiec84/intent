@@ -102,6 +102,14 @@ TEST(unicode_test, is_well_formed_utf8) {
 
 	// CESU-8-style surrogate pair (should be disallowed; see http://j.mp/1HzJPBY)
 	EXPECT_FALSE(is_well_formed_utf8("\xED\xA0\x81\xED\xB0\x80"));
+
+	// invalid trail bytes, per table 3.7 in the Unicode Standard v7, Section
+	// Conformance 3.9, Table 3-7, Well-Formed UTF-8 Byte Sequences.
+	// http://www.unicode.org/versions/Unicode7.0.0/ch03.pdf#G7404
+	EXPECT_FALSE(is_well_formed_utf8("\xE0\x9F\xB1")); // bad second byte
+	EXPECT_FALSE(is_well_formed_utf8("\xED\xA0\xB1")); // bad second byte
+	EXPECT_FALSE(is_well_formed_utf8("\xF0\x85\xB1\xB1")); // bad second byte
+	EXPECT_FALSE(is_well_formed_utf8("\xF4\x90\xB1\xB1")); // bad second byte
 }
 
 

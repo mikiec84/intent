@@ -32,6 +32,13 @@ bool is_utf8_lead_byte(char c);
 
 bool is_utf8_lead_byte(uint8_t c);
 
+/**
+ * @return whether a byte is in the range of valid utf8 continuation bytes
+ * (0x80 to 0xBF, inclusive). Note that for some lead bytes, the contraints
+ * on continuation bytes are tighter. See Unicode Standard v7, Section
+ * Conformance 3.9, Table 3-7, Well-Formed UTF-8 Byte Sequences
+ * (http://j.mp/1GSm5Ta).
+ */
 bool is_utf8_continuation_byte(char c);
 
 bool is_utf8_continuation_byte(uint8_t c);
