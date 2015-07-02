@@ -9,29 +9,93 @@ namespace core {
 namespace text {
 
 typedef uint32_t codepoint_t;
+typedef uint16_t utf16_t;
 
 const codepoint_t MAX_UNICODE_CHAR = 0x10FFFF;
 const codepoint_t UNICODE_REPLACEMENT_CHAR = 0xFFFD;
 
+// Yes, the HIGH_SURROGATE_* constants have smaller values than the
+// LOW_SURROGATE_* ones. This is not a bug. "High" and "Low" refer to the
+// portions of the 10-bit codepoint they encode, not to the surrogate
+// values themselves.
+const codepoint_t HIGH_SURROGATE_BEGIN = 0xD800;
+const codepoint_t HIGH_SURROGATE_END = 0xDBFF;
+const codepoint_t LOW_SURROGATE_BEGIN = 0xDC00;
+const codepoint_t LOW_SURROGATE_END = 0xDFFF;
+
+/**
+ * @return true if char is a valid utf8 lead byte. Disallows bytes used in
+ *     overlong encodings (0xC0 and 0xC1) as well as bytes used in theoretical
+ *     but disallowed 5- and 6-byte sequences (0xF5 to 0xFF).
+ */
 bool is_utf8_lead_byte(char c);
+
 bool is_utf8_lead_byte(uint8_t c);
 
-bool is_utf8_trail_byte(char c);
-bool is_utf8_trail_byte(uint8_t c);
+bool is_utf8_continuation_byte(char c);
+
+bool is_utf8_continuation_byte(uint8_t c);
+
+bool is_surrogate(codepoint_t);
+
+bool is_low_surrogate(codepoint_t);
+
+bool is_high_surrogate(codepoint_t);
+
+codepoint_t decode_surrogate(codepoint_t high, codepoint_t low);
+
+codepoint_t decode_surrogate(utf16_t high, utf16_t low);
 
 /**
- * @return Theoretical length of unicode char at current offset. This length
- *     may not be accurate if unicode is malformed. Call {@link
- *     get_codepoint_from_utf8(char const *)} to discover actual length.
+ * @return How many bytes are used to encode the codepoint at the beginning of
+ *     the buffer, or 0 if text is malformed (in which case, an invalid byte
+ *     sequence exists; pointer should advance by one byte only, and restart
+ *     analysis). Overlong encodings are not allowed (causing 0 to be returned);
+ *     however, surrogates are treated as valid (allowing CESU-8 semantics if
+ *     desired).
  */
-inline size_t length_of_codepoint(char const * txt);
+size_t length_of_codepoint(char const * txt);
+
 
 /**
- * Advance across one unicode codepoint in the utf8 buffer.
+ * @return How many bytes should be used to encode a particular codepoint. Note
+ *     that surrogates are treated as standalone codepoints.
+ */
+size_t proper_length_of_codepoint(codepoint_t);
+
+
+/**
+ * @return How many bytes should be used to encode a codepoint, given a particular
+ *     leady byte. This length may not prove accurate if trail bytes are
+ *     malformed, so use this function only when prepared to test for
+ *     wellformedness. The null char (char 0) yields 0.
+ */
+size_t predict_length_of_codepoint_from_lead_byte(char lead_byte);
+
+
+/**
+ * @return true if buffer obeys all rules of utf8 formation. Returns false if
+ *     txt is null. Does not allow overlong encodings.
+ */
+bool is_well_formed_utf8(char const * txt);
+
+
+/**
+ * Decodes one unicode codepoint in the utf8 buffer, and advances pointer
+ * beyond its boundary. This function validates lead byte and trail byte values
+ * in cheap ways (e.g., disallowing 5- and 6-byte sequences; disallowing
+ * illegal lead bytes). However, some forms of invalid utf8 can still leak
+ * through, such as overlong encodings and 4-byte sequences encoding codepoints
+ * above 0x10FFFF. This is a feature, not a bug; besides improving performance,
+ * it allows you to build support for utf8 variants such as CESU-8 (see
+ * http://j.mp/1HzJPBY) and Modified UTF-8 (see http://j.mp/1GRqXbX).
  *
  * @param txt utf8
  * @param cp Receives the codepoint at the current location; set to
- *     UNICODE_REPLACEMENT_CHAR on error.
+ *     UNICODE_REPLACEMENT_CHAR on error. (Note that UNICODE_REPLACEMENT_CHAR
+ *     can also be encoded deliberately in valid utf8, so this value is only
+ *     an indication of an error if the return value is 1 byte beyond txt
+ *     instead of the 2 bytes returned by the non-error case.)
  * @return Location of the beginning of the next codepoint in the string.
  */
 char const * get_codepoint_from_utf8(char const * txt, codepoint_t & cp);
@@ -56,7 +120,12 @@ char const * next_utf8_char(char const * txt);
 
 /**
  * Append the appropriate utf-8 byte sequence to represent a single codepoint.
- * Does not null-terminate.
+ * Does not null-terminate. Note that this may create utf8 that is technically
+ * invalid per the spec, if cp is a surrogate. This is a feature, not a bug,
+ * because it allows you to build support for CESU-8 if you like. To avoid
+ * the surrogate issue, convert a whole buffer of codepoint_t values or utf16_t
+ * values (see {@link #convert_to_utf8}) so surrogate pairs can be processed
+ * as a unit.
  *
  * @param buf
  *     The buffer into which the sequence is written. Advanced if anything is
@@ -66,6 +135,9 @@ char const * next_utf8_char(char const * txt);
  * @return true if anything was written
  */
 bool add_codepoint_to_utf8(char *& buf, size_t & buf_length, codepoint_t cp);
+
+void convert_to_utf8(char *& buf, size_t & buf_length, codepoint_t const * txt);
+void convert_to_utf8(char *& buf, size_t & buf_length, utf16_t const * txt);
 
 /**
  * Same as add_codepoint_to_utf8, but null-terminates (unless there's no room
@@ -122,7 +194,7 @@ char const * find_codepoint_in_utf8(char const * utf8, codepoint_t cp);
  * @return offset of cp in buffer, or nullptr on failure.
  */
 char const * find_codepoint_in_utf8(char const * utf8, char const * end,
-        codepoint_t cp);
+		codepoint_t cp);
 
 }}} // end namespace
 
