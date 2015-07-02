@@ -33,9 +33,7 @@ int progress_cb(request & req, uint64_t expected_receive_total,
 
 
 TEST(curl_test, uhttpd) {
-    uhttpd svr;
-    std::string url = svr.get_base_url();
-    auto resp = request::get(url + "x.html");
+    uhttpd svr(true);
 }
 
 
