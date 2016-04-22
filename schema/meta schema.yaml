@@ -1,0 +1,23 @@
+and:
+    description: boolean AND, applied in order
+    contains: seq
+    min-length: 2
+    
+or:
+    description: boolean OR, applied in order
+    contains: seq
+    min-length: 2
+    
+rule:
+    if violated: !!str
+      
+node def:
+    type: [seq, map, str, int, float, null, enum] #omit if "any"
+    sample value:
+    of: <the type of values in a container, or of keys in a map, as in "float"> #omit if any
+    to: <the type of values in a map> #omit if any
+    description: !!str
+    
+    
+    
+    
