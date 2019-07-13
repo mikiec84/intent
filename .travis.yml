@@ -1,7 +1,0 @@
-language: cpp
-os:
-    - linux
-    - osx
-compiler:
-  - clang
-script: cmake/run_travis_build
