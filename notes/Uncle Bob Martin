@@ -1,0 +1,10 @@
+When you look at the top level of a project, you should learn about the system, not see a structure
+imposed by a framework. The framework should hide itself, not be front and center.
+
+
+If something changes a lot, it should be a plugin.
+If it changes seldom, it should hold the plugin and be armored against the plugin.
+UIs should be a plugin to business rules. (Plug in a different UI [like maybe one that's testable in a uniform way!])
+Plugins have source code dependencies that point one direction (back to business rules).
+
+The database is a detail (I/O device), and so is the web. Both should be plugins to business rules.

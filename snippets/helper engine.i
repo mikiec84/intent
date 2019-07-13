@@ -43,22 +43,22 @@ helper engine: engine
 
             # If all the functions below had the same signature, and if all of
             ... them had a reliable mapping between constant and function name,
-            ... then we could do the following instead of using "handle":
+            ... then we could do the following instead of using "Handle":
             ...
             ... function namer: lambda does: `name of(code)`.lower().replace('_', '')
             ... Dispatch(namer, arg1, arg2)
-            handle msg.does:
-                when it == ADD_BATCH:
+            Handle msg.does:
+                When it == ADD_BATCH:
                     Add batch(msg.batch file path)
-                when it == PAUSE_BATCH:
+                When it == PAUSE_BATCH:
                     Pause batch(msg.batch id)
-                when it == ABANDON_BATCH:
+                When it == ABANDON_BATCH:
                     Abandon batch(msg.batch id)
-                when it == FLUSH:
+                When it == FLUSH:
                     Abandon batch(null)
-                when it == TERMINATE:
+                When it == TERMINATE:
                     Terminate()
-                when it == NEED_ASSIGNMENT:
+                When it == NEED_ASSIGNMENT:
                     Assign(msg.from, msg.proposed item count)
 
     Assign:

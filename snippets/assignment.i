@@ -5,4 +5,4 @@ vehicle: class
         - model: +< name
         - year: int +< range[1890..)
         - commands: list//str
-    make: ctor +< copyargs
+    Make: ctor +< copyargs

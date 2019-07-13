@@ -1,14 +1,11 @@
-| Specifies that a string contains short, single-line identifiers.
+## Specifies that a string contains short, single-line identifiers.
 name: mark
     properties:
         - valid size: range of int = [1..128]
 
-    adjust marks: -multiline
+    adjust marks: -<multiline
 
-    make: +copyargs +inheritargs ctor
-        takes:
-            - valid size
+    Make(valid size): +<copyargs +<inheritargs ctor
 
-    can bind: mark.can bind
-        code:
-            answer = type(site) is str
+    Can bind(): mark.Can bind
+        answer = type(site) is str

@@ -40,8 +40,8 @@ engine: class
             ...
             ... function namer: lambda code: `name of(code)`.lower().replace('_', '')
             ... dispatch(namer, arg1, arg2)
-            handle msg.code:
-                when it == TERMINATE:
+            Handle msg.code:
+                When it == TERMINATE:
                     terminate()
-                else:
+                Else:
                     handled = false
