@@ -1,8 +1,7 @@
 from typing import Union
-import weakref
 
 from .strutil import truncate_if_needed
-from .token_types import *
+from .tok_types import *
 
 
 class Token:

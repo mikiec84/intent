@@ -1,4 +1,4 @@
-NEW_LINE = HEADER = CODE = NAME = HYPERTEXT = DESCRIPTOR = LEX_ERROR = PARAGRAPH = 0
+NEW_LINE = TERM = NAME = HYPERTEXT = DESCRIPTOR = LEX_ERROR = PARAGRAPH = 0
 
 def load():
     x = ['']
@@ -14,7 +14,7 @@ def load():
 
 names_by_index = load()
 
-from .token_types import *
+from .tok_types import *
 
 
 class LexState:

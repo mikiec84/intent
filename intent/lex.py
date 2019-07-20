@@ -1,5 +1,5 @@
 from .lex_state import *
-from .token_types import *
+from .tok_types import *
 from .tok import Token
 
 
@@ -61,9 +61,13 @@ def _line(ls: LexState, code=True):
                         n -= 1
                     ls.indent = n
 
-                    if code:
+                    if c == '-':
+                        yield Token(ls, TERM_START, ls.i)
+                        ls.i = _skip_whitespace(text, ls.i + 1, end)
+                        if ls.i >= end:
+                            break
                         # Now we should be in a header
-                        for token in _header(ls):
+                        for token in _term(ls):
                             yield token
                     else:
                         for token in _paragraph(ls):
@@ -73,8 +77,8 @@ def _line(ls: LexState, code=True):
         ls.pop()
 
 
-def _header(ls: LexState):
-    ls.push(HEADER)
+def _term(ls: LexState):
+    ls.push(TERM)
     try:
         # Consume the name portion of the header, including leading and trailing whitespace.
         for token in _name(ls):
@@ -83,12 +87,12 @@ def _header(ls: LexState):
         if ls.i < ls.end:
             c = ls.text[ls.i]
             if c == ':':
-                yield Token(ls, DEFINER, ls.i, ls.i+1)
+                yield Token(ls, TERM_PIVOT, ls.i, ls.i+1)
                 ls.i = _skip_whitespace(ls.text, ls.i + 1, ls.end)
                 if ls.i < ls.end:
                     if ls.text[ls.i] == '\n':
                         return
-                    for token in _descriptor(ls):
+                    for token in _def(ls):
                         yield token
     finally:
         ls.pop()
@@ -110,7 +114,7 @@ def _break_on_any(text, any, i, end):
     return begin, max(last_non_whitespace + 1, begin), i
 
 
-def _descriptor(ls: LexState):
+def _def(ls: LexState):
     ls.push(DESCRIPTOR)
     try:
         begin, end, ls.i = _break_on_any(ls.text, '\n', ls.i, ls.end)
@@ -137,7 +141,7 @@ def _paragraph(ls: LexState):
             begin, end, ls.i = _break_on_any(ls.text, '[\n', ls.i, ls.end)
             if begin < end:
                 yield Token(ls, TEXT, begin, end)
-            if ls.text[ls.i] == '\n':
+            if ls.i >= end or ls.text[ls.i] == '\n':
                 return
             # If we get here, we found a [
             for token in _hypertext(ls):
