@@ -2,8 +2,8 @@ document           = *line
 line               = *indent (paragraph / term / instruction) eol
 term               = "-" name [":" *mark [categorizer] ["=" expr] ]
 name               = 1*(ALPHA / " ")
-paragraph          = paragraph-beginner *text
-paragraph-beginner = %x21-2c / %x2e-ff                                   ; everything except " " and "-"
+paragraph          = begin-paragraph *text
+begin-paragraph    = %x21-2c / %x2e-ff                                   ; everything except " " and "-"
 text               = %x20-ff
 indent             = "    "
 expr               = grouped / simple-expr

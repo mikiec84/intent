@@ -1,26 +1,36 @@
-END = -1
-NAME = 1
-TEXT = 2
-INDENT = 3
-DEDENT = 4
-EOL = 5
-TERM_START = 6
-BEGIN_ANCHOR = '['
-END_ANCHOR = ']'
-BEGIN_ASIDE = '[^'
-BEGIN_LINK = '[@'
-END_HYPERTEXT = ']'
-TERM_PIVOT = ':'
-ARG_SEP = ';'
-STAR = '*'
-HYPERTEXT_DIVIDER = 6
+# The numeric value sof these tokens doesn't matter. They'll
+# be reassigned to unique values just below.
+BEGIN_DOC = 0
+BEGIN_LINE = 0
+BEGIN_PARA = 0
+BEGIN_TERM = 0
+BEGIN_INSTR = 0
+INDENT = 0
+DEDENT = 0
+NAME = 0
+TEXT = 0
+BEGIN_ANCHOR = 0
+BEGIN_ASIDE = 0
+BEGIN_LINK = 0
+BEGIN_QUOTED = 0
+END_QUOTED = 0
+END_HYPERTEXT = 0
+PIVOT_TERM = 0
+ARG_SEP = 0
+HYPERTEXT_DIVIDER = 0
+END_LINE = 0
+END_DOC = 0
 
 def load():
     g = globals()
-    x = {}
+    x = []
     for name, value in g.items():
-        if isinstance(value, str) or isinstance(value, int):
-            x[value] = name
+        if isinstance(value, int):
+            x.append(name)
+    i = 0
+    for item in x:
+        g[item] = i
+        i += 1
     del g['load']
     return x
 

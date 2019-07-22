@@ -23,7 +23,7 @@ class LexState:
         self.text = text
         self.i = 0
         self.indent = 0
-        self.line_num = 1
+        self.line_num = 0
         self.line_start = 0
 
     @property

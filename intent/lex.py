@@ -22,7 +22,13 @@ def _skip_whitespace(text, i, end):
 
 
 def _line(ls: LexState, code=True):
+    """
+    Called for every line in the doc. This means it's called every time we are at beginning
+    of a doc or have just finished processing a \n that terminated the previous line. Emits
+    tokens for any lines that contain something other than whitespace.
+    """
     ls.push(NEW_LINE)
+    ls.line_num += 1
     try:
         # For brevity and maybe performance, get local variables from ls
         end, text, old_indent = ls.end, ls.text, ls.indent
@@ -38,20 +44,10 @@ def _line(ls: LexState, code=True):
             else:
                 # Consume any leading whitespace that's not a full indent.
                 ls.i = _skip_whitespace(text, ls.i, end)
-                if ls.i >= end:
-                    break
-                # Did line end?
-                if c == '\n':
-                    yield Token(ls, EOL, ls.i)
-                    ls.i += 1
-                    ls.line_num += 1
-                    # We could stay in this function, since we're now starting a new line
-                    # all over again. However, the function's contract is to yield all the
-                    # tokens on a single line. So exit the function and we'll be called again.
-                    break
-                else:
+                if ls.i < end and c != '\n':
                     # Line contained something other than whitespace. Account for INDENT
                     # or DEDENT, and set ls.indent to detected value.
+                    yield Token(ls, BEGIN_LINE, ls.i, ls.i)
                     n = len(indents)
                     while old_indent > n:
                         yield Token(ls, DEDENT, ls.i, ls.i) # token len = 0
@@ -62,7 +58,7 @@ def _line(ls: LexState, code=True):
                     ls.indent = n
 
                     if c == '-':
-                        yield Token(ls, TERM_START, ls.i)
+                        yield Token(ls, BEGIN_TERM, ls.i)
                         ls.i = _skip_whitespace(text, ls.i + 1, end)
                         if ls.i >= end:
                             break
@@ -70,9 +66,15 @@ def _line(ls: LexState, code=True):
                         for token in _term(ls):
                             yield token
                     else:
+                        yield Token(ls, BEGIN_PARA, ls.i, ls.i)
                         for token in _paragraph(ls):
                             yield token
                     break
+        # Handle the line break, if there is one.
+        if ls.i < end and ls.text[ls.i] == '\n':
+            yield Token(ls, END_LINE, ls.i)
+            ls.i += 1
+
     finally:
         ls.pop()
 
@@ -194,7 +196,8 @@ def _hypertext(ls: LexState):
 
 def lex(text, code=True):
     ls = LexState(text)
+    yield Token(ls, BEGIN_DOC, 0, 0)
     while ls.i < ls.end:
         for token in _line(ls, code):
             yield token
-    yield Token(ls, END, ls.end, ls.end)
+    yield Token(ls, END_DOC, ls.end, ls.end)

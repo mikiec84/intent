@@ -13,7 +13,7 @@ def assert_token(t, ttype, value=None):
         assert t.value == value
 
 
-def assert_tokens(tokens, *ttypes):
+def assert_token_types(tokens, *ttypes):
     actual = ', '.join(names_by_value[t.ttype] for t in tokens)
     expected = ', '.join([names_by_value[t] for t in ttypes])
     assert actual == expected
@@ -21,13 +21,25 @@ def assert_tokens(tokens, *ttypes):
 
 def test_simple_text():
     out = get_lex_output('hello, world')
-    assert len(out) == 2
+    assert_token_types(out, BEGIN_DOC, BEGIN_LINE, BEGIN_PARA, TEXT, END_DOC)
+    assert out[3].value == 'hello, world'
+
+
+def test_simple_text_with_eol():
+    out = get_lex_output('hello, world\n')
+    assert_token_types(out, BEGIN_DOC, BEGIN_LINE, BEGIN_PARA, TEXT, END_LINE, END_DOC)
+    assert out[3].value == 'hello, world'
+
+
+def test_text_with_anchor():
+    out = get_lex_output("Don't [cry for me], Argentina")
+    assert len(out) == 4
     assert_token(out[0], TEXT, 'hello, world')
-    assert_token(out[1], END)
+    assert_token(out[1], END_DOC)
 
 
 def test_paragraph():
-    assert_tokens(get_lex_output('James Bond: spy'), TEXT, END)
+    assert_tokens(get_lex_output('James Bond: spy'), TEXT, END_DOC)
 
 
 def test_term():
