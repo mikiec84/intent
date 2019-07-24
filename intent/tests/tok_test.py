@@ -15,3 +15,12 @@ def test_ctor():
 
 def test_str():
     assert str(hello_token) == 'TEXT: "hello" at [0:5]'
+
+
+def test_line_num():
+    ls = LexState("\n\na bc")
+    ls.line_start = 2
+    ls.line_num = 3
+    t = Token(ls, TEXT, 4, 6)
+    assert t.line_num == 3
+    assert t.col == 2

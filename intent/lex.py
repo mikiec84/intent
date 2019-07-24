@@ -89,7 +89,7 @@ def _term(ls: LexState):
         if ls.i < ls.end:
             c = ls.text[ls.i]
             if c == ':':
-                yield Token(ls, TERM_PIVOT, ls.i, ls.i+1)
+                yield Token(ls, PIVOT_TERM, ls.i, ls.i+1)
                 ls.i = _skip_whitespace(ls.text, ls.i + 1, ls.end)
                 if ls.i < ls.end:
                     if ls.text[ls.i] == '\n':
@@ -100,7 +100,7 @@ def _term(ls: LexState):
         ls.pop()
 
 
-def _break_on_any(text, any, i, end):
+def _break_on_any(text, any, i, end, trim_trailing_whitespace=True):
     begin = _skip_whitespace(text, i, end)
     if begin == end:
         return begin, end, end
@@ -113,15 +113,14 @@ def _break_on_any(text, any, i, end):
         elif c not in _SKIPPABLE_WHITESPACE:
             last_non_whitespace = i
         i += 1
-    return begin, max(last_non_whitespace + 1, begin), i
+    return begin, max(last_non_whitespace + 1, begin), i, c if i < end else None
 
 
 def _def(ls: LexState):
     ls.push(DESCRIPTOR)
     try:
-        begin, end, ls.i = _break_on_any(ls.text, '\n', ls.i, ls.end)
-        if begin < end:
-            yield Token(ls, TEXT, begin, end)
+        begin, end, ls.i, c = _break_on_any(ls.text, '\n', ls.i, ls.end)
+        yield Token(ls, TEXT, begin, end)
     finally:
         ls.pop()
 
@@ -129,9 +128,8 @@ def _def(ls: LexState):
 def _name(ls: LexState):
     ls.push(NAME)
     try:
-        begin, end, ls.i = _break_on_any(ls.text, ':;\n', ls.i, ls.end)
-        if begin < end:
-            yield Token(ls, NAME, begin, end)
+        begin, end, ls.i, c = _break_on_any(ls.text, ':;\n', ls.i, ls.end)
+        yield Token(ls, NAME, begin, end)
     finally:
         ls.pop()
 
@@ -140,10 +138,10 @@ def _paragraph(ls: LexState):
     ls.push(PARAGRAPH)
     try:
         while True:
-            begin, end, ls.i = _break_on_any(ls.text, '[\n', ls.i, ls.end)
+            begin, end, ls.i, c = _break_on_any(ls.text, '[\n', ls.i, ls.end)
             if begin < end:
-                yield Token(ls, TEXT, begin, end)
-            if ls.i >= end or ls.text[ls.i] == '\n':
+                yield Token(ls, TEXT, begin, end if c != '[' else ls.i)
+            if ls.i >= ls.end or c == '\n':
                 return
             # If we get here, we found a [
             for token in _hypertext(ls):
@@ -162,7 +160,7 @@ def _hypertext(ls: LexState):
         if not c:
             return
         n = 2
-        breakers = ';|]'
+        breakers = '[;|]'
         if c == '@':
             tt = BEGIN_LINK
         elif c == '^':
@@ -170,25 +168,37 @@ def _hypertext(ls: LexState):
         else:
             tt = BEGIN_ANCHOR
             n = 1
-            breakers = '|]'
+            breakers = '[|]'
+        # Yield the token that starts this hypertext section.
         yield Token(ls, tt, ls.i, ls.i + n)
         ls.i += n
-        while True:
-            ls.i = _skip_whitespace(ls.text, ls.i, ls.end)
-            begin, end, ls.i = _break_on_any(ls.text, breakers, ls.i, ls.end)
-            if begin < end:
-                yield Token(ls, TEXT, begin, end)
+        while ls.i < ls.end:
+            # Look for the end of the first token or the end of the hypertext section itself.
+            begin, end, ls.i, c = _break_on_any(ls.text, breakers, ls.i, ls.end)
+            yield Token(ls, TEXT, begin, end)
+            # More text to consume?
             if ls.i < ls.end:
-                c = ls.text[ls.i]
+                # The divider?
                 if c == '|':
-                    yield Token(ls, TEXT, ls.i, ls.i + 1)
-                    ls.i = _skip_whitespace(ls.text, ls.i + 2, ls.end)
-                    begin, end, ls.i = _break_on_any(ls.text, ']', ls.i, ls.end)
-                    yield Token(ls, END_HYPERTEXT, begin, end)
+                    yield Token(ls, HYPERTEXT_DIVIDER, ls.i, ls.i + 1)
+                    ls.i += 2
+                    if ls.i < ls.end:
+                        begin, end, ls.i, c = _break_on_any(ls.text, ']', ls.i, ls.end)
+                        yield Token(ls, TEXT, begin, end)
+                        if begin < ls.end:
+                            yield Token(ls, END_HYPERTEXT, begin, end)
+                            break
                 elif c == ';':
                     raise NotImplemented
+                elif c == '[':
+                    # Nested hypertext of some kind. Recurse.
+                    for token in _hypertext(ls):
+                        yield token
                 else:
+                    assert c == ']'
                     yield Token(ls, END_HYPERTEXT, ls.i, ls.i + 1)
+                    ls.i += 1
+                    break
     finally:
         ls.pop()
 

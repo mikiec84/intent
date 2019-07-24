@@ -1,5 +1,6 @@
 NEW_LINE = TERM = NAME = HYPERTEXT = DESCRIPTOR = LEX_ERROR = PARAGRAPH = 0
 
+
 def load():
     x = ['']
     g = globals()
@@ -12,9 +13,8 @@ def load():
     del g['load']
     return x
 
-names_by_index = load()
 
-from .tok_types import *
+names_by_index = load()
 
 
 class LexState:

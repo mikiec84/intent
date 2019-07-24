@@ -9,18 +9,19 @@ class Token:
         self._ttype = ttype
         self._text = ls.text
         self._begin = begin
-        self._line_offset = begin - ls.line_start
+        self._col = begin - ls.line_start
+        self._line_num = ls.line_num
         if end is None:
             end = begin + 1
         self._end = end
 
     @property
     def line_num(self):
-        return self.ls.line_num
+        return self._line_num
 
     @property
-    def line_offset(self):
-        return self._line_offset
+    def col(self):
+        return self._col
 
     @property
     def ttype(self):
