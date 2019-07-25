@@ -20,6 +20,8 @@ ARG_SEP = 0
 HYPERTEXT_DIVIDER = 0
 END_LINE = 0
 END_DOC = 0
+LEX_ERROR = 0
+UNLEXED = 0
 
 def load():
     g = globals()

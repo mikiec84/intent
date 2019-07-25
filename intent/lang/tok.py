@@ -1,15 +1,13 @@
-from typing import Union
-
 from .strutil import truncate_if_needed
 from .tok_types import *
 
 
 class Token:
-    def __init__(self, ls, ttype: Union[str, int], begin: int, end: int = None):
+    def __init__(self, ls, ttype: int, begin: int, end: int = None):
         self._ttype = ttype
         self._text = ls.text
         self._begin = begin
-        self._col = begin - ls.line_start
+        self._col = 1 + (begin - ls.line_start)
         self._line_num = ls.line_num
         if end is None:
             end = begin + 1
@@ -46,6 +44,8 @@ class Token:
         s = names_by_value[self.ttype]
         if self.ttype in [NAME, TEXT]:
             s += ': "' + truncate_if_needed(self.value, 10) + '"'
-        s += f" at [{self.begin}:{self.end}]"
+        elif self.ttype == LEX_ERROR:
+            s += ' ' + self.code
+        s += f" at ln {self.line_num}, col {self.col}"
         return s
 

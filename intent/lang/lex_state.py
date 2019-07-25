@@ -23,7 +23,7 @@ class LexState:
         self.text = text
         self.i = 0
         self.indent = 0
-        self.line_num = 0
+        self.line_num = 1
         self.line_start = 0
 
     @property
@@ -36,7 +36,7 @@ class LexState:
 
     @property
     def col(self):
-        return self.i - self.line_start
+        return 1 + (self.i - self.line_start)
 
     def push(self, state: int):
         self._stack.append(state)

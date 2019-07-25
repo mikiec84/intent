@@ -14,7 +14,7 @@ def test_ctor():
 
 
 def test_str():
-    assert str(hello_token) == 'TEXT: "hello" at [0:5]'
+    assert str(hello_token) == 'TEXT: "hello" at ln 1, col 1'
 
 
 def test_line_num():
@@ -23,4 +23,4 @@ def test_line_num():
     ls.line_num = 3
     t = Token(ls, TEXT, 4, 6)
     assert t.line_num == 3
-    assert t.col == 2
+    assert t.col == 3
