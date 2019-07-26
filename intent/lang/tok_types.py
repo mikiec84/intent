@@ -38,3 +38,5 @@ def load():
 
 names_by_value = load()
 
+def ends_line(token):
+    return token.ttype in [END_LINE, END_DOC]
