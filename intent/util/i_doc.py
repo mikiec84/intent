@@ -63,5 +63,7 @@ def main(args):
         if os.path.isdir(target):
             for item in walk_code_files(target):
                 _document(space, item, outpat)
-        else:
+        elif os.path.isfile(target):
             _document(space, target)
+        else:
+            raise NotImplementedError

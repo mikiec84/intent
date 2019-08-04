@@ -14,5 +14,5 @@ def main(args):
             verb = f[2:-3]
             module = importlib.import_module(f'..i_{verb}', __name__)
             descrip = module.get_arg_parser().description
-            print(f'i {verb}: {descrip}')
+            print(f'i {verb.ljust(8)} - {descrip}')
     print('\nTry "i <verb> -h" for details.')
