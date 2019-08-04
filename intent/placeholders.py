@@ -5,7 +5,7 @@ relsym = 3
 
 names = [k for k in globals().keys() if isinstance(globals()[k], int)]
 
-expressions = [f"[^@{name}]" for name in names]
+exprs = [f"[^@{name}]" for name in names]
 
 docs = [
     'absolute path to root of space',

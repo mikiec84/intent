@@ -56,8 +56,11 @@ class ProcessedItem:
             _write(_indent('- ', self.indent) + colorizer(self.name))
         if self.output:
             self.output = self.output.strip()
-        if self.output:
-            _write(_indent(self.output, self.indent + 1 if self.details_exist else 0) + '\n')
+        if self.output and (self.error_count == 0):
+            delim = '-> '
+            if not self.details_exist:
+                delim = ' ' + delim
+            _write(_indent(delim + self.output, self.indent + 1 if self.details_exist else 0) + '\n')
         elif not self.details_exist:
             _write('\n')
 
