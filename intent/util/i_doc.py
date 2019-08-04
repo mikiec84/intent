@@ -8,22 +8,21 @@ from .item import *
 
 
 def _generate_doc(ast):
+
     pass
 
 
 def _document(space, abs_path):
     rel_path = space.get_rel_path(abs_path)
-    item = PrettyProcessedItem(rel_path)
-    try:
+    with ProcessedItem(rel_path) as item:
         try:
             with open(abs_path, 'rt') as f:
                 text = f.read()
             ast = parse.parse_text(text, rel_path)
             _generate_doc(ast)
+
         except:
             item.report_error('unhandled-exception', traceback.format_exc())
-    finally:
-        item.finish()
 
 
 def get_arg_parser():
