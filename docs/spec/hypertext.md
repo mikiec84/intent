@@ -1,4 +1,4 @@
-# Hyperlinks, Anchors, and Interjections
+# Hypertext
 
 Intent is a powerful hypertext format. It supports all of the linking constructs that HTML has popularized, as well as footnote, endnote, and indexing features offered by word processors and desktop publishing software. This provides what linguists call __deixis__ -- the ability to point with our language.
 
@@ -62,10 +62,10 @@ It goes like this:
 
 ## Hyperlinks
 
-A hyperlink is an expression in the form `[id@anchor: clickable content]`, where `id` is optional and has the same semantics as with anchors (allowing a hyperlink to also be an anchor itself), `anchor` is a target bracketed elsewhere, and `clickable content` is the text or graphic that would be rendered as blue underlined text if the hyperlink were HTML. Additional params--`target` and `base`--can be added between `anchor` and `linked text` using `;` + whitespace, as in:
+A hyperlink is an expression in the form `[@ref|clickable content]`, where `id` is optional and has the same semantics as with anchors (allowing a hyperlink to also be an anchor itself), `anchor` is a target bracketed elsewhere, and `clickable content` is the text or graphic that would be rendered as blue underlined text if the hyperlink were HTML. Additional params--`target` and `base`--can be added between `anchor` and `linked text` using `;` + whitespace, as in:
 
 ```i
-[@https://www.example.com/a/b; target=_blank; rel=author: clickable text]
+[@https://www.example.com/a/b; target=_blank; rel=author|clickable text]
 ```
 
 Hyperlinks to simple textual anchors can be shortened so they look like those anchors with an `@` in front of them. To refer to the MRI term from our example above, running text might contain the following hyperlink:
@@ -77,7 +77,7 @@ You need to get an [@MRI] as soon as possible.
 Hyperlinks also support a paired variant that follows the same rules as anchors:
 
 ```i
-[sample@https://a.b.com/c; target=_blank ...]clickable content[/] 
+[@https://a.b.com/c; target=_blank ...]clickable content[/] 
 ```
 
 ...or:

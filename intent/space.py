@@ -6,7 +6,11 @@ ENVDIR_NAME = '.env'
 
 
 def _normpath(path):
+    path = os.path.expanduser(path)
     p = os.path.normpath(os.path.abspath(path)).replace('\\', '/')
+    # Clean up concatenation errors
+    while '//' in p:
+        p = p.replace('//', '/')
     if p[-1] == '/':
         p = p[:-1]
     return p
@@ -40,9 +44,9 @@ class Space:
             with open(gi, 'wt') as f:
                 f.write('.out\n.env\n')
 
-    def code_files(self, topdown=True):
-        for item in walk_code_files(self.root, topdown):
-            return os.path.relpath(item, self.root)
+    def get_rel_path(self, abspath):
+        abspath = _normpath(abspath)
+        return os.path.relpath(abspath, self.path)
 
 
 def walk_code_files(root, topdown=True):
@@ -67,4 +71,5 @@ def find_space_for_path(path):
 
 
 def is_space(path):
-    return os.path.isdir(os.path.join(path, OUTDIR_NAME)) and os.path.isdir(os.path.join(path, ENVDIR_NAME))
+    if os.path.isdir(path):
+        return os.path.isdir(os.path.join(path, OUTDIR_NAME)) and os.path.isdir(os.path.join(path, ENVDIR_NAME))

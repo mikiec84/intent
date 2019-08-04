@@ -37,3 +37,7 @@ def test_find_with_path_that_exists(scratchdir):
     os.chdir(subdir)
     path = find_space_for_path('..')
     assert s.name == Space(path).name
+
+
+def test_find_space_expands_user():
+    find_space_for_path('~/')
